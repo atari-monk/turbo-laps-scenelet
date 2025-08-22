@@ -1,18 +1,27 @@
 import "./style.css";
 import "fullscreen-canvas-vanilla";
 import { createGameCanvas } from "fullscreen-canvas-vanilla";
-import { GameEngineFactory } from "zippy-game-engine";
-import { RaceTrack } from "./scenes/race-track";
-import { RacePlayer } from "./scenes/race-player";
+import { GameEngine, GameEngineFactory } from "zippy-game-engine";
+import { RectangleTrack } from "./scenes/rectangle-track";
+import { ArrowPlayer } from "./scenes/arrow-player";
+import { ElipseTrack } from "./scenes/elipse-track";
 
 window.addEventListener("load", async () => {
     const gameEngine = setupEngine();
     createGameCanvas("canvas-container", "game-canvas", gameEngine);
     const { canvas } = getCanvasSizeById("game-canvas");
-    gameEngine.registerScene("Race Track", new RaceTrack(canvas));
-    gameEngine.registerScene("Race Player", new RacePlayer(canvas));
+    registerScenes(gameEngine, canvas);
     gameEngine.transitionToScene("Race Player");
 });
+
+function registerScenes(gameEngine: GameEngine, canvas: HTMLCanvasElement) {
+    gameEngine.registerScene("Elipse Track", new ElipseTrack(canvas));
+    gameEngine.registerScene("Rectangle Track", new RectangleTrack(canvas));
+    gameEngine.registerScene(
+        "Race Player",
+        new ArrowPlayer(canvas, gameEngine.input)
+    );
+}
 
 function setupEngine() {
     const gameEngineFactory = new GameEngineFactory();

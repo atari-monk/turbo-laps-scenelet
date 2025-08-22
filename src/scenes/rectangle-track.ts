@@ -1,9 +1,9 @@
-import type { Scene } from "zippy-game-engine";
 import type { FrameContext } from "zippy-shared-lib";
+import type { Scene } from "zippy-game-engine";
 
-export class RaceTrack implements Scene {
-    name: string = "Race Track";
-    displayName?: string = "Race Track";
+export class RectangleTrack implements Scene {
+    name: string = "Rectangle Track";
+    displayName?: string = "Rectangle Track";
 
     private config = {
         trackWidth: 800,
@@ -34,12 +34,9 @@ export class RaceTrack implements Scene {
 
     onExit(): void {}
 
-    update(context: FrameContext): void {
-        // Update logic can be added here
-    }
+    update(_context: FrameContext): void {}
 
     render(context: FrameContext): void {
-        //this.elipse_track(context.ctx, this.config, this.state);
         this.rounded_rectangle(context.ctx, this.config, this.state);
     }
 
@@ -50,37 +47,11 @@ export class RaceTrack implements Scene {
         this.state.radiusY = this.config.trackHeight / 2;
     }
 
-    private elipse_track(
-        ctx: CanvasRenderingContext2D,
-        config: typeof this.config,
-        state: typeof this.state
-    ): void {
-        //ctx.fillStyle = config.backgroundColor;
-        //ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-
-        ctx.beginPath();
-        ctx.ellipse(
-            state.centerX,
-            state.centerY,
-            state.radiusX,
-            state.radiusY,
-            0,
-            0,
-            Math.PI * 2
-        );
-        ctx.lineWidth = config.roadWidth;
-        ctx.strokeStyle = config.roadColor;
-        ctx.stroke();
-    }
-
     private rounded_rectangle(
         ctx: CanvasRenderingContext2D,
         config: typeof this.config,
         state: typeof this.state
     ): void {
-        //ctx.fillStyle = config.backgroundColor;
-        //ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-
         const trackLength = config.trackWidth;
         const trackHeight = config.trackHeight;
         const roadWidth = config.roadWidth;

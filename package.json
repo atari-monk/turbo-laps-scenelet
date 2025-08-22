@@ -14,7 +14,7 @@
     },
     "dependencies": {
         "fullscreen-canvas-vanilla": "^0.0.9",
-        "zippy-game-engine": "^1.0.8",
+        "zippy-game-engine": "^1.0.9",
         "zippy-shared-lib": "^0.2.0"
     }
 }
