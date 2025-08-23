@@ -1,7 +1,7 @@
 {
     "name": "turbo-laps-scenelet",
     "private": true,
-    "version": "0.0.1",
+    "version": "0.0.2",
     "type": "module",
     "scripts": {
         "dev": "vite",
@@ -13,8 +13,8 @@
         "vite": "^7.1.2"
     },
     "dependencies": {
-        "fullscreen-canvas-vanilla": "^0.0.9",
-        "zippy-game-engine": "^1.0.9",
+        "fullscreen-canvas-vanilla": "^0.0.10",
+        "zippy-game-engine": "^1.0.10",
         "zippy-shared-lib": "^0.2.0"
     }
 }

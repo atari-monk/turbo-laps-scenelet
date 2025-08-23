@@ -2,8 +2,8 @@ import type { FrameContext } from "zippy-shared-lib";
 import type { Scene, InputSystem } from "zippy-game-engine";
 
 export class ArrowPlayer implements Scene {
-    name?: string = "Race Player";
-    displayName?: string = "Race Player";
+    name?: string = "Arrow Player";
+    displayName?: string = "Arrow Player";
 
     private config = {
         carWidth: 30,

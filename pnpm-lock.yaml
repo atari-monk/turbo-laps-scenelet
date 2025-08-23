@@ -9,11 +9,11 @@ importers:
   .:
     dependencies:
       fullscreen-canvas-vanilla:
-        specifier: ^0.0.9
-        version: 0.0.9
+        specifier: ^0.0.10
+        version: 0.0.10
       zippy-game-engine:
-        specifier: ^1.0.9
-        version: 1.0.9
+        specifier: ^1.0.10
+        version: 1.0.10
       zippy-shared-lib:
         specifier: ^0.2.0
         version: 0.2.0
@@ -305,8 +305,8 @@ packages:
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
 
-  fullscreen-canvas-vanilla@0.0.9:
-    resolution: {integrity: sha512-gsqGwJ6SdHWyUCSi7yN7QrKC5XbScTgg6HW4iTzt/DvZWZFVVLeVAXbER+Z6GV1mVREEgDya17Pgop4qj3opeQ==}
+  fullscreen-canvas-vanilla@0.0.10:
+    resolution: {integrity: sha512-bHWLe7KHPq05Kl1t8Y5Ts8nQneIkFpva/xRUeRaTisQ7Ay/SiQVa5t54F086z33vE3QYaOKwOTM1zOVAnEQ8eg==}
 
   nanoid@3.3.11:
     resolution: {integrity: sha512-N8SpfPUnUp1bK+PMYW8qSWdl9U+wwNWI4QKxOYDy9JAro3WMX7p2OeVRF9v+347pnakNevPmiHhNmZ2HbFA76w==}
@@ -382,8 +382,8 @@ packages:
       yaml:
         optional: true
 
-  zippy-game-engine@1.0.9:
-    resolution: {integrity: sha512-GDAzb1Ar3bqiVwHn2/8nEv1CUzybU2yoHtGcGq1ptluMmo7RUuAOnu3peQLHChLDm6TAw6Om/dh5wppWK3BVkw==}
+  zippy-game-engine@1.0.10:
+    resolution: {integrity: sha512-3GbgNVD8dNICmdvRA0FeQM/dzop9LPO1HVqg7eJzKYJzynTaEEuOt/votA7ucKbckLAPANhladpGDUbeUc+D4Q==}
 
   zippy-shared-lib@0.1.9:
     resolution: {integrity: sha512-x3IhqrLRw3Csfq6Y+r5z812lhu8jxyM3NSW9ABmqXCBoNM7j0yYgF5HSEMXfjQq1zKQcdTg25OB2JBs+Q+0X7w==}
@@ -569,7 +569,7 @@ snapshots:
   fsevents@2.3.3:
     optional: true
 
-  fullscreen-canvas-vanilla@0.0.9:
+  fullscreen-canvas-vanilla@0.0.10:
     dependencies:
       zippy-shared-lib: 0.1.9
 
@@ -631,7 +631,7 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.3
 
-  zippy-game-engine@1.0.9:
+  zippy-game-engine@1.0.10:
     dependencies:
       zippy-shared-lib: 0.1.9
 
