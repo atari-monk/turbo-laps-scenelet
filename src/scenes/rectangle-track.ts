@@ -1,26 +1,45 @@
 import type { FrameContext } from "zippy-shared-lib";
 import type { Scene } from "zippy-game-engine";
 
+export interface TrackConfig {
+    trackWidth: number;
+    trackHeight: number;
+    roadWidth: number;
+    roadColor: string;
+    backgroundColor: string;
+}
+
+export interface TrackState {
+    centerX: number;
+    centerY: number;
+    radiusX: number;
+    radiusY: number;
+}
+
 export class RectangleTrack implements Scene {
     name: string = "Rectangle Track";
     displayName?: string = "Rectangle Track";
 
-    private config = {
-        trackWidth: 800,
-        trackHeight: 400,
-        roadWidth: 60,
-        roadColor: "#555",
-        backgroundColor: "#2a2a2a",
-    };
-
-    private state = {
-        centerX: 0,
-        centerY: 0,
-        radiusX: 0,
-        radiusY: 0,
-    };
+    // Public properties with readonly access
+    public readonly config: TrackConfig;
+    public readonly state: TrackState;
 
     constructor(private readonly canvas: HTMLCanvasElement) {
+        this.config = {
+            trackWidth: 1700,
+            trackHeight: 900,
+            roadWidth: 160,
+            roadColor: "#555",
+            backgroundColor: "#2a2a2a",
+        };
+
+        this.state = {
+            centerX: 0,
+            centerY: 0,
+            radiusX: 0,
+            radiusY: 0,
+        };
+
         this.init();
     }
 
@@ -49,8 +68,8 @@ export class RectangleTrack implements Scene {
 
     private rounded_rectangle(
         ctx: CanvasRenderingContext2D,
-        config: typeof this.config,
-        state: typeof this.state
+        config: TrackConfig,
+        state: TrackState
     ): void {
         const trackLength = config.trackWidth;
         const trackHeight = config.trackHeight;
