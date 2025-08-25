@@ -9,7 +9,7 @@ import { StartingGrid } from "./scenes/starting-grid";
 import { TrackBoundary } from "./scenes/track-boundary";
 
 let SCENE_MODE: "all" | "current" = "all";
-const TEST_SCENE_INDEX = 3;
+const TEST_SCENE_INDEX = 4;
 const ALL_SCENES = [
     "Elipse Track",
     "Rectangle Track",
@@ -58,18 +58,17 @@ function registerScenesForAllMode(
     canvas: HTMLCanvasElement
 ) {
     const track = new RectangleTrack(canvas);
-    gameEngine.registerScene("Rectangle Track", track);
-    const racePlayer = new ArrowPlayer(canvas, gameEngine.input);
-
-    // Create and register Track Boundary
+    const arrowPlayer = new ArrowPlayer(canvas, gameEngine.input);
     const trackBoundary = new TrackBoundary(track);
+    const startingGrid = new StartingGrid(track);
+
+    arrowPlayer.setTrackBoundary(trackBoundary);
+    arrowPlayer.setStartingPosition(startingGrid.getStartingPosition());
+    
+    gameEngine.registerScene("Rectangle Track", track);
     gameEngine.registerScene("Track Boundary", trackBoundary);
-
-    // Connect the race player with track boundary
-    racePlayer.setTrackBoundary(trackBoundary);
-
-    gameEngine.registerScene("Starting Grid", new StartingGrid(track));
-    gameEngine.registerScene("Arrow Player", racePlayer);
+    gameEngine.registerScene("Starting Grid", startingGrid);
+    gameEngine.registerScene("Arrow Player", arrowPlayer);
 }
 
 function registerScenes(gameEngine: GameEngine, canvas: HTMLCanvasElement) {

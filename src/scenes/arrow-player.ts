@@ -11,6 +11,16 @@ export class ArrowPlayer implements Scene {
         this.trackBoundary = trackBoundary;
     }
 
+    setStartingPosition(position: {
+        x: number;
+        y: number;
+        angle: number;
+    }): void {
+        this.state.position = { x: position.x, y: position.y };
+        this.state.rotation = position.angle * (180 / Math.PI); // Convert radians to degrees
+        this.state.velocity = 0;
+    }
+
     private config = {
         carWidth: 30,
         carHeight: 50,
