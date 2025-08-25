@@ -8,6 +8,7 @@ import { ElipseTrack } from "./scenes/elipse-track";
 import { StartingGrid } from "./scenes/starting-grid";
 import { TrackBoundary } from "./scenes/track-boundary";
 import { RoadMarkings } from "./scenes/road-markings";
+import { TrackGrass } from "./scenes/track-grass";
 
 let SCENE_MODE: "all" | "current" = "all";
 const TEST_SCENE_INDEX = 5;
@@ -18,6 +19,7 @@ const ALL_SCENES = [
     "Starting Grid",
     "Track Boundary",
     "Road Markings",
+    "Track Grass",
 ];
 
 window.addEventListener("load", async () => {
@@ -53,6 +55,7 @@ function registerScenesForCurrentMode(
     gameEngine.registerScene("Starting Grid", new StartingGrid(track));
     gameEngine.registerScene("Track Boundary", new TrackBoundary(track));
     gameEngine.registerScene("Road Markings", new RoadMarkings(track));
+    gameEngine.registerScene("Track Grass", new TrackGrass(track));
 }
 
 function registerScenesForAllMode(
@@ -64,6 +67,7 @@ function registerScenesForAllMode(
     const trackBoundary = new TrackBoundary(track);
     const startingGrid = new StartingGrid(track);
     const roadMarkings = new RoadMarkings(track);
+    const trackGrass = new TrackGrass(track);
 
     arrowPlayer.setTrackBoundary(trackBoundary);
     arrowPlayer.setStartingPosition(startingGrid.getStartingPosition());
@@ -71,8 +75,9 @@ function registerScenesForAllMode(
     gameEngine.registerScene("Rectangle Track", track);
     gameEngine.registerScene("Track Boundary", trackBoundary);
     gameEngine.registerScene("Starting Grid", startingGrid);
-    gameEngine.registerScene("Arrow Player", arrowPlayer);
     gameEngine.registerScene("Road Markings", roadMarkings);
+    gameEngine.registerScene("Track Grass", trackGrass);
+    gameEngine.registerScene("Arrow Player", arrowPlayer);
 }
 
 function registerScenes(gameEngine: GameEngine, canvas: HTMLCanvasElement) {
