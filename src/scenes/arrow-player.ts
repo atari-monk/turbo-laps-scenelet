@@ -1,9 +1,15 @@
 import type { FrameContext } from "zippy-shared-lib";
 import type { Scene, InputSystem } from "zippy-game-engine";
+import type { TrackBoundary } from "./track-boundary";
 
 export class ArrowPlayer implements Scene {
     name?: string = "Arrow Player";
     displayName?: string = "Arrow Player";
+    private trackBoundary?: TrackBoundary;
+
+    setTrackBoundary(trackBoundary: TrackBoundary): void {
+        this.trackBoundary = trackBoundary;
+    }
 
     private config = {
         carWidth: 30,
@@ -19,6 +25,14 @@ export class ArrowPlayer implements Scene {
         velocity: 0,
     };
 
+    get velocity(): number {
+        return this.state.velocity;
+    }
+
+    set velocity(value: number) {
+        this.state.velocity = value;
+    }
+
     constructor(
         private readonly canvas: HTMLCanvasElement,
         private readonly input: InputSystem
@@ -33,7 +47,17 @@ export class ArrowPlayer implements Scene {
 
     update(context: FrameContext): void {
         this.handleMovement(context.deltaTime);
-        this.keepInBounds();
+        if (this.trackBoundary) {
+            const isOnTrack = this.trackBoundary.checkCarOnTrack(
+                this,
+                context.deltaTime
+            );
+            if (!isOnTrack) {
+                // Optional: Handle off-track behavior
+            }
+        } else {
+            this.keepInBounds(); // Fallback to canvas bounds if no track boundary
+        }
     }
 
     private handleMovement(deltaTime: number): void {

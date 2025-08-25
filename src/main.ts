@@ -6,6 +6,7 @@ import { RectangleTrack } from "./scenes/rectangle-track";
 import { ArrowPlayer } from "./scenes/arrow-player";
 import { ElipseTrack } from "./scenes/elipse-track";
 import { StartingGrid } from "./scenes/starting-grid";
+import { TrackBoundary } from "./scenes/track-boundary";
 
 let SCENE_MODE: "all" | "current" = "all";
 const TEST_SCENE_INDEX = 3;
@@ -14,6 +15,7 @@ const ALL_SCENES = [
     "Rectangle Track",
     "Arrow Player",
     "Starting Grid",
+    "Track Boundary", // Added Track Boundary to the scene list
 ];
 
 window.addEventListener("load", async () => {
@@ -47,6 +49,8 @@ function registerScenesForCurrentMode(
         new ArrowPlayer(canvas, gameEngine.input)
     );
     gameEngine.registerScene("Starting Grid", new StartingGrid(track));
+    // Register Track Boundary for current mode
+    gameEngine.registerScene("Track Boundary", new TrackBoundary(track));
 }
 
 function registerScenesForAllMode(
@@ -55,11 +59,17 @@ function registerScenesForAllMode(
 ) {
     const track = new RectangleTrack(canvas);
     gameEngine.registerScene("Rectangle Track", track);
-    gameEngine.registerScene(
-        "Arrow Player",
-        new ArrowPlayer(canvas, gameEngine.input)
-    );
+    const racePlayer = new ArrowPlayer(canvas, gameEngine.input);
+
+    // Create and register Track Boundary
+    const trackBoundary = new TrackBoundary(track);
+    gameEngine.registerScene("Track Boundary", trackBoundary);
+
+    // Connect the race player with track boundary
+    racePlayer.setTrackBoundary(trackBoundary);
+
     gameEngine.registerScene("Starting Grid", new StartingGrid(track));
+    gameEngine.registerScene("Arrow Player", racePlayer);
 }
 
 function registerScenes(gameEngine: GameEngine, canvas: HTMLCanvasElement) {
