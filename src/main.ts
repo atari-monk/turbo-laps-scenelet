@@ -7,15 +7,17 @@ import { ArrowPlayer } from "./scenes/arrow-player";
 import { ElipseTrack } from "./scenes/elipse-track";
 import { StartingGrid } from "./scenes/starting-grid";
 import { TrackBoundary } from "./scenes/track-boundary";
+import { RoadMarkings } from "./scenes/road-markings";
 
 let SCENE_MODE: "all" | "current" = "all";
-const TEST_SCENE_INDEX = 4;
+const TEST_SCENE_INDEX = 5;
 const ALL_SCENES = [
     "Elipse Track",
     "Rectangle Track",
     "Arrow Player",
     "Starting Grid",
-    "Track Boundary", // Added Track Boundary to the scene list
+    "Track Boundary",
+    "Road Markings",
 ];
 
 window.addEventListener("load", async () => {
@@ -41,16 +43,16 @@ function registerScenesForCurrentMode(
     gameEngine: GameEngine,
     canvas: HTMLCanvasElement
 ) {
-    gameEngine.registerScene("Elipse Track", new ElipseTrack(canvas));
     const track = new RectangleTrack(canvas);
+    gameEngine.registerScene("Elipse Track", new ElipseTrack(canvas));
     gameEngine.registerScene("Rectangle Track", track);
     gameEngine.registerScene(
         "Arrow Player",
         new ArrowPlayer(canvas, gameEngine.input)
     );
     gameEngine.registerScene("Starting Grid", new StartingGrid(track));
-    // Register Track Boundary for current mode
     gameEngine.registerScene("Track Boundary", new TrackBoundary(track));
+    gameEngine.registerScene("Road Markings", new RoadMarkings(track));
 }
 
 function registerScenesForAllMode(
@@ -61,14 +63,16 @@ function registerScenesForAllMode(
     const arrowPlayer = new ArrowPlayer(canvas, gameEngine.input);
     const trackBoundary = new TrackBoundary(track);
     const startingGrid = new StartingGrid(track);
+    const roadMarkings = new RoadMarkings(track);
 
     arrowPlayer.setTrackBoundary(trackBoundary);
     arrowPlayer.setStartingPosition(startingGrid.getStartingPosition());
-    
+
     gameEngine.registerScene("Rectangle Track", track);
     gameEngine.registerScene("Track Boundary", trackBoundary);
     gameEngine.registerScene("Starting Grid", startingGrid);
     gameEngine.registerScene("Arrow Player", arrowPlayer);
+    gameEngine.registerScene("Road Markings", roadMarkings);
 }
 
 function registerScenes(gameEngine: GameEngine, canvas: HTMLCanvasElement) {
