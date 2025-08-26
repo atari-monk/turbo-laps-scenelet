@@ -26,8 +26,8 @@ export class RectangleTrack implements Scene {
 
     constructor(private readonly canvas: HTMLCanvasElement) {
         this.config = {
-            trackWidth: 1700,
-            trackHeight: 900,
+            trackWidth: 1500,
+            trackHeight: 700,
             roadWidth: 160,
             roadColor: "#555",
             backgroundColor: "#2a2a2a",
