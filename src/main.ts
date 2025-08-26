@@ -10,6 +10,7 @@ import { TrackBoundary } from "./scenes/track-boundary";
 import { RoadMarkings } from "./scenes/road-markings";
 import { TrackGrass } from "./scenes/track-grass";
 import { LapTracker } from "./scenes/lap-tracker";
+import { GameScore } from "./scenes/game-score";
 
 let SCENE_MODE: "all" | "current" = "all";
 const TEST_SCENE_INDEX = 5;
@@ -22,6 +23,7 @@ const ALL_SCENES = [
     "Road Markings",
     "Track Grass",
     "Lap Tracker",
+    "Game Score",
 ];
 
 window.addEventListener("load", async () => {
@@ -62,6 +64,12 @@ function registerScenesForCurrentMode(
         "Lap Tracker",
         new LapTracker(track, new ArrowPlayer(canvas, gameEngine.input))
     );
+    gameEngine.registerScene(
+        "Game Score",
+        new GameScore(
+            new LapTracker(track, new ArrowPlayer(canvas, gameEngine.input))
+        )
+    );
 }
 
 function registerScenesForAllMode(
@@ -75,6 +83,7 @@ function registerScenesForAllMode(
     const roadMarkings = new RoadMarkings(track);
     const trackGrass = new TrackGrass(track);
     const lapTracker = new LapTracker(track, arrowPlayer);
+    const gameScore = new GameScore(lapTracker);
 
     arrowPlayer.setTrackBoundary(trackBoundary);
     arrowPlayer.setStartingPosition(startingGrid.getStartingPosition());
@@ -86,6 +95,7 @@ function registerScenesForAllMode(
     gameEngine.registerScene("Track Grass", trackGrass);
     gameEngine.registerScene("Arrow Player", arrowPlayer);
     gameEngine.registerScene("Lap Tracker", lapTracker);
+    gameEngine.registerScene("Game Score", gameScore);
 }
 
 function registerScenes(gameEngine: GameEngine, canvas: HTMLCanvasElement) {
