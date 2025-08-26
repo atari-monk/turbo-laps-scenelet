@@ -11,7 +11,7 @@ import { RoadMarkings } from "./scenes/road-markings";
 import { TrackGrass } from "./scenes/track-grass";
 import { LapTracker } from "./scenes/lap-tracker";
 import { GameScore } from "./scenes/game-score";
-import { MenuScene } from "./scenes/menu";
+import { Menu } from "./scenes/menu";
 
 let SCENE_MODE: "all" | "current" = "current";
 const TEST_SCENE_INDEX = 0;
@@ -28,10 +28,13 @@ const ALL_SCENES = [
     "Game Score",
 ];
 
+let gameEngine: GameEngine;
+
 window.addEventListener("load", async () => {
-    const gameEngine = setupEngine();
+    gameEngine = setupEngine();
     createGameCanvas("canvas-container", "game-canvas", gameEngine);
     const { canvas } = getCanvasSizeById("game-canvas");
+    gameEngine.input.setupCanvasEvents(canvas);
 
     gameEngine.setSceneMode(SCENE_MODE);
     registerScenes(gameEngine, canvas);
@@ -51,29 +54,41 @@ function registerScenesForCurrentMode(
     gameEngine: GameEngine,
     canvas: HTMLCanvasElement
 ) {
-    const track = new RectangleTrack(canvas);
+    //const track = new RectangleTrack(canvas);
+    const menu = new Menu(gameEngine.input);
 
-    gameEngine.registerScene("Menu", new MenuScene(gameEngine.input));
-    gameEngine.registerScene("Elipse Track", new ElipseTrack(canvas));
-    gameEngine.registerScene("Rectangle Track", track);
-    gameEngine.registerScene(
-        "Arrow Player",
-        new ArrowPlayer(canvas, gameEngine.input)
-    );
-    gameEngine.registerScene("Starting Grid", new StartingGrid(track));
-    gameEngine.registerScene("Track Boundary", new TrackBoundary(track));
-    gameEngine.registerScene("Road Markings", new RoadMarkings(track));
-    gameEngine.registerScene("Track Grass", new TrackGrass(track));
-    gameEngine.registerScene(
-        "Lap Tracker",
-        new LapTracker(track, new ArrowPlayer(canvas, gameEngine.input))
-    );
-    gameEngine.registerScene(
-        "Game Score",
-        new GameScore(
-            new LapTracker(track, new ArrowPlayer(canvas, gameEngine.input))
-        )
-    );
+    menu.setOnStartGame(() => {
+        SCENE_MODE = "all";
+        gameEngine.setSceneMode(SCENE_MODE);
+
+        // Re-register scenes in "all" mode
+        //registerScenesForAllMode(gameEngine, canvas);
+
+        // Transition to the game scene (you might want to start with a specific scene)
+        //gameEngine.transitionToScene("Rectangle Track");
+    });
+
+    gameEngine.registerScene("Menu", menu);
+    // gameEngine.registerScene("Elipse Track", new ElipseTrack(canvas));
+    // gameEngine.registerScene("Rectangle Track", track);
+    // gameEngine.registerScene(
+    //     "Arrow Player",
+    //     new ArrowPlayer(canvas, gameEngine.input)
+    // );
+    // gameEngine.registerScene("Starting Grid", new StartingGrid(track));
+    // gameEngine.registerScene("Track Boundary", new TrackBoundary(track));
+    // gameEngine.registerScene("Road Markings", new RoadMarkings(track));
+    // gameEngine.registerScene("Track Grass", new TrackGrass(track));
+    // gameEngine.registerScene(
+    //     "Lap Tracker",
+    //     new LapTracker(track, new ArrowPlayer(canvas, gameEngine.input))
+    // );
+    // gameEngine.registerScene(
+    //     "Game Score",
+    //     new GameScore(
+    //         new LapTracker(track, new ArrowPlayer(canvas, gameEngine.input))
+    //     )
+    // );
 }
 
 function registerScenesForAllMode(
@@ -103,11 +118,11 @@ function registerScenesForAllMode(
 }
 
 function registerScenes(gameEngine: GameEngine, canvas: HTMLCanvasElement) {
-    if (SCENE_MODE === "current") {
-        registerScenesForCurrentMode(gameEngine, canvas);
-    } else {
-        registerScenesForAllMode(gameEngine, canvas);
-    }
+    //if (SCENE_MODE === "current") {
+    registerScenesForCurrentMode(gameEngine, canvas);
+    //} else {
+    registerScenesForAllMode(gameEngine, canvas);
+    //}
 }
 
 function setupEngine() {

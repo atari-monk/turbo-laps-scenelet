@@ -1,9 +1,9 @@
 import type { InputSystem, Scene } from "zippy-game-engine";
 import type { FrameContext } from "zippy-shared-lib";
 
-export class MenuScene implements Scene {
-    name = "menu";
-    displayName = "Turbo Laps";
+export class Menu implements Scene {
+    name = "Menu";
+    displayName = "Menu";
 
     private startButton = {
         x: 0,
@@ -14,19 +14,42 @@ export class MenuScene implements Scene {
         isHovered: false,
     };
 
+    private onStartGame?: () => void;
+
     constructor(private inputSystem: InputSystem) {
         // InputSystem is now injected via constructor
+    }
+
+    setOnStartGame(callback: () => void) {
+        this.onStartGame = callback;
     }
 
     init() {
         // Initialization logic can go here
     }
 
-    update(_context: FrameContext) {
+    update(context: FrameContext) {
+        const canvas = context.ctx.canvas;
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+
+        // Update button position FIRST
+        this.startButton.x = centerX - this.startButton.width / 2;
+        this.startButton.y = centerY + 80;
+
         // Get mouse position from the injected input system
         const mousePos = this.inputSystem.mouse.getPosition();
-        const mouseX = mousePos.x;
-        const mouseY = mousePos.y;
+        //const mouseX = mousePos.x;
+        //const mouseY = mousePos.y;
+
+        // Scale mouse coordinates to match canvas resolution
+        const displayWidth = canvas.clientWidth || canvas.width;
+        const displayHeight = canvas.clientHeight || canvas.height;
+        const scaleX = canvas.width / displayWidth;
+        const scaleY = canvas.height / displayHeight;
+
+        const mouseX = mousePos.x * scaleX;
+        const mouseY = mousePos.y * scaleY;
 
         // Get mouse button state (left button = 0)
         const isMousePressed = this.inputSystem.mouse.isButtonDown(0);
@@ -38,11 +61,9 @@ export class MenuScene implements Scene {
             mouseY >= this.startButton.y &&
             mouseY <= this.startButton.y + this.startButton.height;
 
-        // Handle button click
-        if (this.startButton.isHovered && isMousePressed) {
-            // Transition to game scene
-            // This would typically be handled by a scene manager
-            //console.log("Starting game...");
+        if (this.startButton.isHovered && isMousePressed && this.onStartGame) {
+            console.log(`Hover: ${this.startButton.isHovered}`);
+            this.onStartGame();
         }
     }
 
@@ -50,16 +71,19 @@ export class MenuScene implements Scene {
         const { ctx } = context;
         const canvas = ctx.canvas;
         // Center the content
-        const centerX = canvas.width / 2;
-        const centerY = canvas.height / 2;
+        //const centerX = canvas.width / 2;
+        //const centerY = canvas.height / 2;
 
         // Update button position to be centered
-        this.startButton.x = centerX - this.startButton.width / 2;
-        this.startButton.y = centerY + 80;
+        //this.startButton.x = centerX - this.startButton.width / 2;
+        //this.startButton.y = centerY + 80;
 
         // Clear canvas
-        ctx.fillStyle = "#2c3e50";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        //ctx.fillStyle = "#2c3e50";
+        //ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
 
         // Draw title
         ctx.fillStyle = "#ecf0f1";
