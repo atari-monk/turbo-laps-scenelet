@@ -11,10 +11,12 @@ import { RoadMarkings } from "./scenes/road-markings";
 import { TrackGrass } from "./scenes/track-grass";
 import { LapTracker } from "./scenes/lap-tracker";
 import { GameScore } from "./scenes/game-score";
+import { MenuScene } from "./scenes/menu";
 
-let SCENE_MODE: "all" | "current" = "all";
-const TEST_SCENE_INDEX = 5;
+let SCENE_MODE: "all" | "current" = "current";
+const TEST_SCENE_INDEX = 0;
 const ALL_SCENES = [
+    "Menu",
     "Elipse Track",
     "Rectangle Track",
     "Arrow Player",
@@ -50,6 +52,8 @@ function registerScenesForCurrentMode(
     canvas: HTMLCanvasElement
 ) {
     const track = new RectangleTrack(canvas);
+
+    gameEngine.registerScene("Menu", new MenuScene(gameEngine.input));
     gameEngine.registerScene("Elipse Track", new ElipseTrack(canvas));
     gameEngine.registerScene("Rectangle Track", track);
     gameEngine.registerScene(
