@@ -13,9 +13,10 @@ import { LapTracker } from "./scenes/lap-tracker";
 import { GameScore } from "./scenes/game-score";
 import { Menu } from "./scenes/menu";
 import { getCanvasSizeById } from "./tools";
+import { Countdown } from "./scenes/countdown";
 
 let SCENE_MODE: "all" | "current" = "all";
-const TEST_SCENE_INDEX: number = 10; //0-9 single scene test, 10-x multi scene test
+const TEST_SCENE_INDEX: number = 10; //0-10 single scene test, 11-12 multi scene test
 const ALL_SCENES = [
     "Elipse Track",
     "Rectangle Track",
@@ -27,8 +28,10 @@ const ALL_SCENES = [
     "Lap Tracker",
     "Game Score",
     "Menu",
+    "Countdown",
     //Composite scene tests
     "Boundary Test",
+    "Countdown Test",
 ];
 
 let gameEngine: GameEngine;
@@ -131,6 +134,15 @@ function registerMenu(gameEngine: GameEngine, _canvas: HTMLCanvasElement) {
     gameEngine.registerScene("Menu", new Menu(gameEngine.input));
 }
 
+function registerCountdown(gameEngine: GameEngine, _canvas: HTMLCanvasElement) {
+    const countdown = new Countdown(() => {
+        console.log("Countdown complete!");
+    });
+    gameEngine.registerScene("Countdown", countdown);
+}
+
+// Composite scene test
+
 function registerBoundaryTest(
     gameEngine: GameEngine,
     canvas: HTMLCanvasElement
@@ -149,6 +161,18 @@ function registerBoundaryTest(
     gameEngine.registerScene("Arrow Player", arrowPlayer);
 }
 
+function registerCountdownTest(
+    gameEngine: GameEngine,
+    canvas: HTMLCanvasElement
+) {
+    const track = new RectangleTrack(canvas);
+    const countdown = new Countdown(() => {
+        console.log("Countdown complete!");
+    });
+    gameEngine.registerScene("Rectangle Track", track);
+    gameEngine.registerScene("Countdown", countdown);
+}
+
 function registerScenes(gameEngine: GameEngine, canvas: HTMLCanvasElement) {
     //single scene tests
     if (TEST_SCENE_INDEX === 0) registerElipseTrack(gameEngine, canvas);
@@ -161,8 +185,10 @@ function registerScenes(gameEngine: GameEngine, canvas: HTMLCanvasElement) {
     if (TEST_SCENE_INDEX === 7) registerLapTracker(gameEngine, canvas);
     if (TEST_SCENE_INDEX === 8) registerGameScore(gameEngine, canvas);
     if (TEST_SCENE_INDEX === 9) registerMenu(gameEngine, canvas);
+    if (TEST_SCENE_INDEX === 10) registerCountdown(gameEngine, canvas);
     //multi scene tests
-    if (TEST_SCENE_INDEX === 10) registerBoundaryTest(gameEngine, canvas);
+    if (TEST_SCENE_INDEX === 11) registerBoundaryTest(gameEngine, canvas);
+    if (TEST_SCENE_INDEX === 12) registerCountdownTest(gameEngine, canvas);
 }
 
 function setupEngine() {
