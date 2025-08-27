@@ -2,12 +2,12 @@ import type { FrameContext } from "zippy-shared-lib";
 import type { Scene } from "zippy-game-engine";
 import type { RectangleTrack } from "./rectangle-track";
 import type { ArrowPlayer } from "./arrow-player";
+import type { StartingGrid } from "./starting-grid";
 
 export class LapTracker implements Scene {
     name: string = "Lap Tracker";
     displayName?: string = "Lap Tracker";
 
-    private track: RectangleTrack;
     private sectors: number;
     private currentSector: number;
     private lapCount: number;
@@ -17,15 +17,16 @@ export class LapTracker implements Scene {
     private lastLapStart: number;
     private lapTimes: number[];
     private maxLaps: number;
-    private onRaceComplete: (() => void) | null;
+    private onRaceComplete: () => void;
     private isRunning: boolean;
 
     constructor(
-        track: RectangleTrack,
+        private readonly track: RectangleTrack,
         private readonly player: ArrowPlayer,
+        private readonly startingGrid: StartingGrid,
+        onRaceComplete: () => void = () => {},
         sectors: number = 4
     ) {
-        this.track = track;
         this.sectors = sectors;
         this.currentSector = 0;
         this.lapCount = 0;
@@ -34,9 +35,9 @@ export class LapTracker implements Scene {
         this.startTime = 0;
         this.lastLapStart = 0;
         this.lapTimes = [];
-        this.maxLaps = 5;
-        this.onRaceComplete = null;
-        this.isRunning = false; // Not running by default
+        this.maxLaps = 1;
+        this.onRaceComplete = onRaceComplete;
+        this.isRunning = false;
     }
 
     init(): void {}
@@ -49,7 +50,6 @@ export class LapTracker implements Scene {
     onExit(): void {}
 
     update(_context: FrameContext): void {
-        // Only update if the tracker is running
         if (!this.isRunning) return;
 
         const relX = this.player.position.x - this.track.state.centerX;
@@ -59,8 +59,17 @@ export class LapTracker implements Scene {
         const newSector = Math.floor(angle / sectorSize);
 
         if (newSector !== this.currentSector) {
-            if (newSector === (this.currentSector + 1) % this.sectors) {
-                const now = performance.now();
+            const now = performance.now();
+
+            // Check if this is a valid sector progression (forward movement)
+            const expectedNextSector = (this.currentSector + 1) % this.sectors;
+            const isMovingForward = newSector === expectedNextSector;
+
+            // Also allow wrapping around from last sector to first (completing lap)
+            const isCompletingLap =
+                this.currentSector === this.sectors - 1 && newSector === 0;
+
+            if (isMovingForward || isCompletingLap) {
                 this.sectorTimes[this.currentSector] =
                     now - this.lastSectorTime;
                 this.lastSectorTime = now;
@@ -71,11 +80,16 @@ export class LapTracker implements Scene {
                     this.lapTimes.push(lapTime);
                     this.lastLapStart = now;
                     this.lapCount++;
-                    this.sectorTimes.fill(0);
+                    this.sectorTimes.fill(0); // Reset sector times for new lap
 
                     // Check if race is complete
                     if (this.lapCount >= this.maxLaps && this.onRaceComplete) {
                         this.onRaceComplete();
+                        this.stop();
+                        this.player.setInputEnabled(false);
+                        this.player.setStartingPosition(
+                            this.startingGrid.getStartingPosition()
+                        );
                     }
                 }
             }
@@ -91,8 +105,12 @@ export class LapTracker implements Scene {
         ctx.textAlign = "left";
 
         // Show status
-        ctx.fillText(`Status: ${this.isRunning ? "Running" : "Stopped"}`, 20, 30);
-        
+        ctx.fillText(
+            `Status: ${this.isRunning ? "Running" : "Stopped"}`,
+            20,
+            30
+        );
+
         // Current lap info
         ctx.fillText(`Lap: ${this.lapCount}/${this.maxLaps}`, 20, 50);
         ctx.fillText(`Sector: ${this.currentSector + 1}`, 20, 70);
@@ -149,10 +167,10 @@ export class LapTracker implements Scene {
     // Start the lap tracking
     start(): void {
         if (this.isRunning) return;
-        
+
         this.isRunning = true;
         const now = performance.now();
-        
+
         // Initialize timing if this is the first start
         if (this.lapCount === 0 && this.lapTimes.length === 0) {
             this.startTime = now;

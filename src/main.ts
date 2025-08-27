@@ -16,7 +16,7 @@ import { getCanvasSizeById } from "./tools";
 import { Countdown } from "./scenes/countdown";
 
 let SCENE_MODE: "all" | "current" = "all";
-const TEST_SCENE_INDEX: number = 12; //0-10 single scene test, 11-12 multi scene test
+const TEST_SCENE_INDEX: number = 13; //0-10 single scene test, 11-12 multi scene test
 const ALL_SCENES = [
     "Elipse Track",
     "Rectangle Track",
@@ -30,8 +30,9 @@ const ALL_SCENES = [
     "Menu",
     "Countdown",
     //Composite scene tests
-    "Boundary Test",
+    "Track Boundary Test",
     "Countdown Test",
+    "Lap Tracker Test",
 ];
 
 let gameEngine: GameEngine;
@@ -120,13 +121,18 @@ function registerTrackGrass(gameEngine: GameEngine, canvas: HTMLCanvasElement) {
 function registerLapTracker(gameEngine: GameEngine, canvas: HTMLCanvasElement) {
     const track = new RectangleTrack(canvas);
     const arrowPlayer = new ArrowPlayer(canvas, gameEngine.input);
-    gameEngine.registerScene("Lap Tracker", new LapTracker(track, arrowPlayer));
+    const startingGrid = new StartingGrid(track);
+    gameEngine.registerScene(
+        "Lap Tracker",
+        new LapTracker(track, arrowPlayer, startingGrid)
+    );
 }
 
 function registerGameScore(gameEngine: GameEngine, canvas: HTMLCanvasElement) {
     const track = new RectangleTrack(canvas);
     const arrowPlayer = new ArrowPlayer(canvas, gameEngine.input);
-    const lapTracker = new LapTracker(track, arrowPlayer);
+    const startingGrid = new StartingGrid(track);
+    const lapTracker = new LapTracker(track, arrowPlayer, startingGrid);
     gameEngine.registerScene("Game Score", new GameScore(lapTracker));
 }
 
@@ -182,6 +188,29 @@ function registerCountdownTest(
     gameEngine.registerScene("Countdown", countdown);
 }
 
+function registerLapTrackerTest(
+    gameEngine: GameEngine,
+    canvas: HTMLCanvasElement
+) {
+    const track = new RectangleTrack(canvas);
+    const trackBoundary = new TrackBoundary(track);
+    const startingGrid = new StartingGrid(track);
+    const arrowPlayer = new ArrowPlayer(canvas, gameEngine.input);
+    const lapTracker = new LapTracker(track, arrowPlayer, startingGrid);
+
+    arrowPlayer.setTrackBoundary(trackBoundary);
+    arrowPlayer.setStartingPosition(startingGrid.getStartingPosition());
+
+    gameEngine.registerScene("Rectangle Track", track);
+    gameEngine.registerScene("Track Boundary", trackBoundary);
+    gameEngine.registerScene("Starting Grid", startingGrid);
+    gameEngine.registerScene("Arrow Player", arrowPlayer);
+    gameEngine.registerScene("Lap Tracker", lapTracker);
+
+    arrowPlayer.setInputEnabled(true);
+    lapTracker.start();
+}
+
 function registerScenes(gameEngine: GameEngine, canvas: HTMLCanvasElement) {
     //single scene tests
     if (TEST_SCENE_INDEX === 0) registerElipseTrack(gameEngine, canvas);
@@ -198,6 +227,7 @@ function registerScenes(gameEngine: GameEngine, canvas: HTMLCanvasElement) {
     //multi scene tests
     if (TEST_SCENE_INDEX === 11) registerBoundaryTest(gameEngine, canvas);
     if (TEST_SCENE_INDEX === 12) registerCountdownTest(gameEngine, canvas);
+    if (TEST_SCENE_INDEX === 13) registerLapTrackerTest(gameEngine, canvas);
 }
 
 function setupEngine() {
