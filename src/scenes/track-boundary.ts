@@ -65,7 +65,7 @@ export class TrackBoundary implements Scene {
     }
 
     render(context: FrameContext): void {
-        //this.renderDebug(context.ctx);
+        this.renderDebug(context.ctx);
         
         // Render off-track warning if applicable
         if (!this.isOnTrack) {
