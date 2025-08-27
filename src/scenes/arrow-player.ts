@@ -6,6 +6,14 @@ export class ArrowPlayer implements Scene {
     name?: string = "Arrow Player";
     displayName?: string = "Arrow Player";
     private trackBoundary?: TrackBoundary;
+    private inputEnabled: boolean = false;
+
+    setInputEnabled(enabled: boolean): void {
+        this.inputEnabled = enabled;
+        if (!enabled) {
+            this.state.velocity = 0;
+        }
+    }
 
     setTrackBoundary(trackBoundary: TrackBoundary): void {
         this.trackBoundary = trackBoundary;
@@ -71,7 +79,10 @@ export class ArrowPlayer implements Scene {
     }
 
     private handleMovement(deltaTime: number): void {
-        // Use the engine's input system instead of local state
+        if (!this.inputEnabled) {
+            return;
+        }
+
         if (this.input.keyboard.isKeyDown("ArrowUp")) {
             this.state.velocity = this.config.moveSpeed;
         } else if (this.input.keyboard.isKeyDown("ArrowDown")) {

@@ -16,7 +16,7 @@ import { getCanvasSizeById } from "./tools";
 import { Countdown } from "./scenes/countdown";
 
 let SCENE_MODE: "all" | "current" = "all";
-const TEST_SCENE_INDEX: number = 10; //0-10 single scene test, 11-12 multi scene test
+const TEST_SCENE_INDEX: number = 12; //0-10 single scene test, 11-12 multi scene test
 const ALL_SCENES = [
     "Elipse Track",
     "Rectangle Track",
@@ -166,10 +166,19 @@ function registerCountdownTest(
     canvas: HTMLCanvasElement
 ) {
     const track = new RectangleTrack(canvas);
-    const countdown = new Countdown(() => {
-        console.log("Countdown complete!");
-    });
+    const arrowPlayer = new ArrowPlayer(canvas, gameEngine.input);
+    const countdown = new Countdown(
+        () => {
+            console.log("Countdown complete!");
+            arrowPlayer.setInputEnabled(true);
+        },
+        undefined,
+        () => {
+            arrowPlayer.setInputEnabled(false);
+        }
+    );
     gameEngine.registerScene("Rectangle Track", track);
+    gameEngine.registerScene("Arrow Player", arrowPlayer);
     gameEngine.registerScene("Countdown", countdown);
 }
 
