@@ -14,9 +14,10 @@ import { GameScore } from "./scenes/game-score";
 import { Menu } from "./scenes/menu";
 import { getCanvasSizeById } from "./tools";
 import { Countdown } from "./scenes/countdown";
+import { Continue } from "./scenes/continue";
 
-let SCENE_MODE: "all" | "current" = "all";
-const TEST_SCENE_INDEX: number = 13; //0-10 single scene test, 11-12 multi scene test
+let SCENE_MODE: "all" | "current" = "current";
+const TEST_SCENE_INDEX: number = 11; //0-11 single scene test, 12-14 multi scene test
 const ALL_SCENES = [
     "Elipse Track",
     "Rectangle Track",
@@ -29,6 +30,7 @@ const ALL_SCENES = [
     "Game Score",
     "Menu",
     "Countdown",
+    "Continue",
     //Composite scene tests
     "Track Boundary Test",
     "Countdown Test",
@@ -147,6 +149,18 @@ function registerCountdown(gameEngine: GameEngine, _canvas: HTMLCanvasElement) {
     gameEngine.registerScene("Countdown", countdown);
 }
 
+function registerContinueBtn(
+    gameEngine: GameEngine,
+    _canvas: HTMLCanvasElement
+) {
+    const continueBtn = new Continue(gameEngine.input);
+    continueBtn.show();
+    continueBtn.setOnRestartRace(() => {
+        console.log("Restart");
+    });
+    gameEngine.registerScene("Continue", continueBtn);
+}
+
 // Composite scene test
 
 function registerBoundaryTest(
@@ -197,6 +211,7 @@ function registerLapTrackerTest(
     const startingGrid = new StartingGrid(track);
     const arrowPlayer = new ArrowPlayer(canvas, gameEngine.input);
     const lapTracker = new LapTracker(track, arrowPlayer, startingGrid);
+    const continueBtn = new Continue(gameEngine.input);
 
     arrowPlayer.setTrackBoundary(trackBoundary);
     arrowPlayer.setStartingPosition(startingGrid.getStartingPosition());
@@ -206,6 +221,7 @@ function registerLapTrackerTest(
     gameEngine.registerScene("Starting Grid", startingGrid);
     gameEngine.registerScene("Arrow Player", arrowPlayer);
     gameEngine.registerScene("Lap Tracker", lapTracker);
+    gameEngine.registerScene("Continue", continueBtn);
 
     arrowPlayer.setInputEnabled(true);
     lapTracker.start();
@@ -224,10 +240,11 @@ function registerScenes(gameEngine: GameEngine, canvas: HTMLCanvasElement) {
     if (TEST_SCENE_INDEX === 8) registerGameScore(gameEngine, canvas);
     if (TEST_SCENE_INDEX === 9) registerMenu(gameEngine, canvas);
     if (TEST_SCENE_INDEX === 10) registerCountdown(gameEngine, canvas);
+    if (TEST_SCENE_INDEX === 11) registerContinueBtn(gameEngine, canvas);
     //multi scene tests
-    if (TEST_SCENE_INDEX === 11) registerBoundaryTest(gameEngine, canvas);
-    if (TEST_SCENE_INDEX === 12) registerCountdownTest(gameEngine, canvas);
-    if (TEST_SCENE_INDEX === 13) registerLapTrackerTest(gameEngine, canvas);
+    if (TEST_SCENE_INDEX === 12) registerBoundaryTest(gameEngine, canvas);
+    if (TEST_SCENE_INDEX === 13) registerCountdownTest(gameEngine, canvas);
+    if (TEST_SCENE_INDEX === 14) registerLapTrackerTest(gameEngine, canvas);
 }
 
 function setupEngine() {
