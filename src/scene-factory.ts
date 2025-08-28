@@ -53,30 +53,33 @@ export class SceneFactory {
     }
 
     createTrackBoundary(): TrackBoundary {
-        return new TrackBoundary(this.createRectangleTrack());
+        return new TrackBoundary(new RectangleTrack(this.canvas));
     }
 
     createStartingGrid(): StartingGrid {
-        return new StartingGrid(this.createRectangleTrack());
+        return new StartingGrid(new RectangleTrack(this.canvas));
     }
 
     createRoadMarkings(): RoadMarkings {
-        return new RoadMarkings(this.createRectangleTrack());
+        return new RoadMarkings(new RectangleTrack(this.canvas));
     }
 
     createTrackGrass(): TrackGrass {
-        return new TrackGrass(this.createRectangleTrack());
+        return new TrackGrass(new RectangleTrack(this.canvas));
     }
 
     createLapTracker(): LapTracker {
-        const track = this.createRectangleTrack();
-        const arrowPlayer = this.createArrowPlayer();
-        const startingGrid = this.createStartingGrid();
-        return new LapTracker(track, arrowPlayer, startingGrid);
+        const track = new RectangleTrack(this.canvas);
+        const player = new ArrowPlayer(this.canvas, this.gameEngine.input);
+        const startingGrid = new StartingGrid(track);
+        return new LapTracker(track, player, startingGrid);
     }
 
     createGameScore(): GameScore {
-        const lapTracker = this.createLapTracker();
+        const track = new RectangleTrack(this.canvas);
+        const player = new ArrowPlayer(this.canvas, this.gameEngine.input);
+        const startingGrid = new StartingGrid(track);
+        const lapTracker = new LapTracker(track, player, startingGrid);
         return new GameScore(lapTracker);
     }
 
@@ -101,30 +104,32 @@ export class SceneFactory {
 
     //multi scene
 
-    createMultiTrackBoundary(): {
-        track: RectangleTrack;
-        boundary: TrackBoundary;
-        grid: StartingGrid;
+    createTrackBoundaryFeature(): {
+        trackBoundary: TrackBoundary;
+        startingGrid: StartingGrid;
         player: ArrowPlayer;
     } {
-        const track = this.createRectangleTrack();
-        const boundary = this.createTrackBoundary();
-        const grid = this.createStartingGrid();
-        const player = this.createArrowPlayer();
+        const track = new RectangleTrack(this.canvas);
+        const trackBoundary = new TrackBoundary(track);
+        const startingGrid = new StartingGrid(track);
+        const player = new ArrowPlayer(this.canvas, this.gameEngine.input);
 
-        player.setTrackBoundary(boundary);
-        player.setStartingPosition(grid.getStartingPosition());
+        player.setTrackBoundary(trackBoundary);
+        player.setStartingPosition(startingGrid.getStartingPosition());
+        player.setInputEnabled(true);
 
-        return { track, boundary, grid, player };
+        return { trackBoundary, startingGrid, player };
     }
 
-    createMultiCountdown(): {
+    createCountdownFeature(): {
         track: RectangleTrack;
+        startingGrid: StartingGrid;
         player: ArrowPlayer;
         countdown: Countdown;
     } {
-        const track = this.createRectangleTrack();
-        const player = this.createArrowPlayer();
+        const track = new RectangleTrack(this.canvas);
+        const startingGrid = new StartingGrid(track);
+        const player = new ArrowPlayer(this.canvas, this.gameEngine.input);
         const countdown = new Countdown(
             () => {
                 console.log("Countdown complete!");
@@ -136,43 +141,83 @@ export class SceneFactory {
             }
         );
 
-        return { track, player, countdown };
+        player.setStartingPosition(startingGrid.getStartingPosition());
+
+        return { track, startingGrid, player, countdown };
     }
 
-    createMultiLapTracker(): {
+    createLapTrackerFeature(): {
         track: RectangleTrack;
-        boundary: TrackBoundary;
-        grid: StartingGrid;
+        startingGrid: StartingGrid;
         player: ArrowPlayer;
         lapTracker: LapTracker;
-        continueBtn: Continue;
+        countdown: Countdown;
     } {
-        const track = this.createRectangleTrack();
-        const boundary = this.createTrackBoundary();
-        const grid = this.createStartingGrid();
-        const player = this.createArrowPlayer();
-        const lapTracker = this.createLapTracker();
-        const continueBtn = this.createContinue();
+        const track = new RectangleTrack(this.canvas);
+        const startingGrid = new StartingGrid(track);
+        const player = new ArrowPlayer(this.canvas, this.gameEngine.input);
+        const lapTracker = new LapTracker(track, player, startingGrid);
+        const countdown = new Countdown(
+            () => {
+                console.log("Countdown complete!");
+                player.setInputEnabled(true);
+                lapTracker.start();
+            },
+            undefined,
+            () => {
+                player.setInputEnabled(false);
+            }
+        );
 
-        player.setTrackBoundary(boundary);
-        player.setStartingPosition(grid.getStartingPosition());
-        player.setInputEnabled(true);
-        lapTracker.start();
+        player.setStartingPosition(startingGrid.getStartingPosition());
 
-        return { track, boundary, grid, player, lapTracker, continueBtn };
+        return { track, startingGrid, player, lapTracker, countdown };
     }
 
-    createMultiContinueButton(): {
+    createContinueFeature(): {
         track: RectangleTrack;
-        boundary: TrackBoundary;
-        grid: StartingGrid;
+        trackBoundary: TrackBoundary;
+        startingGrid: StartingGrid;
         player: ArrowPlayer;
         lapTracker: LapTracker;
+        countdown: Countdown;
         continueBtn: Continue;
     } {
-        const { track, boundary, grid, player, lapTracker, continueBtn } =
-            this.createMultiLapTracker();
-        return { track, boundary, grid, player, lapTracker, continueBtn };
+        const track = new RectangleTrack(this.canvas);
+        const trackBoundary = new TrackBoundary(track);
+        const startingGrid = new StartingGrid(track);
+        const player = new ArrowPlayer(this.canvas, this.gameEngine.input);
+        const countdown = new Countdown(
+            () => {
+                console.log("Countdown complete!");
+                player.setInputEnabled(true);
+                lapTracker.start();
+            },
+            undefined,
+            () => {
+                player.setInputEnabled(false);
+            }
+        );
+        const continueBtn = new Continue(this.gameEngine.input);
+        const lapTracker = new LapTracker(track, player, startingGrid, () => {
+            continueBtn.show();
+        });
+
+        player.setTrackBoundary(trackBoundary);
+        player.setStartingPosition(startingGrid.getStartingPosition());
+        continueBtn.setOnRestartRace(() => {
+            console.log("Restart");
+        });
+
+        return {
+            track,
+            trackBoundary,
+            startingGrid,
+            player,
+            lapTracker,
+            countdown,
+            continueBtn,
+        };
     }
 
     createScene(sceneType: SceneType | MultiSceneType): any {
@@ -202,13 +247,13 @@ export class SceneFactory {
             case SceneType.CONTINUE:
                 return this.createContinue();
             case MultiSceneType.MULTI_TRACK_BOUNDARY:
-                return this.createMultiTrackBoundary();
+                return this.createTrackBoundaryFeature();
             case MultiSceneType.MULTI_COUNTDOWN:
-                return this.createMultiCountdown();
+                return this.createCountdownFeature();
             case MultiSceneType.MULTI_LAP_TRACKER:
-                return this.createMultiLapTracker();
+                return this.createLapTrackerFeature();
             case MultiSceneType.MULTI_CONTINUE:
-                return this.createMultiContinueButton();
+                return this.createContinueFeature();
             default:
                 throw new Error(`Unknown scene type: ${sceneType}`);
         }
@@ -265,22 +310,27 @@ export class SceneFactory {
     }
 }
 
-// Convenience function for quick scene creation
-export function createScene(
-    sceneType: SceneType,
+export function registerScenes(
     gameEngine: GameEngine,
-    canvas: HTMLCanvasElement
-): any {
+    canvas: HTMLCanvasElement,
+    mode: "all" | "current",
+    currentScene: SceneType | null,
+    multiScene: MultiSceneType | null
+) {
     const factory = new SceneFactory(gameEngine, canvas);
-    return factory.createScene(sceneType);
-}
 
-// Convenience function for quick scene registration
-export function registerScene(
-    sceneType: SceneType,
-    gameEngine: GameEngine,
-    canvas: HTMLCanvasElement
-): void {
-    const factory = new SceneFactory(gameEngine, canvas);
-    factory.registerScene(sceneType);
+    if (mode === "all") {
+        if (multiScene) {
+            factory.registerMultiScene(multiScene);
+        } else {
+            console.error("No valid multi-scene specified for 'all' mode");
+        }
+    } else {
+        if (currentScene) {
+            factory.registerScene(currentScene);
+            gameEngine.transitionToScene(currentScene);
+        } else {
+            console.error("No valid single scene specified for 'current' mode");
+        }
+    }
 }

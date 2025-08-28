@@ -1,4 +1,5 @@
 import { GameEngineFactory } from "zippy-game-engine";
+import { MultiSceneType, SceneType } from "./scene-factory";
 
 export function getCanvasSizeById(canvasId: string): {
     canvas: HTMLCanvasElement;
@@ -28,4 +29,42 @@ export function setupEngine() {
     const gameEngineFactory = new GameEngineFactory();
     const gameEngine = gameEngineFactory.getGameEngine();
     return gameEngine;
+}
+
+export function logTestUrls() {
+    console.log("=== Test URLs ===");
+
+    Object.values(SceneType).forEach((scene) => {
+        console.log(`Single: ?mode=current&scene=${encodeURIComponent(scene)}`);
+    });
+
+    Object.values(MultiSceneType).forEach((scene) => {
+        console.log(`Multi: ?mode=all&scene=${encodeURIComponent(scene)}`);
+    });
+}
+
+export function logAvailableScenes() {
+    console.log("Available single scenes:", Object.values(SceneType));
+    console.log("Available multi-scenes:", Object.values(MultiSceneType));
+}
+
+export function isSceneType(value: any): value is SceneType {
+    return Object.values(SceneType).includes(value);
+}
+
+export function isMultiSceneType(value: any): value is MultiSceneType {
+    return Object.values(MultiSceneType).includes(value);
+}
+
+export function logSelection(
+    mode: "all" | "current",
+    currentScene: SceneType | null,
+    multiScene: MultiSceneType | null
+) {
+    console.log(`Scene mode: ${mode}`);
+    if (mode === "all" && multiScene) {
+        console.log(`Testing multi-scene: ${multiScene}`);
+    } else if (mode === "current" && currentScene) {
+        console.log(`Testing single scene: ${currentScene}`);
+    }
 }
