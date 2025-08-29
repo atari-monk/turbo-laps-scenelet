@@ -269,41 +269,64 @@ export class SceneFactory {
 
     registerMultiScene(sceneType: MultiSceneType): void {
         const scenes = this.createScene(sceneType);
-        if ("track" in scenes)
-            this.gameEngine.registerScene(
-                SceneType.RECTANGLE_TRACK,
-                scenes.track as Scene
-            );
-        if ("boundary" in scenes)
-            this.gameEngine.registerScene(
-                SceneType.TRACK_BOUNDARY,
-                scenes.boundary as Scene
-            );
-        if ("grid" in scenes)
-            this.gameEngine.registerScene(
-                SceneType.STARTING_GRID,
-                scenes.grid as Scene
-            );
-        if ("player" in scenes)
-            this.gameEngine.registerScene(
-                SceneType.ARROW_PLAYER,
-                scenes.player as Scene
-            );
-        if ("countdown" in scenes)
-            this.gameEngine.registerScene(
-                SceneType.COUNTDOWN,
-                scenes.countdown as Scene
-            );
-        if ("lapTracker" in scenes)
-            this.gameEngine.registerScene(
-                SceneType.LAP_TRACKER,
-                scenes.lapTracker as Scene
-            );
-        if ("continueBtn" in scenes)
-            this.gameEngine.registerScene(
-                SceneType.CONTINUE,
-                scenes.continueBtn as Scene
-            );
+
+        Object.values(scenes).forEach((scene: any) => {
+            if (scene && scene.name) {
+                switch (scene.name) {
+                    case SceneType.ARROW_PLAYER:
+                        this.gameEngine.registerScene(
+                            SceneType.ARROW_PLAYER,
+                            scene as Scene
+                        );
+                        break;
+                    case SceneType.RECTANGLE_TRACK:
+                        this.gameEngine.registerScene(
+                            SceneType.RECTANGLE_TRACK,
+                            scene as Scene
+                        );
+                        break;
+                    case SceneType.TRACK_BOUNDARY:
+                        this.gameEngine.registerScene(
+                            SceneType.TRACK_BOUNDARY,
+                            scene as Scene
+                        );
+                        break;
+                    case SceneType.STARTING_GRID:
+                        this.gameEngine.registerScene(
+                            SceneType.STARTING_GRID,
+                            scene as Scene
+                        );
+                        break;
+                    case SceneType.ROAD_MARKINGS:
+                        this.gameEngine.registerScene(
+                            SceneType.ROAD_MARKINGS,
+                            scene as Scene
+                        );
+                        break;
+                    case SceneType.LAP_TRACKER:
+                        this.gameEngine.registerScene(
+                            SceneType.LAP_TRACKER,
+                            scene as Scene
+                        );
+                        break;
+                    case SceneType.COUNTDOWN:
+                        this.gameEngine.registerScene(
+                            SceneType.COUNTDOWN,
+                            scene as Scene
+                        );
+                        break;
+                    case SceneType.CONTINUE:
+                        this.gameEngine.registerScene(
+                            SceneType.CONTINUE,
+                            scene as Scene
+                        );
+                        break;
+                    default:
+                        console.warn(`Unknown scene type: ${scene.name}`);
+                        break;
+                }
+            }
+        });
     }
 
     registerAllScenes(): void {
