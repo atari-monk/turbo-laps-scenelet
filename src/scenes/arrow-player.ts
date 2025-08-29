@@ -1,6 +1,7 @@
 import type { FrameContext } from "zippy-shared-lib";
 import type { Scene, InputSystem } from "zippy-game-engine";
 import type { TrackBoundary } from "./track-boundary";
+import type { StartingGrid } from "./starting-grid";
 
 export class ArrowPlayer implements Scene {
     name?: string = "Arrow Player";
@@ -53,12 +54,12 @@ export class ArrowPlayer implements Scene {
 
     constructor(
         private readonly canvas: HTMLCanvasElement,
-        private readonly input: InputSystem
+        private readonly input: InputSystem,
+        private readonly startingGrid: StartingGrid
     ) {
-        this.state.position = {
-            x: this.canvas.width / 2,
-            y: this.canvas.height / 2,
-        };
+        const startPos = this.startingGrid.getStartingPosition();
+        this.state.position = { x: startPos.x, y: startPos.y };
+        this.state.rotation = startPos.angle * (180 / Math.PI);
     }
 
     init(): void {}

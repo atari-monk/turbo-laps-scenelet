@@ -54,18 +54,21 @@ export class LapTracker implements Scene {
 
         const relX = this.player.position.x - this.track.state.centerX;
         const relY = this.player.position.y - this.track.state.centerY;
-        const angle = Math.atan2(relY, relX) + Math.PI;
+        const angle = Math.atan2(relY, relX) + Math.PI / 2; // Remove + Math.PI to get proper quadrant alignment
         const sectorSize = (2 * Math.PI) / this.sectors;
-        const newSector = Math.floor(angle / sectorSize);
+
+        // Normalize angle to 0-2π range and calculate sector
+        let normalizedAngle = (angle + 2 * Math.PI) % (2 * Math.PI);
+        const newSector = Math.floor(normalizedAngle / sectorSize);
 
         if (newSector !== this.currentSector) {
             const now = performance.now();
 
-            // Check if this is a valid sector progression (forward movement)
+            // Check for valid sector progression (forward movement)
             const expectedNextSector = (this.currentSector + 1) % this.sectors;
             const isMovingForward = newSector === expectedNextSector;
 
-            // Also allow wrapping around from last sector to first (completing lap)
+            // Allow wrapping from last sector to first (completing lap)
             const isCompletingLap =
                 this.currentSector === this.sectors - 1 && newSector === 0;
 

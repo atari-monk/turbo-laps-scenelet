@@ -32,6 +32,7 @@ export class StartingGrid implements Scene {
         const trackConfig = this.track.config;
         const trackState = this.track.state;
 
+        // Place starting grid at the beginning of section 0 (top center of track)
         return {
             x: trackState.centerX,
             y:

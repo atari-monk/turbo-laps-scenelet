@@ -49,7 +49,13 @@ export class SceneFactory {
     }
 
     createArrowPlayer(): ArrowPlayer {
-        return new ArrowPlayer(this.canvas, this.gameEngine.input);
+        const track = new RectangleTrack(this.canvas);
+        const startingGrid = new StartingGrid(track);
+        return new ArrowPlayer(
+            this.canvas,
+            this.gameEngine.input,
+            startingGrid
+        );
     }
 
     createTrackBoundary(): TrackBoundary {
@@ -70,15 +76,23 @@ export class SceneFactory {
 
     createLapTracker(): LapTracker {
         const track = new RectangleTrack(this.canvas);
-        const player = new ArrowPlayer(this.canvas, this.gameEngine.input);
         const startingGrid = new StartingGrid(track);
+        const player = new ArrowPlayer(
+            this.canvas,
+            this.gameEngine.input,
+            startingGrid
+        );
         return new LapTracker(track, player, startingGrid);
     }
 
     createGameScore(): GameScore {
         const track = new RectangleTrack(this.canvas);
-        const player = new ArrowPlayer(this.canvas, this.gameEngine.input);
         const startingGrid = new StartingGrid(track);
+        const player = new ArrowPlayer(
+            this.canvas,
+            this.gameEngine.input,
+            startingGrid
+        );
         const lapTracker = new LapTracker(track, player, startingGrid);
         return new GameScore(lapTracker);
     }
@@ -112,7 +126,11 @@ export class SceneFactory {
         const track = new RectangleTrack(this.canvas);
         const trackBoundary = new TrackBoundary(track);
         const startingGrid = new StartingGrid(track);
-        const player = new ArrowPlayer(this.canvas, this.gameEngine.input);
+        const player = new ArrowPlayer(
+            this.canvas,
+            this.gameEngine.input,
+            startingGrid
+        );
 
         player.setTrackBoundary(trackBoundary);
         player.setStartingPosition(startingGrid.getStartingPosition());
@@ -129,7 +147,11 @@ export class SceneFactory {
     } {
         const track = new RectangleTrack(this.canvas);
         const startingGrid = new StartingGrid(track);
-        const player = new ArrowPlayer(this.canvas, this.gameEngine.input);
+        const player = new ArrowPlayer(
+            this.canvas,
+            this.gameEngine.input,
+            startingGrid
+        );
         const countdown = new Countdown(
             () => {
                 console.log("Countdown complete!");
@@ -155,7 +177,11 @@ export class SceneFactory {
     } {
         const track = new RectangleTrack(this.canvas);
         const startingGrid = new StartingGrid(track);
-        const player = new ArrowPlayer(this.canvas, this.gameEngine.input);
+        const player = new ArrowPlayer(
+            this.canvas,
+            this.gameEngine.input,
+            startingGrid
+        );
         const lapTracker = new LapTracker(track, player, startingGrid);
         const countdown = new Countdown(
             () => {
@@ -186,7 +212,11 @@ export class SceneFactory {
         const track = new RectangleTrack(this.canvas);
         const trackBoundary = new TrackBoundary(track);
         const startingGrid = new StartingGrid(track);
-        const player = new ArrowPlayer(this.canvas, this.gameEngine.input);
+        const player = new ArrowPlayer(
+            this.canvas,
+            this.gameEngine.input,
+            startingGrid
+        );
         const countdown = new Countdown(
             () => {
                 console.log("Countdown complete!");
