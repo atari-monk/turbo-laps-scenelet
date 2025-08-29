@@ -10,7 +10,7 @@ interface RoadMarkingsConfig {
 }
 
 export class RoadMarkings implements Scene {
-    name: string = "Road Markings";
+    name: string = "Road-Markings";
     displayName?: string = "Road Markings";
 
     private track: RectangleTrack;

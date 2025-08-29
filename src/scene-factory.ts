@@ -13,25 +13,25 @@ import { Countdown } from "./scenes/countdown";
 import { Continue } from "./scenes/continue";
 
 export enum SceneType {
-    ELIPSE_TRACK = "Elipse Track",
-    RECTANGLE_TRACK = "Rectangle Track",
-    ARROW_PLAYER = "Arrow Player",
-    TRACK_BOUNDARY = "Track Boundary",
-    STARTING_GRID = "Starting Grid",
-    ROAD_MARKINGS = "Road Markings",
-    TRACK_GRASS = "Track Grass",
-    LAP_TRACKER = "Lap Tracker",
-    GAME_SCORE = "Game Score",
+    ELIPSE_TRACK = "Elipse-Track",
+    RECTANGLE_TRACK = "Rectangle-Track",
+    ARROW_PLAYER = "Arrow-Player",
+    TRACK_BOUNDARY = "Track-Boundary",
+    STARTING_GRID = "Starting-Grid",
+    ROAD_MARKINGS = "Road-Markings",
+    TRACK_GRASS = "Track-Grass",
+    LAP_TRACKER = "Lap-Tracker",
+    GAME_SCORE = "Game-Score",
     MENU = "Menu",
     COUNTDOWN = "Countdown",
     CONTINUE = "Continue",
 }
 
 export enum MultiSceneType {
-    MULTI_TRACK_BOUNDARY = "Multi Track Boundary",
-    MULTI_COUNTDOWN = "Multi Countdown",
-    MULTI_LAP_TRACKER = "Multi Lap Tracker",
-    MULTI_CONTINUE = "Multi Continue",
+    TRACK_BOUNDARY_FEATURE = "Track-Boundary-Feature",
+    COUNTDOWN_FEATURE = "Countdown-Feature",
+    LAP_TRACKER_FEATURE = "Lap-Tracker-Feature",
+    CONTINUE_FEATURE = "Continue-Feature",
 }
 
 export class SceneFactory {
@@ -82,9 +82,16 @@ export class SceneFactory {
             this.gameEngine.input,
             startingGrid
         );
-        return new LapTracker(track, player, startingGrid);
+        const lapTracker = new LapTracker(track, player);
+        lapTracker.setRaceCompleteCallback(() => {
+            lapTracker.reset();
+            player.setInputEnabled(false);
+            player.setStartingPosition(startingGrid.getStartingPosition());
+        });
+        return lapTracker;
     }
 
+    //todo: this needs fix, show, hide
     createGameScore(): GameScore {
         const track = new RectangleTrack(this.canvas);
         const startingGrid = new StartingGrid(track);
@@ -93,7 +100,12 @@ export class SceneFactory {
             this.gameEngine.input,
             startingGrid
         );
-        const lapTracker = new LapTracker(track, player, startingGrid);
+        const lapTracker = new LapTracker(track, player);
+        lapTracker.setRaceCompleteCallback(() => {
+            lapTracker.reset();
+            player.setInputEnabled(false);
+            player.setStartingPosition(startingGrid.getStartingPosition());
+        });
         return new GameScore(lapTracker);
     }
 
@@ -102,9 +114,14 @@ export class SceneFactory {
     }
 
     createCountdown(): Countdown {
-        return new Countdown(() => {
-            console.log("Countdown complete!");
-        });
+        return new Countdown(
+            () => {
+                console.log("On GO!");
+            },
+            () => {
+                console.log("Countdown complete!");
+            }
+        );
     }
 
     createContinue(): Continue {
@@ -154,15 +171,9 @@ export class SceneFactory {
         );
         const countdown = new Countdown(
             () => {
-                console.log("Countdown complete!");
+                player.setInputEnabled(true);
             },
-            (block: boolean) => {
-                // This callback handles input blocking/unblocking
-                player.setInputEnabled(!block);
-            },
-            () => {
-                player.setInputEnabled(false);
-            }
+            () => {}
         );
 
         player.setStartingPosition(startingGrid.getStartingPosition());
@@ -184,17 +195,19 @@ export class SceneFactory {
             this.gameEngine.input,
             startingGrid
         );
-        const lapTracker = new LapTracker(track, player, startingGrid);
+        player.setInputEnabled(false);
+        const lapTracker = new LapTracker(track, player);
+        lapTracker.setRaceCompleteCallback(() => {
+            lapTracker.reset();
+            player.setInputEnabled(false);
+            player.setStartingPosition(startingGrid.getStartingPosition());
+        });
         const countdown = new Countdown(
             () => {
-                console.log("Countdown complete!");
                 player.setInputEnabled(true);
                 lapTracker.start();
             },
-            undefined,
-            () => {
-                player.setInputEnabled(false);
-            }
+            () => {}
         );
 
         player.setStartingPosition(startingGrid.getStartingPosition());
@@ -219,29 +232,27 @@ export class SceneFactory {
             this.gameEngine.input,
             startingGrid
         );
+        const lapTracker = new LapTracker(track, player);
         const countdown = new Countdown(
             () => {
-                console.log("Countdown complete!");
                 player.setInputEnabled(true);
                 lapTracker.start();
             },
-            undefined,
-            () => {
-                player.setInputEnabled(false);
-            }
+            () => {}
         );
         const continueBtn = new Continue(this.gameEngine.input);
-        const lapTracker = new LapTracker(track, player, startingGrid);
 
         player.setTrackBoundary(trackBoundary);
         player.setStartingPosition(startingGrid.getStartingPosition());
+        lapTracker.setRaceCompleteCallback(() => {
+            lapTracker.reset();
+            player.setInputEnabled(false);
+            player.setStartingPosition(startingGrid.getStartingPosition());
+            continueBtn.show();
+        });
         continueBtn.setOnRestartRace(() => {
-            console.log("Restart");
             continueBtn.hide();
             countdown.startAgain();
-        });
-        lapTracker.setRaceCompleteCallback(() => {
-            continueBtn.show();
         });
 
         return {
@@ -281,13 +292,13 @@ export class SceneFactory {
                 return this.createCountdown();
             case SceneType.CONTINUE:
                 return this.createContinue();
-            case MultiSceneType.MULTI_TRACK_BOUNDARY:
+            case MultiSceneType.TRACK_BOUNDARY_FEATURE:
                 return this.createTrackBoundaryFeature();
-            case MultiSceneType.MULTI_COUNTDOWN:
+            case MultiSceneType.COUNTDOWN_FEATURE:
                 return this.createCountdownFeature();
-            case MultiSceneType.MULTI_LAP_TRACKER:
+            case MultiSceneType.LAP_TRACKER_FEATURE:
                 return this.createLapTrackerFeature();
-            case MultiSceneType.MULTI_CONTINUE:
+            case MultiSceneType.CONTINUE_FEATURE:
                 return this.createContinueFeature();
             default:
                 throw new Error(`Unknown scene type: ${sceneType}`);

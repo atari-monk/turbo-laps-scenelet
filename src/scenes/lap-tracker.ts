@@ -2,10 +2,9 @@ import type { FrameContext } from "zippy-shared-lib";
 import type { Scene } from "zippy-game-engine";
 import type { RectangleTrack } from "./rectangle-track";
 import type { ArrowPlayer } from "./arrow-player";
-import type { StartingGrid } from "./starting-grid";
 
 export class LapTracker implements Scene {
-    name: string = "Lap Tracker";
+    name: string = "Lap-Tracker";
     displayName?: string = "Lap Tracker";
 
     private sectors: number;
@@ -17,14 +16,12 @@ export class LapTracker implements Scene {
     private lastLapStart: number;
     private lapTimes: number[];
     private maxLaps: number;
-    private onRaceComplete: () => void;
+    private onRaceComplete?: () => void;
     private isRunning: boolean;
 
     constructor(
         private readonly track: RectangleTrack,
         private readonly player: ArrowPlayer,
-        private readonly startingGrid: StartingGrid,
-        onRaceComplete: () => void = () => {},
         sectors: number = 4
     ) {
         this.sectors = sectors;
@@ -36,14 +33,12 @@ export class LapTracker implements Scene {
         this.lastLapStart = 0;
         this.lapTimes = [];
         this.maxLaps = 1;
-        this.onRaceComplete = onRaceComplete;
         this.isRunning = false;
     }
 
     init(): void {}
 
     onEnter(): void {
-        // Don't automatically start tracking
         this.reset();
     }
 
@@ -89,10 +84,6 @@ export class LapTracker implements Scene {
                     if (this.lapCount >= this.maxLaps && this.onRaceComplete) {
                         this.stop();
                         this.onRaceComplete();
-                        this.player.setInputEnabled(false);
-                        this.player.setStartingPosition(
-                            this.startingGrid.getStartingPosition()
-                        );
                     }
                 }
             }

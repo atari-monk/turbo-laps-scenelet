@@ -3,7 +3,7 @@ import type { Scene } from "zippy-game-engine";
 import type { RectangleTrack } from "./rectangle-track";
 
 export class StartingGrid implements Scene {
-    name: string = "Starting Grid";
+    name: string = "Starting-Grid";
     displayName?: string = "Starting Grid";
 
     private track: RectangleTrack;

@@ -7,7 +7,7 @@ interface GrassConfig {
 }
 
 export class TrackGrass implements Scene {
-    name: string = "Track Grass";
+    name: string = "Track-Grass";
     displayName?: string = "Track Grass";
 
     private readonly config: GrassConfig;

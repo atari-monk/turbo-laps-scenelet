@@ -13,7 +13,7 @@ interface TrackBoundaryConfig {
 }
 
 export class TrackBoundary implements Scene {
-    name: string = "Track Boundary";
+    name: string = "Track-Boundary";
     displayName?: string = "Track Boundary";
 
     private config: TrackBoundaryConfig;

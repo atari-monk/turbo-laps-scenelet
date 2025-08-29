@@ -18,7 +18,7 @@ interface GameScoreState {
 }
 
 export class GameScore implements Scene {
-    name: string = "Game Score";
+    name: string = "Game-Score";
     displayName?: string = "Game Score";
 
     private lapTracker: LapTracker;

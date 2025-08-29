@@ -4,7 +4,6 @@ import type { Scene } from "zippy-game-engine";
 export class Countdown implements Scene {
     name = "Countdown";
     displayName = "Countdown";
-    private onInputEnable?: () => void;
 
     private countdownState: "waiting" | "counting" | "go" | "complete" =
         "waiting";
@@ -12,24 +11,17 @@ export class Countdown implements Scene {
     private countdownTimer = 0;
     private totalTime = 0;
     private onComplete?: () => void;
-    private blockInputCallback?: (block: boolean) => void;
+    private onGO?: () => void;
 
     constructor(
-        private readonly onCountdownComplete: () => void,
-        private readonly inputBlockCallback?: (block: boolean) => void,
-        onInputEnable?: () => void
+        private readonly onCountdownGO: () => void,
+        private readonly onCountdownComplete: () => void
     ) {
+        this.onGO = this.onCountdownGO;
         this.onComplete = this.onCountdownComplete;
-        this.blockInputCallback = this.inputBlockCallback;
-        this.onInputEnable = onInputEnable;
     }
 
-    init(): void {
-        // Block input at the start
-        if (this.blockInputCallback) {
-            this.blockInputCallback(true);
-        }
-    }
+    init(): void {}
 
     onEnter(): void {
         this.reset();
@@ -38,12 +30,7 @@ export class Countdown implements Scene {
         this.countdownTimer = 0.5; // 0.5 seconds delay
     }
 
-    onExit(): void {
-        // Ensure input is unblocked when exiting
-        if (this.blockInputCallback) {
-            this.blockInputCallback(false);
-        }
-    }
+    onExit(): void {}
 
     update(context: FrameContext): void {
         this.totalTime += context.deltaTime;
@@ -65,9 +52,8 @@ export class Countdown implements Scene {
                     if (this.countdownValue <= 0) {
                         this.countdownState = "go";
                         this.countdownTimer = 3;
-                        // Enable input immediately when GO appears
-                        if (this.blockInputCallback) {
-                            this.blockInputCallback(false);
+                        if (this.onGO) {
+                            this.onGO();
                         }
                     } else {
                         this.countdownTimer = 1; // Reset timer for next number
@@ -189,9 +175,6 @@ export class Countdown implements Scene {
         this.countdownValue = 3;
         this.countdownTimer = 0.5;
         this.totalTime = 0;
-        if (this.onInputEnable) {
-            this.onInputEnable();
-        }
     }
 
     // Public method to check if countdown is complete
@@ -200,10 +183,6 @@ export class Countdown implements Scene {
     }
 
     startAgain(): void {
-        if (this.blockInputCallback) {
-            this.blockInputCallback(true);
-        }
-
         this.reset();
         this.countdownState = "waiting";
         this.countdownTimer = 0.5;

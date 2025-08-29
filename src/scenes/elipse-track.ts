@@ -2,7 +2,7 @@ import type { FrameContext } from "zippy-shared-lib";
 import type { Scene } from "zippy-game-engine";
 
 export class ElipseTrack implements Scene {
-    name: string = "Elipse Track";
+    name: string = "Elipse-Track";
     displayName?: string = "Elipse Track";
 
     private config = {

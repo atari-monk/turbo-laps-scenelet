@@ -17,7 +17,7 @@ export interface TrackState {
 }
 
 export class RectangleTrack implements Scene {
-    name: string = "Rectangle Track";
+    name: string = "Rectangle-Track";
     displayName?: string = "Rectangle Track";
 
     // Public properties with readonly access

@@ -4,7 +4,7 @@ import type { TrackBoundary } from "./track-boundary";
 import type { StartingGrid } from "./starting-grid";
 
 export class ArrowPlayer implements Scene {
-    name?: string = "Arrow Player";
+    name?: string = "Arrow-Player";
     displayName?: string = "Arrow Player";
     private trackBoundary?: TrackBoundary;
     private inputEnabled: boolean = false;

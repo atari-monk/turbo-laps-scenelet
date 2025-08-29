@@ -10,18 +10,14 @@ import {
     logTestUrls,
     setupEngine,
 } from "./tools";
-import {
-    MultiSceneType,
-    registerScenes,
-    SceneType,
-} from "./scene-factory";
+import { MultiSceneType, registerScenes, SceneType } from "./scene-factory";
 
 const urlParams = new URLSearchParams(window.location.search);
 const SCENE_MODE = (urlParams.get("mode") as "all" | "current") || "current";
 const SCENE_NAME =
     urlParams.get("scene") ||
     (SCENE_MODE === "all"
-        ? MultiSceneType.MULTI_TRACK_BOUNDARY
+        ? MultiSceneType.TRACK_BOUNDARY_FEATURE
         : SceneType.RECTANGLE_TRACK);
 
 let gameEngine: GameEngine;
@@ -36,7 +32,7 @@ if (isSceneType(SCENE_NAME)) {
 } else {
     console.warn(`Unknown scene: ${SCENE_NAME}. Using default.`);
     if (SCENE_MODE === "all") {
-        multiScene = MultiSceneType.MULTI_TRACK_BOUNDARY;
+        multiScene = MultiSceneType.TRACK_BOUNDARY_FEATURE;
     } else {
         currentScene = SceneType.RECTANGLE_TRACK;
     }
