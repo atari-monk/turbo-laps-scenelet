@@ -199,14 +199,17 @@ export class SceneFactory {
             }
         );
         const continueBtn = new Continue(this.gameEngine.input);
-        const lapTracker = new LapTracker(track, player, startingGrid, () => {
-            continueBtn.show();
-        });
+        const lapTracker = new LapTracker(track, player, startingGrid);
 
         player.setTrackBoundary(trackBoundary);
         player.setStartingPosition(startingGrid.getStartingPosition());
         continueBtn.setOnRestartRace(() => {
             console.log("Restart");
+            continueBtn.hide();
+            countdown.startAgain();
+        });
+        lapTracker.setRaceCompleteCallback(() => {
+            continueBtn.show();
         });
 
         return {

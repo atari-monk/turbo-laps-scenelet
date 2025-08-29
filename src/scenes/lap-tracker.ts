@@ -84,8 +84,8 @@ export class LapTracker implements Scene {
 
                     // Check if race is complete
                     if (this.lapCount >= this.maxLaps && this.onRaceComplete) {
-                        this.onRaceComplete();
                         this.stop();
+                        this.onRaceComplete();
                         this.player.setInputEnabled(false);
                         this.player.setStartingPosition(
                             this.startingGrid.getStartingPosition()
@@ -146,16 +146,16 @@ export class LapTracker implements Scene {
         }
 
         // Show race complete message if applicable
-        if (this.lapCount >= this.maxLaps) {
-            ctx.fillStyle = "gold";
-            ctx.font = "24px Arial";
-            ctx.textAlign = "center";
-            ctx.fillText(
-                "RACE COMPLETE!",
-                ctx.canvas.width / 2,
-                ctx.canvas.height / 2
-            );
-        }
+        // if (this.lapCount >= this.maxLaps) {
+        //     ctx.fillStyle = "gold";
+        //     ctx.font = "24px Arial";
+        //     ctx.textAlign = "center";
+        //     ctx.fillText(
+        //         "RACE COMPLETE!",
+        //         ctx.canvas.width / 2,
+        //         ctx.canvas.height / 2
+        //     );
+        // }
 
         ctx.restore();
     }

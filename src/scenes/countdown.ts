@@ -198,4 +198,14 @@ export class Countdown implements Scene {
     isComplete(): boolean {
         return this.countdownState === "complete";
     }
+
+    startAgain(): void {
+        if (this.blockInputCallback) {
+            this.blockInputCallback(true);
+        }
+        
+        this.reset();
+        this.countdownState = "waiting";
+        this.countdownTimer = 0.5;
+    }
 }
