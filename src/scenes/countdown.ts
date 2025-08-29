@@ -64,7 +64,11 @@ export class Countdown implements Scene {
                     this.countdownValue--;
                     if (this.countdownValue <= 0) {
                         this.countdownState = "go";
-                        this.countdownTimer = 1.5; // Show "GO" for 1.5 seconds
+                        this.countdownTimer = 3;
+                        // Enable input immediately when GO appears
+                        if (this.blockInputCallback) {
+                            this.blockInputCallback(false);
+                        }
                     } else {
                         this.countdownTimer = 1; // Reset timer for next number
                     }
@@ -75,10 +79,6 @@ export class Countdown implements Scene {
                 this.countdownTimer -= context.deltaTime;
                 if (this.countdownTimer <= 0) {
                     this.countdownState = "complete";
-                    // Unblock input when countdown completes
-                    if (this.blockInputCallback) {
-                        this.blockInputCallback(false);
-                    }
                     if (this.onComplete) {
                         this.onComplete();
                     }
@@ -203,7 +203,7 @@ export class Countdown implements Scene {
         if (this.blockInputCallback) {
             this.blockInputCallback(true);
         }
-        
+
         this.reset();
         this.countdownState = "waiting";
         this.countdownTimer = 0.5;

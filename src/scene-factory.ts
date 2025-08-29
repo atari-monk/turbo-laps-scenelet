@@ -155,9 +155,11 @@ export class SceneFactory {
         const countdown = new Countdown(
             () => {
                 console.log("Countdown complete!");
-                player.setInputEnabled(true);
             },
-            undefined,
+            (block: boolean) => {
+                // This callback handles input blocking/unblocking
+                player.setInputEnabled(!block);
+            },
             () => {
                 player.setInputEnabled(false);
             }
