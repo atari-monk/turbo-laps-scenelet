@@ -1,5 +1,6 @@
 import { GameEngineFactory } from "zippy-game-engine";
-import { MultiSceneType, SceneType } from "./scene-factory";
+import { SceneType } from "./types/scene-type";
+import { MultiSceneType } from "./types/multi-scene-type";
 
 export function getCanvasSizeById(canvasId: string): {
     canvas: HTMLCanvasElement;
@@ -41,11 +42,6 @@ export function logTestUrls() {
     Object.values(MultiSceneType).forEach((scene) => {
         console.log(`Multi: ?mode=all&scene=${encodeURIComponent(scene)}`);
     });
-}
-
-export function logAvailableScenes() {
-    console.log("Available single scenes:", Object.values(SceneType));
-    console.log("Available multi-scenes:", Object.values(MultiSceneType));
 }
 
 export function isSceneType(value: any): value is SceneType {

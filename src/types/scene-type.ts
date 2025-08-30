@@ -1,0 +1,14 @@
+export enum SceneType {
+    ELIPSE_TRACK = "Elipse-Track",
+    RECTANGLE_TRACK = "Rectangle-Track",
+    ARROW_PLAYER = "Arrow-Player",
+    TRACK_BOUNDARY = "Track-Boundary",
+    STARTING_GRID = "Starting-Grid",
+    ROAD_MARKINGS = "Road-Markings",
+    TRACK_GRASS = "Track-Grass",
+    LAP_TRACKER = "Lap-Tracker",
+    GAME_SCORE = "Game-Score",
+    MENU = "Menu",
+    COUNTDOWN = "Countdown",
+    CONTINUE = "Continue",
+}
