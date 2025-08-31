@@ -30,17 +30,13 @@ export class SceneFactory {
     getArrowPlayer(): ArrowPlayer {
         const track = new RectangleTrack(this.canvas);
         const startingGrid = new StartingGrid(track);
-        const player = new ArrowPlayer(
-            this.canvas,
-            this.gameEngine.input,
-            startingGrid
-        );
+        const player = new ArrowPlayer(this.canvas, this.gameEngine.input);
         player.setInputEnabled(true);
         return player;
     }
 
     getTrackBoundary(): TrackBoundary {
-        return new TrackBoundary(new RectangleTrack(this.canvas));
+        return new TrackBoundary();
     }
 
     getStartingGrid(): StartingGrid {
@@ -60,8 +56,8 @@ export class SceneFactory {
         const startingGrid = new StartingGrid(track);
         const player = new ArrowPlayer(
             this.canvas,
-            this.gameEngine.input,
-            startingGrid
+            this.gameEngine.input
+            //startingGrid
         );
         const lapTracker = new LapTracker(track, player);
         lapTracker.setRaceCompleteCallback(() => {
@@ -78,8 +74,8 @@ export class SceneFactory {
         const startingGrid = new StartingGrid(track);
         const player = new ArrowPlayer(
             this.canvas,
-            this.gameEngine.input,
-            startingGrid
+            this.gameEngine.input
+            //startingGrid
         );
         const lapTracker = new LapTracker(track, player);
         lapTracker.setRaceCompleteCallback(() => {

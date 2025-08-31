@@ -1,6 +1,6 @@
 import type { FrameContext } from "zippy-shared-lib";
 import type { Scene } from "zippy-game-engine";
-import type { RectangleTrack } from "./rectangle-track";
+import type { TrackConfig, TrackState } from "./rectangle-track";
 import type { ArrowPlayer } from "./arrow-player";
 
 interface TrackBoundaryConfig {
@@ -20,19 +20,48 @@ export class TrackBoundary implements Scene {
     private isOnTrack: boolean = true;
     private offTrackTimer: number = 0;
     private hapticFeedback?: (duration: number) => void;
+    private trackState: TrackState;
+    private trackConfig: TrackConfig;
 
     constructor(
-        private readonly track: RectangleTrack,
+        private readonly canvas: HTMLCanvasElement,
         config: Partial<TrackBoundaryConfig> = {}
     ) {
         this.config = {
+            ...this.getDefaultConfig(),
+            ...config,
+        };
+        this.trackConfig = this.getDefaultTrackConfig();
+        this.trackState = this.getDefaultTrackState();
+    }
+
+    private getDefaultConfig(): TrackBoundaryConfig {
+        return {
             outerBoundaryOffset: 35,
             innerBoundaryOffset: 35,
             debugOuterColor: "rgba(0, 255, 0, 0.3)",
             debugInnerColor: "rgba(255, 0, 0, 0.3)",
-            maxOffTrackTime: 3000, // 3 seconds
+            maxOffTrackTime: 3000,
             offTrackSlowdown: 0.95,
-            ...config,
+        };
+    }
+
+    private getDefaultTrackState(): TrackState {
+        return {
+            centerX: this.canvas.width / 2,
+            centerY: this.canvas.height / 2,
+            radiusX: this.trackConfig.trackWidth / 2,
+            radiusY: this.trackConfig.trackHeight / 2,
+        };
+    }
+
+    private getDefaultTrackConfig(): TrackConfig {
+        return {
+            trackWidth: 1500,
+            trackHeight: 700,
+            roadWidth: 160,
+            roadColor: "#555",
+            backgroundColor: "#2a2a2a",
         };
     }
 
@@ -66,7 +95,7 @@ export class TrackBoundary implements Scene {
 
     render(context: FrameContext): void {
         this.renderDebug(context.ctx);
-        
+
         // Render off-track warning if applicable
         if (!this.isOnTrack) {
             const ctx = context.ctx;
@@ -111,8 +140,8 @@ export class TrackBoundary implements Scene {
     }
 
     isCarOnTrack(car: ArrowPlayer): boolean {
-        const trackConfig = this.track.config;
-        const trackState = this.track.state;
+        const trackConfig = this.trackConfig;
+        const trackState = this.trackState;
 
         const carWidth = 30; // ArrowPlayer's carWidth from config
         const carHeight = 50; // ArrowPlayer's carHeight from config
@@ -225,8 +254,8 @@ export class TrackBoundary implements Scene {
     }
 
     renderDebug(ctx: CanvasRenderingContext2D): void {
-        const trackConfig = this.track.config;
-        const trackState = this.track.state;
+        const trackConfig = this.trackConfig;
+        const trackState = this.trackState;
 
         const halfLength = trackConfig.trackWidth / 2;
         const halfHeight = trackConfig.trackHeight / 2;

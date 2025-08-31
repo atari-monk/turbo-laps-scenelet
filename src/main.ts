@@ -14,6 +14,7 @@ import {
     logTestUrls,
     setupEngine,
 } from "./tools";
+import { singleSceneFactory } from "./factory/single-scene-factory";
 
 const urlParams = new URLSearchParams(window.location.search);
 const SCENE_MODE = (urlParams.get("mode") as "all" | "current") || "current";
@@ -54,9 +55,8 @@ window.addEventListener("load", async () => {
         gameEngine.input.setupCanvasEvents(canvas);
         gameEngine.setSceneMode(SCENE_MODE);
 
-        const sceneFactory = new SceneFactory(gameEngine, canvas);
         if (currentScene) {
-            const scene = sceneFactory.generateScene(currentScene);
+            const scene = singleSceneFactory(gameEngine, canvas, currentScene);
             gameEngine.registerScene(scene.name!, scene);
             gameEngine.transitionToScene(scene.name!);
         }

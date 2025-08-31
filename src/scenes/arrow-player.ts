@@ -20,16 +20,6 @@ export class ArrowPlayer implements Scene {
         this.trackBoundary = trackBoundary;
     }
 
-    setStartingPosition(position: {
-        x: number;
-        y: number;
-        angle: number;
-    }): void {
-        this.state.position = { x: position.x, y: position.y };
-        this.state.rotation = position.angle * (180 / Math.PI); // Convert radians to degrees
-        this.state.velocity = 0;
-    }
-
     private config = {
         carWidth: 30,
         carHeight: 50,
@@ -55,11 +45,25 @@ export class ArrowPlayer implements Scene {
     constructor(
         private readonly canvas: HTMLCanvasElement,
         private readonly input: InputSystem,
-        private readonly startingGrid: StartingGrid
+        enableInput = false
     ) {
-        const startPos = this.startingGrid.getStartingPosition();
+        if (enableInput) this.setInputEnabled(true);
+    }
+
+    setStartingGrid(startingGrid: StartingGrid) {
+        const startPos = startingGrid.getStartingPosition();
         this.state.position = { x: startPos.x, y: startPos.y };
         this.state.rotation = startPos.angle * (180 / Math.PI);
+    }
+
+    setStartingPosition(position: {
+        x: number;
+        y: number;
+        angle: number;
+    }): void {
+        this.state.position = { x: position.x, y: position.y };
+        this.state.rotation = position.angle * (180 / Math.PI);
+        this.state.velocity = 0;
     }
 
     init(): void {}
