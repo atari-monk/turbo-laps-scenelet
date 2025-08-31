@@ -1,45 +1,52 @@
 import type { FrameContext } from "zippy-shared-lib";
 import type { Scene } from "zippy-game-engine";
-import type { RectangleTrack } from "./rectangle-track";
+import { TrackConfigService } from "./service/track-config.service";
+
+export interface StartingGridConfig {
+    stripeWidth: number;
+    stripeLength: number;
+    stripeCount: number;
+    offset: number;
+}
 
 export class StartingGrid implements Scene {
     name: string = "Starting-Grid";
     displayName?: string = "Starting Grid";
 
-    private track: RectangleTrack;
-    private config: {
-        stripeWidth: number;
-        stripeLength: number;
-        stripeCount: number;
-        offset: number;
-    };
-
-    constructor(
-        track: RectangleTrack,
-        config: Partial<typeof this.config> = {}
-    ) {
-        this.track = track;
+    private readonly configService = TrackConfigService.getInstance();
+    private config: StartingGridConfig;
+    
+    constructor(config: Partial<StartingGridConfig> = {}) {
         this.config = {
-            stripeWidth: 10,
-            stripeLength: 50,
-            stripeCount: 5,
-            offset: 40, // Distance from track edge
+            ...this.getDefaultConfig(),
             ...config,
         };
     }
 
-    private calculateStartPosition() {
-        const trackConfig = this.track.config;
-        const trackState = this.track.state;
+    private getDefaultConfig(): StartingGridConfig {
+        return {
+            stripeWidth: 10,
+            stripeLength: 50,
+            stripeCount: 5,
+            offset: 40,
+        };
+    }
 
-        // Place starting grid at the beginning of section 0 (top center of track)
+    setConfig(config: Partial<StartingGridConfig>): void {
+        this.config = { ...this.config, ...config };
+    }
+
+    private calculateStartPosition() {
+        const trackConfig = this.configService.getConfig();
+        const trackState = this.configService.getState();
+
         return {
             x: trackState.centerX,
             y:
                 trackState.centerY -
                 trackConfig.trackHeight / 2 +
                 this.config.offset,
-            angle: Math.PI / 2, // 90 degrees (pointing downward along the track)
+            angle: Math.PI / 2,
         };
     }
 
@@ -49,7 +56,6 @@ export class StartingGrid implements Scene {
 
         context.ctx.save();
 
-        // Draw alternating stripes
         for (let i = 0; i < this.config.stripeCount; i++) {
             context.ctx.fillStyle = i % 2 === 0 ? "white" : "black";
             context.ctx.fillRect(
@@ -67,24 +73,13 @@ export class StartingGrid implements Scene {
         return this.calculateStartPosition();
     }
 
-    resize(): void {
-        // No specific resize logic needed
-    }
+    resize(): void {}
 
-    // Scene interface implementation
-    init(): void {
-        // Initialization logic if needed
-    }
+    init(): void {}
 
-    update(_context: FrameContext): void {
-        // Update logic if needed
-    }
+    update(_context: FrameContext): void {}
 
-    onEnter(): void {
-        // Called when scene enters
-    }
+    onEnter(): void {}
 
-    onExit(): void {
-        // Called when scene exits
-    }
+    onExit(): void {}
 }

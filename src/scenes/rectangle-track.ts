@@ -1,45 +1,17 @@
 import type { FrameContext } from "zippy-shared-lib";
 import type { Scene } from "zippy-game-engine";
-
-export interface TrackConfig {
-    trackWidth: number;
-    trackHeight: number;
-    roadWidth: number;
-    roadColor: string;
-    backgroundColor: string;
-}
-
-export interface TrackState {
-    centerX: number;
-    centerY: number;
-    radiusX: number;
-    radiusY: number;
-}
+import type { TrackConfig } from "./types/track-config";
+import type { TrackState } from "./types/track-state";
+import { TrackConfigService } from "./service/track-config.service";
 
 export class RectangleTrack implements Scene {
     name: string = "Rectangle-Track";
     displayName?: string = "Rectangle Track";
 
-    // Public properties with readonly access
-    public readonly config: TrackConfig;
-    public readonly state: TrackState;
+    private readonly configService = TrackConfigService.getInstance();
 
     constructor(private readonly canvas: HTMLCanvasElement) {
-        this.config = {
-            trackWidth: 1500,
-            trackHeight: 700,
-            roadWidth: 160,
-            roadColor: "#555",
-            backgroundColor: "#2a2a2a",
-        };
-
-        this.state = {
-            centerX: 0,
-            centerY: 0,
-            radiusX: 0,
-            radiusY: 0,
-        };
-
+        this.configService.calculateTrackState(this.canvas);
         this.init();
     }
 
@@ -56,14 +28,15 @@ export class RectangleTrack implements Scene {
     update(_context: FrameContext): void {}
 
     render(context: FrameContext): void {
-        this.rounded_rectangle(context.ctx, this.config, this.state);
+        this.rounded_rectangle(
+            context.ctx,
+            this.configService.getConfig(),
+            this.configService.getState()
+        );
     }
 
     resize(): void {
-        this.state.centerX = this.canvas.width / 2;
-        this.state.centerY = this.canvas.height / 2;
-        this.state.radiusX = this.config.trackWidth / 2;
-        this.state.radiusY = this.config.trackHeight / 2;
+        this.configService.calculateTrackState(this.canvas);
     }
 
     private rounded_rectangle(

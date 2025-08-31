@@ -1,6 +1,8 @@
 import type { FrameContext } from "zippy-shared-lib";
 import type { Scene } from "zippy-game-engine";
-import type { RectangleTrack } from "./rectangle-track";
+import type { TrackConfig } from "./types/track-config";
+import type { TrackState } from "./types/track-state";
+import { TrackConfigService } from "./service/track-config.service";
 
 interface RoadMarkingsConfig {
     lineWidth: number;
@@ -13,14 +15,10 @@ export class RoadMarkings implements Scene {
     name: string = "Road-Markings";
     displayName?: string = "Road Markings";
 
-    private track: RectangleTrack;
+    private readonly configService = TrackConfigService.getInstance();
     private config: RoadMarkingsConfig;
 
-    constructor(
-        track: RectangleTrack,
-        config: Partial<RoadMarkingsConfig> = {}
-    ) {
-        this.track = track;
+    constructor(config: Partial<RoadMarkingsConfig> = {}) {
         this.config = {
             lineWidth: 4,
             lineColor: "#ffffff",
@@ -30,15 +28,23 @@ export class RoadMarkings implements Scene {
         };
     }
 
+    setConfig(config: Partial<RoadMarkingsConfig>): void {
+        this.config = { ...this.config, ...config };
+    }
+
     init(): void {}
     onEnter(): void {}
     onExit(): void {}
+
     resize(): void {}
 
     update(_context: FrameContext): void {}
 
     render(context: FrameContext): void {
-        const centerLinePoints = this.calculateCenterLine();
+        const centerLinePoints = this.calculateCenterLine(
+            this.configService.getConfig(),
+            this.configService.getState()
+        );
 
         context.ctx.save();
         context.ctx.strokeStyle = this.config.lineColor;
@@ -93,18 +99,18 @@ export class RoadMarkings implements Scene {
         }
     }
 
-    private calculateCenterLine(): { x: number; y: number }[] {
-        const track = this.track.config;
-        const state = this.track.state;
-        const halfLength = track.trackWidth / 2;
-        const halfHeight = track.trackHeight / 2;
+    private calculateCenterLine(
+        trackConfig: TrackConfig,
+        trackState: TrackState
+    ): { x: number; y: number }[] {
+        const halfLength = trackConfig.trackWidth / 2;
+        const halfHeight = trackConfig.trackHeight / 2;
         const radius = halfHeight;
-        const cx = state.centerX;
-        const cy = state.centerY;
+        const cx = trackState.centerX;
+        const cy = trackState.centerY;
         const points: { x: number; y: number }[] = [];
         const segments = 100;
 
-        // Top straight (left to right)
         for (
             let x = cx - halfLength + radius;
             x <= cx + halfLength - radius;
@@ -113,7 +119,6 @@ export class RoadMarkings implements Scene {
             points.push({ x, y: cy - halfHeight });
         }
 
-        // Top-right curve
         for (
             let angle = -Math.PI / 2;
             angle <= 0;
@@ -125,7 +130,6 @@ export class RoadMarkings implements Scene {
             });
         }
 
-        // Right straight (top to bottom)
         for (
             let y = cy - halfHeight + radius;
             y <= cy + halfHeight - radius;
@@ -134,7 +138,6 @@ export class RoadMarkings implements Scene {
             points.push({ x: cx + halfLength, y });
         }
 
-        // Bottom-right curve
         for (let angle = 0; angle <= Math.PI / 2; angle += Math.PI / segments) {
             points.push({
                 x: cx + halfLength - radius + radius * Math.cos(angle),
@@ -142,7 +145,6 @@ export class RoadMarkings implements Scene {
             });
         }
 
-        // Bottom straight (right to left)
         for (
             let x = cx + halfLength - radius;
             x >= cx - halfLength + radius;
@@ -151,7 +153,6 @@ export class RoadMarkings implements Scene {
             points.push({ x, y: cy + halfHeight });
         }
 
-        // Bottom-left curve
         for (
             let angle = Math.PI / 2;
             angle <= Math.PI;
@@ -163,7 +164,6 @@ export class RoadMarkings implements Scene {
             });
         }
 
-        // Left straight (bottom to top)
         for (
             let y = cy + halfHeight - radius;
             y >= cy - halfHeight + radius;
@@ -172,7 +172,6 @@ export class RoadMarkings implements Scene {
             points.push({ x: cx - halfLength, y });
         }
 
-        // Top-left curve
         for (
             let angle = Math.PI;
             angle <= Math.PI * 1.5;

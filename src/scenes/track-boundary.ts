@@ -1,7 +1,7 @@
 import type { FrameContext } from "zippy-shared-lib";
 import type { Scene } from "zippy-game-engine";
-import type { TrackConfig, TrackState } from "./rectangle-track";
 import type { ArrowPlayer } from "./arrow-player";
+import { TrackConfigService } from "./service/track-config.service";
 
 interface TrackBoundaryConfig {
     outerBoundaryOffset: number;
@@ -13,15 +13,14 @@ interface TrackBoundaryConfig {
 }
 
 export class TrackBoundary implements Scene {
-    name: string = "Track-Boundary";
-    displayName?: string = "Track Boundary";
+    name = "Track-Boundary";
+    displayName = "Track Boundary";
 
     private config: TrackBoundaryConfig;
-    private isOnTrack: boolean = true;
-    private offTrackTimer: number = 0;
+    private isOnTrack = true;
+    private offTrackTimer = 0;
     private hapticFeedback?: (duration: number) => void;
-    private trackState: TrackState;
-    private trackConfig: TrackConfig;
+    private readonly configService = TrackConfigService.getInstance();
 
     constructor(
         private readonly canvas: HTMLCanvasElement,
@@ -31,8 +30,7 @@ export class TrackBoundary implements Scene {
             ...this.getDefaultConfig(),
             ...config,
         };
-        this.trackConfig = this.getDefaultTrackConfig();
-        this.trackState = this.getDefaultTrackState();
+        this.configService.calculateTrackState(this.canvas);
     }
 
     private getDefaultConfig(): TrackBoundaryConfig {
@@ -46,44 +44,20 @@ export class TrackBoundary implements Scene {
         };
     }
 
-    private getDefaultTrackState(): TrackState {
-        return {
-            centerX: this.canvas.width / 2,
-            centerY: this.canvas.height / 2,
-            radiusX: this.trackConfig.trackWidth / 2,
-            radiusY: this.trackConfig.trackHeight / 2,
-        };
-    }
-
-    private getDefaultTrackConfig(): TrackConfig {
-        return {
-            trackWidth: 1500,
-            trackHeight: 700,
-            roadWidth: 160,
-            roadColor: "#555",
-            backgroundColor: "#2a2a2a",
-        };
-    }
-
     setHapticFeedback(callback: (duration: number) => void): void {
         this.hapticFeedback = callback;
     }
 
-    init(): void {
-        // No specific initialization needed
-    }
+    init(): void {}
 
     onEnter(): void {
         this.isOnTrack = true;
         this.offTrackTimer = 0;
     }
 
-    onExit(): void {
-        // No specific cleanup needed
-    }
+    onExit(): void {}
 
     update(context: FrameContext): void {
-        // Update logic moved from turbo-laps.js
         const deltaTime = context.deltaTime;
 
         if (this.isOnTrack) {
@@ -96,7 +70,6 @@ export class TrackBoundary implements Scene {
     render(context: FrameContext): void {
         this.renderDebug(context.ctx);
 
-        // Render off-track warning if applicable
         if (!this.isOnTrack) {
             const ctx = context.ctx;
             ctx.save();
@@ -108,9 +81,7 @@ export class TrackBoundary implements Scene {
         }
     }
 
-    resize(): void {
-        // No specific resize logic needed
-    }
+    resize(): void {}
 
     checkCarOnTrack(car: ArrowPlayer, deltaTime: number): boolean {
         const wasOnTrack = this.isOnTrack;
@@ -122,16 +93,14 @@ export class TrackBoundary implements Scene {
             if (this.offTrackTimer > this.config.maxOffTrackTime) {
                 this.offTrackTimer = 0;
                 this.isOnTrack = true;
-                return false; // Signal that car should be reset
+                return false;
             }
 
-            // Apply slowdown to car
             car.velocity *= this.config.offTrackSlowdown;
         } else {
             this.offTrackTimer = 0;
         }
 
-        // Trigger haptic feedback when going off track
         if (wasOnTrack && !this.isOnTrack && this.hapticFeedback) {
             this.hapticFeedback(100);
         }
@@ -140,31 +109,30 @@ export class TrackBoundary implements Scene {
     }
 
     isCarOnTrack(car: ArrowPlayer): boolean {
-        const trackConfig = this.trackConfig;
-        const trackState = this.trackState;
+        const trackConfig = this.configService.getConfig();
+        const trackState = this.configService.getState();
 
-        const carWidth = 30; // ArrowPlayer's carWidth from config
-        const carHeight = 50; // ArrowPlayer's carHeight from config
+        const carWidth = 30;
+        const carHeight = 50;
 
-        // Check four corners of the car plus center point
         const points = [
             {
                 x: car.position.x - carWidth / 2,
                 y: car.position.y - carHeight / 2,
-            }, // top-left
+            },
             {
                 x: car.position.x + carWidth / 2,
                 y: car.position.y - carHeight / 2,
-            }, // top-right
+            },
             {
                 x: car.position.x - carWidth / 2,
                 y: car.position.y + carHeight / 2,
-            }, // bottom-left
+            },
             {
                 x: car.position.x + carWidth / 2,
                 y: car.position.y + carHeight / 2,
-            }, // bottom-right
-            { x: car.position.x, y: car.position.y }, // center for better detection
+            },
+            { x: car.position.x, y: car.position.y },
         ];
 
         const halfLength = trackConfig.trackWidth / 2;
@@ -174,7 +142,6 @@ export class TrackBoundary implements Scene {
         const cx = trackState.centerX;
         const cy = trackState.centerY;
 
-        // Calculate boundaries
         const outerHalfLength =
             halfLength + roadWidth / 2 + this.config.outerBoundaryOffset;
         const outerHalfHeight =
@@ -190,7 +157,6 @@ export class TrackBoundary implements Scene {
             radius - roadWidth / 2 - this.config.innerBoundaryOffset;
 
         for (const point of points) {
-            // Check if outside outer boundary
             if (
                 !this.isPointInRoundedRect(
                     point,
@@ -204,7 +170,6 @@ export class TrackBoundary implements Scene {
                 return false;
             }
 
-            // Check if inside inner boundary
             if (
                 this.isPointInRoundedRect(
                     point,
@@ -230,7 +195,6 @@ export class TrackBoundary implements Scene {
         halfHeight: number,
         radius: number
     ): boolean {
-        // Check central rectangle area
         if (
             Math.abs(point.x - cx) <= halfLength - radius &&
             Math.abs(point.y - cy) <= halfHeight - radius
@@ -238,7 +202,6 @@ export class TrackBoundary implements Scene {
             return true;
         }
 
-        // Check rounded corners
         const dx = Math.abs(point.x - cx) - (halfLength - radius);
         const dy = Math.abs(point.y - cy) - (halfHeight - radius);
 
@@ -246,7 +209,6 @@ export class TrackBoundary implements Scene {
             return dx * dx + dy * dy <= radius * radius;
         }
 
-        // Check straight sections
         return (
             Math.abs(point.x - cx) <= halfLength &&
             Math.abs(point.y - cy) <= halfHeight
@@ -254,8 +216,8 @@ export class TrackBoundary implements Scene {
     }
 
     renderDebug(ctx: CanvasRenderingContext2D): void {
-        const trackConfig = this.trackConfig;
-        const trackState = this.trackState;
+        const trackConfig = this.configService.getConfig();
+        const trackState = this.configService.getState();
 
         const halfLength = trackConfig.trackWidth / 2;
         const halfHeight = trackConfig.trackHeight / 2;
@@ -264,7 +226,6 @@ export class TrackBoundary implements Scene {
         const cx = trackState.centerX;
         const cy = trackState.centerY;
 
-        // Draw outer boundary
         ctx.fillStyle = this.config.debugOuterColor;
         this.drawRoundedRect(
             ctx,
@@ -275,7 +236,6 @@ export class TrackBoundary implements Scene {
             radius + roadWidth / 2 + this.config.outerBoundaryOffset
         );
 
-        // Draw inner boundary
         ctx.fillStyle = this.config.debugInnerColor;
         this.drawRoundedRect(
             ctx,
@@ -296,12 +256,8 @@ export class TrackBoundary implements Scene {
         radius: number
     ): void {
         ctx.beginPath();
-
-        // Top straight
         ctx.moveTo(cx - halfLength + radius, cy - halfHeight);
         ctx.lineTo(cx + halfLength - radius, cy - halfHeight);
-
-        // Top-right curve
         ctx.arcTo(
             cx + halfLength,
             cy - halfHeight,
@@ -309,11 +265,7 @@ export class TrackBoundary implements Scene {
             cy - halfHeight + radius,
             radius
         );
-
-        // Right straight
         ctx.lineTo(cx + halfLength, cy + halfHeight - radius);
-
-        // Bottom-right curve
         ctx.arcTo(
             cx + halfLength,
             cy + halfHeight,
@@ -321,11 +273,7 @@ export class TrackBoundary implements Scene {
             cy + halfHeight,
             radius
         );
-
-        // Bottom straight
         ctx.lineTo(cx - halfLength + radius, cy + halfHeight);
-
-        // Bottom-left curve
         ctx.arcTo(
             cx - halfLength,
             cy + halfHeight,
@@ -333,11 +281,7 @@ export class TrackBoundary implements Scene {
             cy + halfHeight - radius,
             radius
         );
-
-        // Left straight
         ctx.lineTo(cx - halfLength, cy - halfHeight + radius);
-
-        // Top-left curve
         ctx.arcTo(
             cx - halfLength,
             cy - halfHeight,
@@ -345,7 +289,6 @@ export class TrackBoundary implements Scene {
             cy - halfHeight,
             radius
         );
-
         ctx.fill();
     }
 }

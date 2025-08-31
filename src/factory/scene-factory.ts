@@ -29,22 +29,22 @@ export class SceneFactory {
 
     getArrowPlayer(): ArrowPlayer {
         const track = new RectangleTrack(this.canvas);
-        const startingGrid = new StartingGrid(track);
+        const startingGrid = new StartingGrid();
         const player = new ArrowPlayer(this.canvas, this.gameEngine.input);
         player.setInputEnabled(true);
         return player;
     }
 
     getTrackBoundary(): TrackBoundary {
-        return new TrackBoundary();
+        return new TrackBoundary(this.canvas);
     }
 
     getStartingGrid(): StartingGrid {
-        return new StartingGrid(new RectangleTrack(this.canvas));
+        return new StartingGrid();
     }
 
     getRoadMarkings(): RoadMarkings {
-        return new RoadMarkings(new RectangleTrack(this.canvas));
+        return new RoadMarkings();
     }
 
     getTrackGrass(): TrackGrass {
@@ -53,7 +53,7 @@ export class SceneFactory {
 
     getLapTracker(): LapTracker {
         const track = new RectangleTrack(this.canvas);
-        const startingGrid = new StartingGrid(track);
+        const startingGrid = new StartingGrid();
         const player = new ArrowPlayer(
             this.canvas,
             this.gameEngine.input
@@ -71,7 +71,7 @@ export class SceneFactory {
     //todo: this needs fix, show, hide
     getGameScore(): GameScore {
         const track = new RectangleTrack(this.canvas);
-        const startingGrid = new StartingGrid(track);
+        const startingGrid = new StartingGrid();
         const player = new ArrowPlayer(
             this.canvas,
             this.gameEngine.input
