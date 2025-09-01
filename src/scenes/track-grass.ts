@@ -1,6 +1,6 @@
 import type { FrameContext } from "zippy-shared-lib";
 import type { Scene } from "zippy-game-engine";
-import type { RectangleTrack } from "./rectangle-track";
+import { TrackConfigService } from "./service/track-config.service";
 
 interface GrassConfig {
     grassColor: string;
@@ -10,12 +10,10 @@ export class TrackGrass implements Scene {
     name: string = "Track-Grass";
     displayName?: string = "Track Grass";
 
+    private readonly configService = TrackConfigService.getInstance();
     private readonly config: GrassConfig;
 
-    constructor(
-        private readonly track: RectangleTrack,
-        config: Partial<GrassConfig> = {}
-    ) {
+    constructor(config: Partial<GrassConfig> = {}) {
         this.config = {
             grassColor: "#2d7d2d",
             ...config,
@@ -27,23 +25,22 @@ export class TrackGrass implements Scene {
     update(_context: FrameContext): void {}
 
     render(context: FrameContext): void {
-        this.#drawRoundedGrass(context.ctx);
+        this.drawRoundedGrass(context.ctx);
     }
 
     resize(): void {}
 
-    #drawRoundedGrass(ctx: CanvasRenderingContext2D): void {
-        const config = this.track.config;
-        const state = this.track.state;
+    private drawRoundedGrass(ctx: CanvasRenderingContext2D): void {
+        const trackConfig = this.configService.getConfig();
+        const trackState = this.configService.getState();
 
-        const halfLength = config.trackWidth / 2;
-        const halfHeight = config.trackHeight / 2;
+        const halfLength = trackConfig.trackWidth / 2;
+        const halfHeight = trackConfig.trackHeight / 2;
         const radius = halfHeight;
-        const roadWidth = config.roadWidth;
-        const cx = state.centerX;
-        const cy = state.centerY;
+        const roadWidth = trackConfig.roadWidth;
+        const centerX = trackState.centerX;
+        const centerY = trackState.centerY;
 
-        // Inner dimensions (where grass should be)
         const innerHalfLength = halfLength - roadWidth / 2;
         const innerHalfHeight = halfHeight - roadWidth / 2;
         const innerRadius = radius - roadWidth / 2;
@@ -51,52 +48,59 @@ export class TrackGrass implements Scene {
         ctx.fillStyle = this.config.grassColor;
         ctx.beginPath();
 
-        // Top straight (left to right)
-        ctx.moveTo(cx - innerHalfLength + innerRadius, cy - innerHalfHeight);
-        ctx.lineTo(cx + innerHalfLength - innerRadius, cy - innerHalfHeight);
+        ctx.moveTo(
+            centerX - innerHalfLength + innerRadius,
+            centerY - innerHalfHeight
+        );
+        ctx.lineTo(
+            centerX + innerHalfLength - innerRadius,
+            centerY - innerHalfHeight
+        );
 
-        // Top-right curve
         ctx.arcTo(
-            cx + innerHalfLength,
-            cy - innerHalfHeight,
-            cx + innerHalfLength,
-            cy - innerHalfHeight + innerRadius,
+            centerX + innerHalfLength,
+            centerY - innerHalfHeight,
+            centerX + innerHalfLength,
+            centerY - innerHalfHeight + innerRadius,
             innerRadius
         );
 
-        // Right straight (top to bottom)
-        ctx.lineTo(cx + innerHalfLength, cy + innerHalfHeight - innerRadius);
+        ctx.lineTo(
+            centerX + innerHalfLength,
+            centerY + innerHalfHeight - innerRadius
+        );
 
-        // Bottom-right curve
         ctx.arcTo(
-            cx + innerHalfLength,
-            cy + innerHalfHeight,
-            cx + innerHalfLength - innerRadius,
-            cy + innerHalfHeight,
+            centerX + innerHalfLength,
+            centerY + innerHalfHeight,
+            centerX + innerHalfLength - innerRadius,
+            centerY + innerHalfHeight,
             innerRadius
         );
 
-        // Bottom straight (right to left)
-        ctx.lineTo(cx - innerHalfLength + innerRadius, cy + innerHalfHeight);
+        ctx.lineTo(
+            centerX - innerHalfLength + innerRadius,
+            centerY + innerHalfHeight
+        );
 
-        // Bottom-left curve
         ctx.arcTo(
-            cx - innerHalfLength,
-            cy + innerHalfHeight,
-            cx - innerHalfLength,
-            cy + innerHalfHeight - innerRadius,
+            centerX - innerHalfLength,
+            centerY + innerHalfHeight,
+            centerX - innerHalfLength,
+            centerY + innerHalfHeight - innerRadius,
             innerRadius
         );
 
-        // Left straight (bottom to top)
-        ctx.lineTo(cx - innerHalfLength, cy - innerHalfHeight + innerRadius);
+        ctx.lineTo(
+            centerX - innerHalfLength,
+            centerY - innerHalfHeight + innerRadius
+        );
 
-        // Top-left curve
         ctx.arcTo(
-            cx - innerHalfLength,
-            cy - innerHalfHeight,
-            cx - innerHalfLength + innerRadius,
-            cy - innerHalfHeight,
+            centerX - innerHalfLength,
+            centerY - innerHalfHeight,
+            centerX - innerHalfLength + innerRadius,
+            centerY - innerHalfHeight,
             innerRadius
         );
 

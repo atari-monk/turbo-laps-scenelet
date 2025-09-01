@@ -7,6 +7,7 @@ import { TrackBoundary } from "../scenes/track-boundary";
 import { StartingGrid } from "../scenes/starting-grid";
 import { RoadMarkings } from "../scenes/road-markings";
 import { TrackConfigService } from "../scenes/service/track-config.service";
+import { TrackGrass } from "../scenes/track-grass";
 
 export function singleSceneFactory(
     gameEngine: GameEngine,
@@ -25,5 +26,6 @@ export function singleSceneFactory(
         return new TrackBoundary(canvas);
     if (sceneType === SceneType.STARTING_GRID) return new StartingGrid();
     if (sceneType === SceneType.ROAD_MARKINGS) return new RoadMarkings();
+    if (sceneType === SceneType.TRACK_GRASS) return new TrackGrass();
     return new ElipseTrack(canvas);
 }
