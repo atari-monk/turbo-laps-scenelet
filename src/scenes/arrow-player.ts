@@ -2,8 +2,9 @@ import type { FrameContext } from "zippy-shared-lib";
 import type { Scene, InputSystem } from "zippy-game-engine";
 import type { TrackBoundary } from "./track-boundary";
 import type { StartingGrid } from "./starting-grid";
+import type { PositionProvider } from "./types/position-provider";
 
-export class ArrowPlayer implements Scene {
+export class ArrowPlayer implements Scene, PositionProvider {
     name?: string = "Arrow-Player";
     displayName?: string = "Arrow Player";
     private trackBoundary?: TrackBoundary;
@@ -24,8 +25,8 @@ export class ArrowPlayer implements Scene {
         carWidth: 30,
         carHeight: 50,
         carColor: "red",
-        moveSpeed: 300, // Pixels per second
-        turnSpeed: 180, // Degrees per second
+        moveSpeed: 300,
+        turnSpeed: 180,
     };
 
     private state = {
@@ -40,6 +41,10 @@ export class ArrowPlayer implements Scene {
 
     set velocity(value: number) {
         this.state.velocity = value;
+    }
+
+    get position(): { x: number; y: number } {
+        return { ...this.state.position };
     }
 
     constructor(
@@ -76,10 +81,9 @@ export class ArrowPlayer implements Scene {
                 context.deltaTime
             );
             if (!isOnTrack) {
-                // Optional: Handle off-track behavior
             }
         } else {
-            this.keepInBounds(); // Fallback to canvas bounds if no track boundary
+            this.keepInBounds();
         }
     }
 
@@ -96,7 +100,6 @@ export class ArrowPlayer implements Scene {
             this.state.velocity = 0;
         }
 
-        // Handle rotation
         if (this.input.keyboard.isKeyDown("ArrowLeft")) {
             this.state.rotation -= this.config.turnSpeed * deltaTime;
         }
@@ -104,10 +107,8 @@ export class ArrowPlayer implements Scene {
             this.state.rotation += this.config.turnSpeed * deltaTime;
         }
 
-        // Normalize rotation
         this.state.rotation = ((this.state.rotation % 360) + 360) % 360;
 
-        // Apply movement
         if (this.state.velocity !== 0) {
             const radians = (this.state.rotation * Math.PI) / 180;
             this.state.position.x +=
@@ -137,7 +138,6 @@ export class ArrowPlayer implements Scene {
         ctx.translate(this.state.position.x, this.state.position.y);
         ctx.rotate((this.state.rotation * Math.PI) / 180);
 
-        // Draw car body
         ctx.fillStyle = this.config.carColor;
         ctx.fillRect(
             -this.config.carWidth / 2,
@@ -146,7 +146,6 @@ export class ArrowPlayer implements Scene {
             this.config.carHeight
         );
 
-        // Draw windshield
         ctx.fillStyle = "#333";
         ctx.fillRect(
             -this.config.carWidth / 2 + 5,
@@ -159,7 +158,6 @@ export class ArrowPlayer implements Scene {
     }
 
     onEnter(): void {
-        // Optional: Reset state when entering the scene
         this.state.position = {
             x: this.canvas.width / 2,
             y: this.canvas.height / 2,
@@ -177,10 +175,6 @@ export class ArrowPlayer implements Scene {
     }
 
     private cleanup(): void {}
-
-    get position(): { x: number; y: number } {
-        return { ...this.state.position };
-    }
 
     get rotation(): number {
         return this.state.rotation;

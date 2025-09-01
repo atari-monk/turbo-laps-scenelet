@@ -8,6 +8,7 @@ import { StartingGrid } from "../scenes/starting-grid";
 import { RoadMarkings } from "../scenes/road-markings";
 import { TrackConfigService } from "../scenes/service/track-config.service";
 import { TrackGrass } from "../scenes/track-grass";
+import { LapTracker } from "../scenes/lap-tracker";
 
 export function singleSceneFactory(
     gameEngine: GameEngine,
@@ -27,5 +28,14 @@ export function singleSceneFactory(
     if (sceneType === SceneType.STARTING_GRID) return new StartingGrid();
     if (sceneType === SceneType.ROAD_MARKINGS) return new RoadMarkings();
     if (sceneType === SceneType.TRACK_GRASS) return new TrackGrass();
+    if (sceneType === SceneType.LAP_TRACKER) {
+        const tracker = new LapTracker(
+            {
+                position: { x: 50, y: 500 },
+            },
+            true
+        );
+        return tracker;
+    }
     return new ElipseTrack(canvas);
 }

@@ -48,7 +48,7 @@ export class SceneFactory {
     }
 
     getTrackGrass(): TrackGrass {
-        return new TrackGrass(new RectangleTrack(this.canvas));
+        return new TrackGrass();
     }
 
     getLapTracker(): LapTracker {
@@ -59,7 +59,7 @@ export class SceneFactory {
             this.gameEngine.input
             //startingGrid
         );
-        const lapTracker = new LapTracker(track, player);
+        const lapTracker = new LapTracker(player);
         lapTracker.setRaceCompleteCallback(() => {
             lapTracker.reset();
             player.setInputEnabled(false);
@@ -77,7 +77,7 @@ export class SceneFactory {
             this.gameEngine.input
             //startingGrid
         );
-        const lapTracker = new LapTracker(track, player);
+        const lapTracker = new LapTracker(player);
         lapTracker.setRaceCompleteCallback(() => {
             lapTracker.reset();
             player.setInputEnabled(false);

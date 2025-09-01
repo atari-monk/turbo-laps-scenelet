@@ -1,10 +1,10 @@
 import type { FrameContext } from "zippy-shared-lib";
 import type { Scene } from "zippy-game-engine";
-import type { ArrowPlayer } from "./arrow-player";
 import { TrackConfigService } from "./service/track-config.service";
+import type { PositionProvider } from "./types/position-provider";
 
 export class LapTracker implements Scene {
-    name: string = "Lap-Tracker";
+    name = "Lap-Tracker";
     displayName?: string = "Lap Tracker";
 
     private sectors: number;
@@ -20,7 +20,11 @@ export class LapTracker implements Scene {
     private isRunning: boolean;
     private readonly configService = TrackConfigService.getInstance();
 
-    constructor(private readonly player: ArrowPlayer, sectors: number = 4) {
+    constructor(
+        private readonly positionProvider: PositionProvider,
+        private readonly turnOn = false,
+        sectors = 4
+    ) {
         this.sectors = sectors;
         this.currentSector = 0;
         this.lapCount = 0;
@@ -37,6 +41,7 @@ export class LapTracker implements Scene {
 
     onEnter(): void {
         this.reset();
+        if (this.turnOn) this.start();
     }
 
     onExit(): void {}
@@ -45,12 +50,12 @@ export class LapTracker implements Scene {
         if (!this.isRunning) return;
 
         const trackState = this.configService.getState();
-        const relX = this.player.position.x - trackState.centerX;
-        const relY = this.player.position.y - trackState.centerY;
+        const relX = this.positionProvider.position.x - trackState.centerX;
+        const relY = this.positionProvider.position.y - trackState.centerY;
         const angle = Math.atan2(relY, relX) + Math.PI / 2;
         const sectorSize = (2 * Math.PI) / this.sectors;
 
-        let normalizedAngle = (angle + 2 * Math.PI) % (2 * Math.PI);
+        const normalizedAngle = (angle + 2 * Math.PI) % (2 * Math.PI);
         const newSector = Math.floor(normalizedAngle / sectorSize);
 
         if (newSector !== this.currentSector) {
