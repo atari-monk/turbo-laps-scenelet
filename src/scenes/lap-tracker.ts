@@ -1,7 +1,7 @@
 import type { FrameContext } from "zippy-shared-lib";
 import type { Scene } from "zippy-game-engine";
-import type { RectangleTrack } from "./rectangle-track";
 import type { ArrowPlayer } from "./arrow-player";
+import { TrackConfigService } from "./service/track-config.service";
 
 export class LapTracker implements Scene {
     name: string = "Lap-Tracker";
@@ -18,12 +18,9 @@ export class LapTracker implements Scene {
     private maxLaps: number;
     private onRaceComplete?: () => void;
     private isRunning: boolean;
+    private readonly configService = TrackConfigService.getInstance();
 
-    constructor(
-        private readonly track: RectangleTrack,
-        private readonly player: ArrowPlayer,
-        sectors: number = 4
-    ) {
+    constructor(private readonly player: ArrowPlayer, sectors: number = 4) {
         this.sectors = sectors;
         this.currentSector = 0;
         this.lapCount = 0;
@@ -47,23 +44,20 @@ export class LapTracker implements Scene {
     update(_context: FrameContext): void {
         if (!this.isRunning) return;
 
-        const relX = this.player.position.x - this.track.state.centerX;
-        const relY = this.player.position.y - this.track.state.centerY;
-        const angle = Math.atan2(relY, relX) + Math.PI / 2; // Remove + Math.PI to get proper quadrant alignment
+        const trackState = this.configService.getState();
+        const relX = this.player.position.x - trackState.centerX;
+        const relY = this.player.position.y - trackState.centerY;
+        const angle = Math.atan2(relY, relX) + Math.PI / 2;
         const sectorSize = (2 * Math.PI) / this.sectors;
 
-        // Normalize angle to 0-2π range and calculate sector
         let normalizedAngle = (angle + 2 * Math.PI) % (2 * Math.PI);
         const newSector = Math.floor(normalizedAngle / sectorSize);
 
         if (newSector !== this.currentSector) {
             const now = performance.now();
 
-            // Check for valid sector progression (forward movement)
             const expectedNextSector = (this.currentSector + 1) % this.sectors;
             const isMovingForward = newSector === expectedNextSector;
-
-            // Allow wrapping from last sector to first (completing lap)
             const isCompletingLap =
                 this.currentSector === this.sectors - 1 && newSector === 0;
 
@@ -73,14 +67,12 @@ export class LapTracker implements Scene {
                 this.lastSectorTime = now;
 
                 if (newSector === 0) {
-                    // Record lap time when crossing start/finish line
                     const lapTime = now - this.lastLapStart;
                     this.lapTimes.push(lapTime);
                     this.lastLapStart = now;
                     this.lapCount++;
-                    this.sectorTimes.fill(0); // Reset sector times for new lap
+                    this.sectorTimes.fill(0);
 
-                    // Check if race is complete
                     if (this.lapCount >= this.maxLaps && this.onRaceComplete) {
                         this.stop();
                         this.onRaceComplete();
@@ -98,18 +90,14 @@ export class LapTracker implements Scene {
         ctx.font = "16px Arial";
         ctx.textAlign = "left";
 
-        // Show status
         ctx.fillText(
             `Status: ${this.isRunning ? "Running" : "Stopped"}`,
             20,
             30
         );
-
-        // Current lap info
         ctx.fillText(`Lap: ${this.lapCount}/${this.maxLaps}`, 20, 50);
         ctx.fillText(`Sector: ${this.currentSector + 1}`, 20, 70);
 
-        // Sector times
         for (let i = 0; i < this.sectorTimes.length; i++) {
             ctx.fillText(
                 `Sector ${i + 1}: ${(this.sectorTimes[i] / 1000).toFixed(2)}s`,
@@ -118,7 +106,6 @@ export class LapTracker implements Scene {
             );
         }
 
-        // Current lap time (only show if running)
         if (this.isRunning) {
             ctx.fillText(
                 `Current Lap: ${(
@@ -128,8 +115,6 @@ export class LapTracker implements Scene {
                 20,
                 90 + this.sectorTimes.length * 20
             );
-
-            // Total time
             ctx.fillText(
                 `Total: ${((performance.now() - this.startTime) / 1000).toFixed(
                     2
@@ -139,33 +124,17 @@ export class LapTracker implements Scene {
             );
         }
 
-        // Show race complete message if applicable
-        // if (this.lapCount >= this.maxLaps) {
-        //     ctx.fillStyle = "gold";
-        //     ctx.font = "24px Arial";
-        //     ctx.textAlign = "center";
-        //     ctx.fillText(
-        //         "RACE COMPLETE!",
-        //         ctx.canvas.width / 2,
-        //         ctx.canvas.height / 2
-        //     );
-        // }
-
         ctx.restore();
     }
 
-    resize(): void {
-        // No specific resize logic needed for lap tracker
-    }
+    resize(): void {}
 
-    // Start the lap tracking
     start(): void {
         if (this.isRunning) return;
 
         this.isRunning = true;
         const now = performance.now();
 
-        // Initialize timing if this is the first start
         if (this.lapCount === 0 && this.lapTimes.length === 0) {
             this.startTime = now;
             this.lastLapStart = now;
@@ -173,12 +142,10 @@ export class LapTracker implements Scene {
         }
     }
 
-    // Stop the lap tracking
     stop(): void {
         this.isRunning = false;
     }
 
-    // Reset the tracker completely
     reset(): void {
         this.isRunning = false;
         this.lapCount = 0;
@@ -190,17 +157,14 @@ export class LapTracker implements Scene {
         this.lastLapStart = 0;
     }
 
-    // Get all recorded lap times (in milliseconds)
     getLapTimes(): number[] {
         return [...this.lapTimes];
     }
 
-    // Set the race complete callback
     setRaceCompleteCallback(callback: () => void): void {
         this.onRaceComplete = callback;
     }
 
-    // Getter methods
     getCurrentLap(): number {
         return this.lapCount;
     }
@@ -217,7 +181,6 @@ export class LapTracker implements Scene {
         return this.isRunning ? (performance.now() - this.startTime) / 1000 : 0;
     }
 
-    // Check if tracker is running
     isTracking(): boolean {
         return this.isRunning;
     }
