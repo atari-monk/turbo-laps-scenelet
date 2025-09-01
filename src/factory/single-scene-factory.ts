@@ -9,6 +9,7 @@ import { RoadMarkings } from "../scenes/road-markings";
 import { TrackConfigService } from "../scenes/service/track-config.service";
 import { TrackGrass } from "../scenes/track-grass";
 import { LapTracker } from "../scenes/lap-tracker";
+import { MouseCursor } from "../scenes/mouse-cursor";
 
 export function singleSceneFactory(
     gameEngine: GameEngine,
@@ -37,5 +38,7 @@ export function singleSceneFactory(
         );
         return tracker;
     }
+    if (sceneType === SceneType.MOUSE_CURSOR)
+        return new MouseCursor(gameEngine.input);
     return new ElipseTrack(canvas);
 }
