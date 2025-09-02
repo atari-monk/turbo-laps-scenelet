@@ -3,4 +3,6 @@ export enum MultiSceneType {
     COUNTDOWN = "Countdown",
     LAP_TRACKER = "Lap-Tracker",
     CONTINUE = "Continue",
+    //
+    TRACK_CURSOR = "Track-Cursor",
 }

@@ -15,6 +15,7 @@ import {
     setupEngine,
 } from "./tools";
 import { singleSceneFactory } from "./factory/single-scene-factory";
+import { multiSceneFactory } from "./factory/muti-scene-factory";
 
 const urlParams = new URLSearchParams(window.location.search);
 const SCENE_MODE = (urlParams.get("mode") as "all" | "current") || "current";
@@ -61,9 +62,8 @@ window.addEventListener("load", async () => {
             gameEngine.transitionToScene(scene.name!);
         }
 
-        const featureFactory = new FeatureFactory(gameEngine, canvas);
         if (multiScene) {
-            const scenes = featureFactory.generateSceneArray(multiScene);
+            const scenes = multiSceneFactory(gameEngine, canvas, multiScene);
             scenes.forEach((scene) => {
                 gameEngine.registerScene(scene.name!, scene);
             });

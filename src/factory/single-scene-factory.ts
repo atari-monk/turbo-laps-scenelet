@@ -40,5 +40,5 @@ export function singleSceneFactory(
     }
     if (sceneType === SceneType.MOUSE_CURSOR)
         return new MouseCursor(gameEngine.input);
-    return new ElipseTrack(canvas);
+    return {} as Scene;
 }
