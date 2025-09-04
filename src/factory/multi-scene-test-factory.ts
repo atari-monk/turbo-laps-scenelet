@@ -19,6 +19,8 @@ export class MultiSceneTestFactory {
                 return this.createCarOutOfTrackTest();
             case MultiSceneType.LAP_MEASUREMENT:
                 return this.createLapMeasurementTest();
+            case MultiSceneType.RACE_RESTART:
+                return this.createRaceRestartTest();
             default:
                 throw new Error(`Unknown multi-scene type: ${sceneType}`);
         }
@@ -80,5 +82,46 @@ export class MultiSceneTestFactory {
         });
 
         return [track, startingGrid, player, lapTracker, countdown];
+    }
+
+    private createRaceRestartTest(): Scene[] {
+        const track = this.factory.createRectangleTrack();
+        const trackBoundary = this.factory.createTrackBoundary();
+        const startingGrid = this.factory.createStartingGrid();
+        const player = this.factory.createArrowPlayer();
+        const lapTracker = this.factory.createLapTracker(player);
+        const countdown = this.factory.createCountdown(
+            () => {
+                player.setInputEnabled(true);
+                lapTracker.start();
+            },
+            () => {}
+        );
+        const continueBtn = this.factory.createContinue();
+
+        player.setTrackBoundary(trackBoundary);
+        player.setStartingPosition(startingGrid.getStartingPosition());
+
+        lapTracker.setRaceCompleteCallback(() => {
+            lapTracker.reset();
+            player.setInputEnabled(false);
+            player.setStartingPosition(startingGrid.getStartingPosition());
+            continueBtn.show();
+        });
+
+        continueBtn.setOnRestartRace(() => {
+            continueBtn.hide();
+            countdown.startAgain();
+        });
+
+        return [
+            track,
+            trackBoundary,
+            startingGrid,
+            player,
+            lapTracker,
+            countdown,
+            continueBtn,
+        ];
     }
 }

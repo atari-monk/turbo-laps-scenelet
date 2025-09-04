@@ -52,6 +52,8 @@ export class SingleSceneTestFactory {
                     console.log("Countdown done");
                 }
             );
+        if (sceneType === SceneType.CONTINUE)
+            return this.factory.createContinue();
         if (sceneType === SceneType.MOUSE_CURSOR)
             return this.factory.createMouseCursor();
         throw new Error(`Unknown scene type: ${sceneType}`);

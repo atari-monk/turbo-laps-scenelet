@@ -9,6 +9,7 @@ import { TrackGrass } from "../scenes/track-grass";
 import { LapTracker } from "../scenes/lap-tracker";
 import { MouseCursor } from "../scenes/mouse-cursor";
 import { Countdown } from "../scenes/countdown";
+import { Continue } from "../scenes/continue";
 import type { PositionProvider } from "../scenes/types/position-provider";
 
 export class SceneInstanceFactory {
@@ -62,6 +63,10 @@ export class SceneInstanceFactory {
         onCountdownComplete: () => void
     ): Countdown {
         return new Countdown(onCountdownGO, onCountdownComplete);
+    }
+
+    public createContinue(): Continue {
+        return new Continue(this.gameEngine.input);
     }
 
     public createMouseCursor(): MouseCursor {
