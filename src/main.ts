@@ -21,7 +21,7 @@ const SCENE_MODE = (urlParams.get("mode") as "all" | "current") || "current";
 const SCENE_NAME =
     urlParams.get("scene") ||
     (SCENE_MODE === "all"
-        ? MultiSceneType.TRACK_BOUNDARY
+        ? MultiSceneType.CAR_OUT_OF_TRACK
         : SceneType.RECTANGLE_TRACK);
 
 let gameEngine: GameEngine;
@@ -39,7 +39,7 @@ if (SCENE_MODE == "current" && isSceneType(SCENE_NAME)) {
 } else {
     console.warn(`Unknown scene: ${SCENE_NAME}. Using default.`);
     if (SCENE_MODE === "all") {
-        multiScene = MultiSceneType.TRACK_BOUNDARY;
+        multiScene = MultiSceneType.CAR_OUT_OF_TRACK;
     } else {
         currentScene = SceneType.RECTANGLE_TRACK;
     }
@@ -65,7 +65,7 @@ window.addEventListener("load", async () => {
         }
 
         if (multiScene) {
-            const factory = new MultiSceneTestFactory(instanceFactory);
+            const factory = new MultiSceneTestFactory(canvas, instanceFactory);
             const scenes = factory.createMultiSceneTest(multiScene);
             scenes.forEach((scene) => {
                 gameEngine.registerScene(scene.name!, scene);
