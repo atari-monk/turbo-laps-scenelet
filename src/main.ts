@@ -4,8 +4,6 @@ import { createGameCanvas } from "fullscreen-canvas-vanilla";
 import { GameEngine } from "zippy-game-engine";
 import { SceneType } from "./types/scene-type";
 import { MultiSceneType } from "./types/multi-scene-type";
-import { SceneFactory } from "./factory/scene-factory";
-import { FeatureFactory } from "./factory/feature-factory";
 import {
     getCanvasSizeById,
     isMultiSceneType,
@@ -14,8 +12,9 @@ import {
     logTestUrls,
     setupEngine,
 } from "./tools";
-import { singleSceneFactory } from "./factory/single-scene-factory";
-import { multiSceneFactory } from "./factory/muti-scene-factory";
+import { MultiSceneTestFactory } from "./factory/multi-scene-test-factory";
+import { SingleSceneTestFactory } from "./factory/single-scene-test-factory";
+import { SceneInstanceFactory } from "./factory/scene-instance-factory";
 
 const urlParams = new URLSearchParams(window.location.search);
 const SCENE_MODE = (urlParams.get("mode") as "all" | "current") || "current";
@@ -56,14 +55,18 @@ window.addEventListener("load", async () => {
         gameEngine.input.setupCanvasEvents(canvas);
         gameEngine.setSceneMode(SCENE_MODE);
 
+        const instanceFactory = new SceneInstanceFactory(gameEngine, canvas);
+
         if (currentScene) {
-            const scene = singleSceneFactory(gameEngine, canvas, currentScene);
+            const factory = new SingleSceneTestFactory(canvas, instanceFactory);
+            const scene = factory.createSingleSceneTest(currentScene);
             gameEngine.registerScene(scene.name!, scene);
             gameEngine.transitionToScene(scene.name!);
         }
 
         if (multiScene) {
-            const scenes = multiSceneFactory(gameEngine, canvas, multiScene);
+            const factory = new MultiSceneTestFactory(instanceFactory);
+            const scenes = factory.createMultiSceneTest(multiScene);
             scenes.forEach((scene) => {
                 gameEngine.registerScene(scene.name!, scene);
             });
