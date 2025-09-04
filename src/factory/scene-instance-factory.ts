@@ -8,6 +8,7 @@ import { RoadMarkings } from "../scenes/road-markings";
 import { TrackGrass } from "../scenes/track-grass";
 import { LapTracker } from "../scenes/lap-tracker";
 import { MouseCursor } from "../scenes/mouse-cursor";
+import { Countdown } from "../scenes/countdown";
 import type { PositionProvider } from "../scenes/types/position-provider";
 
 export class SceneInstanceFactory {
@@ -54,6 +55,13 @@ export class SceneInstanceFactory {
         sectors = 4
     ): LapTracker {
         return new LapTracker(positionProvider, turnOn, sectors);
+    }
+
+    public createCountdown(
+        onCountdownGO: () => void,
+        onCountdownComplete: () => void
+    ): Countdown {
+        return new Countdown(onCountdownGO, onCountdownComplete);
     }
 
     public createMouseCursor(): MouseCursor {
