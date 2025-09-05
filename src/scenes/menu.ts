@@ -1,48 +1,69 @@
 import type { InputSystem, Scene } from "zippy-game-engine";
 import type { FrameContext } from "zippy-shared-lib";
 
+interface MenuButton {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    text: string;
+    isHovered: boolean;
+    action?: () => void;
+}
+
 export class Menu implements Scene {
     name = "Menu";
     displayName = "Menu";
 
-    private startButton = {
-        x: 0,
-        y: 0,
-        width: 200,
-        height: 60,
-        text: "START",
-        isHovered: false,
-    };
-
-    private onStartGame?: () => void;
+    private buttons: MenuButton[] = [];
+    private isActive = true;
 
     constructor(private inputSystem: InputSystem) {
-        // InputSystem is now injected via constructor
+        this.initializeButtons();
+    }
+
+    private initializeButtons() {
+        this.buttons = [
+            {
+                x: 0,
+                y: 0,
+                width: 200,
+                height: 60,
+                text: "START",
+                isHovered: false,
+            },
+        ];
     }
 
     setOnStartGame(callback: () => void) {
-        this.onStartGame = callback;
+        this.buttons[0].action = callback;
     }
 
-    init() {
-        // Initialization logic can go here
+    toggle() {
+        this.isActive = !this.isActive;
     }
+
+    show() {
+        this.isActive = true;
+    }
+
+    hide() {
+        this.isActive = false;
+    }
+
+    init() {}
 
     update(context: FrameContext) {
+        if (!this.isActive) return;
+
         const canvas = context.ctx.canvas;
         const centerX = canvas.width / 2;
         const centerY = canvas.height / 2;
 
-        // Update button position FIRST
-        this.startButton.x = centerX - this.startButton.width / 2;
-        this.startButton.y = centerY + 80;
+        this.buttons[0].x = centerX - this.buttons[0].width / 2;
+        this.buttons[0].y = centerY + 80;
 
-        // Get mouse position from the injected input system
         const mousePos = this.inputSystem.mouse.getPosition();
-        //const mouseX = mousePos.x;
-        //const mouseY = mousePos.y;
-
-        // Scale mouse coordinates to match canvas resolution
         const displayWidth = canvas.clientWidth || canvas.width;
         const displayHeight = canvas.clientHeight || canvas.height;
         const scaleX = canvas.width / displayWidth;
@@ -50,53 +71,41 @@ export class Menu implements Scene {
 
         const mouseX = mousePos.x * scaleX;
         const mouseY = mousePos.y * scaleY;
-
-        // Get mouse button state (left button = 0)
         const isMousePressed = this.inputSystem.mouse.isButtonDown(0);
 
-        // Update button hover state
-        this.startButton.isHovered =
-            mouseX >= this.startButton.x &&
-            mouseX <= this.startButton.x + this.startButton.width &&
-            mouseY >= this.startButton.y &&
-            mouseY <= this.startButton.y + this.startButton.height;
+        this.buttons.forEach((button) => {
+            button.isHovered =
+                mouseX >= button.x &&
+                mouseX <= button.x + button.width &&
+                mouseY >= button.y &&
+                mouseY <= button.y + button.height;
 
-        if (this.startButton.isHovered && isMousePressed && this.onStartGame) {
-            console.log(`Hover: ${this.startButton.isHovered}`);
-            this.onStartGame();
-        }
+            if (button.isHovered && isMousePressed && button.action) {
+                button.action();
+            }
+        });
     }
 
     render(context: FrameContext) {
+        if (!this.isActive) return;
+
         const { ctx } = context;
         const canvas = ctx.canvas;
-        // Center the content
-        //const centerX = canvas.width / 2;
-        //const centerY = canvas.height / 2;
-
-        // Update button position to be centered
-        //this.startButton.x = centerX - this.startButton.width / 2;
-        //this.startButton.y = centerY + 80;
-
-        // Clear canvas
-        //ctx.fillStyle = "#2c3e50";
-        //ctx.fillRect(0, 0, canvas.width, canvas.height);
-
         const centerX = canvas.width / 2;
         const centerY = canvas.height / 2;
 
-        // Draw title
+        ctx.fillStyle = "#2c3e50";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
         ctx.fillStyle = "#ecf0f1";
         ctx.font = "bold 48px 'Arial'";
         ctx.textAlign = "center";
         ctx.fillText("TURBO LAPS", centerX, centerY - 60);
 
-        // Draw subtitle
         ctx.fillStyle = "#bdc3c7";
         ctx.font = "24px 'Arial'";
         ctx.fillText("5-Lap Time Trial", centerX, centerY - 20);
 
-        // Draw description
         ctx.fillStyle = "#95a5a6";
         ctx.font = "18px 'Arial'";
         ctx.fillText(
@@ -110,44 +119,27 @@ export class Menu implements Scene {
             centerY + 50
         );
 
-        // Draw start button
-        ctx.fillStyle = this.startButton.isHovered ? "#27ae60" : "#2ecc71";
-        ctx.fillRect(
-            this.startButton.x,
-            this.startButton.y,
-            this.startButton.width,
-            this.startButton.height
-        );
+        this.buttons.forEach((button) => {
+            ctx.fillStyle = button.isHovered ? "#27ae60" : "#2ecc71";
+            ctx.fillRect(button.x, button.y, button.width, button.height);
 
-        // Draw button border
-        ctx.strokeStyle = "#ecf0f1";
-        ctx.lineWidth = 2;
-        ctx.strokeRect(
-            this.startButton.x,
-            this.startButton.y,
-            this.startButton.width,
-            this.startButton.height
-        );
+            ctx.strokeStyle = "#ecf0f1";
+            ctx.lineWidth = 2;
+            ctx.strokeRect(button.x, button.y, button.width, button.height);
 
-        // Draw button text
-        ctx.fillStyle = "#ffffff";
-        ctx.font = "bold 24px 'Arial'";
-        ctx.fillText(
-            this.startButton.text,
-            this.startButton.x + this.startButton.width / 2,
-            this.startButton.y + this.startButton.height / 2 + 8
-        );
+            ctx.fillStyle = "#ffffff";
+            ctx.font = "bold 24px 'Arial'";
+            ctx.fillText(
+                button.text,
+                button.x + button.width / 2,
+                button.y + button.height / 2 + 8
+            );
+        });
     }
 
-    onEnter() {
-        //console.log("Entering menu scene");
-    }
+    onEnter() {}
 
-    onExit() {
-        //console.log("Exiting menu scene");
-    }
+    onExit() {}
 
-    resize() {
-        // Handle resize if needed
-    }
+    resize() {}
 }

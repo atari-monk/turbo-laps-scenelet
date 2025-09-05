@@ -1,11 +1,14 @@
-import type { Scene } from "zippy-game-engine";
+import type { GameEngine, Scene } from "zippy-game-engine";
 import { SceneType } from "../types/scene-type";
 import type { SceneInstanceFactory } from "./scene-instance-factory";
 import { TrackConfigService } from "../scenes/service/track-config.service";
+import { MultiSceneTestFactory } from "./multi-scene-test-factory";
+import { MultiSceneType } from "../types/multi-scene-type";
 
 export class SingleSceneTestFactory {
     constructor(
         private readonly canvas: HTMLCanvasElement,
+        private readonly gameEngine: GameEngine,
         private readonly factory: SceneInstanceFactory
     ) {}
 
@@ -56,7 +59,24 @@ export class SingleSceneTestFactory {
             return this.factory.createContinue();
         if (sceneType === SceneType.MOUSE_CURSOR)
             return this.factory.createMouseCursor();
-        if (sceneType === SceneType.MENU) return this.factory.createMenu();
+        if (sceneType === SceneType.MENU) {
+            const menu = this.factory.createMenu();
+            menu.setOnStartGame(() => {
+                const factory = new MultiSceneTestFactory(
+                    this.canvas,
+                    this.factory
+                );
+                const scenes = factory.createMultiSceneTest(
+                    MultiSceneType.RACE_RESTART
+                );
+                scenes.forEach((scene) => {
+                    this.gameEngine.registerScene(scene.name!, scene);
+                });
+                menu.toggle()
+                this.gameEngine.setSceneMode("all");
+            });
+            return menu;
+        }
         throw new Error(`Unknown scene type: ${sceneType}`);
     }
 }

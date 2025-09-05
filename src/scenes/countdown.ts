@@ -51,7 +51,7 @@ export class Countdown implements Scene {
                     this.countdownValue--;
                     if (this.countdownValue <= 0) {
                         this.countdownState = "go";
-                        this.countdownTimer = 3;
+                        this.countdownTimer = 1.2;
                         if (this.onGO) {
                             this.onGO();
                         }
@@ -109,7 +109,9 @@ export class Countdown implements Scene {
                 break;
 
             case "go":
+                this.drawGoText(ctx, centerX - 300, centerY);
                 this.drawGoText(ctx, centerX, centerY);
+                this.drawGoText(ctx, centerX + 300, centerY);
                 break;
         }
 
@@ -161,9 +163,9 @@ export class Countdown implements Scene {
         ctx.shadowBlur = 0;
 
         // Add some smaller excitement text
-        ctx.fillStyle = "#ffffff";
-        ctx.font = "bold 40px Arial";
-        ctx.fillText("START YOUR ENGINES!", x, y + 120);
+        // ctx.fillStyle = "#ffffff";
+        // ctx.font = "bold 40px Arial";
+        // ctx.fillText("START YOUR ENGINES!", x, y + 120);
     }
 
     resize(): void {

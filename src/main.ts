@@ -58,7 +58,7 @@ window.addEventListener("load", async () => {
         const instanceFactory = new SceneInstanceFactory(gameEngine, canvas);
 
         if (currentScene) {
-            const factory = new SingleSceneTestFactory(canvas, instanceFactory);
+            const factory = new SingleSceneTestFactory(canvas, gameEngine, instanceFactory);
             const scene = factory.createSingleSceneTest(currentScene);
             gameEngine.registerScene(scene.name!, scene);
             gameEngine.transitionToScene(scene.name!);
