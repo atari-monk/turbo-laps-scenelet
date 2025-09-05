@@ -12,6 +12,7 @@ import { Countdown } from "../scenes/countdown";
 import { Continue } from "../scenes/continue";
 import { Menu } from "../scenes/menu";
 import type { PositionProvider } from "../scenes/types/position-provider";
+import type { GameScore } from "../scenes/game-score";
 
 export class SceneInstanceFactory {
     constructor(
@@ -76,5 +77,9 @@ export class SceneInstanceFactory {
 
     public createMenu(): Menu {
         return new Menu(this.gameEngine.input);
+    }
+
+    public createGameScore(): GameScore {
+        return new GameScore();
     }
 }

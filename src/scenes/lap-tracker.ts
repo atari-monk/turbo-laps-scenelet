@@ -3,9 +3,22 @@ import type { Scene } from "zippy-game-engine";
 import { TrackConfigService } from "./service/track-config.service";
 import type { PositionProvider } from "./types/position-provider";
 
-export class LapTracker implements Scene {
+export interface ILapTracker {
+    setRaceCompleteCallback(callback: () => void): void;
+    getLapTimes(): number[];
+    getCurrentLap(): number;
+    getCurrentSector(): number;
+    getSectorTimes(): number[];
+    getTotalTime(): number;
+    isTracking(): boolean;
+    start(): void;
+    stop(): void;
+    reset(): void;
+}
+
+export class LapTracker implements Scene, ILapTracker {
     name = "Lap-Tracker";
-    displayName?: string = "Lap Tracker";
+    displayName = "Lap Tracker";
 
     private sectors: number;
     private currentSector: number;

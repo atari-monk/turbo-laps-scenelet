@@ -1,6 +1,6 @@
 import type { Scene } from "zippy-game-engine";
 import type { FrameContext } from "zippy-shared-lib";
-import type { LapTracker } from "./lap-tracker";
+import type { ILapTracker } from "./lap-tracker";
 
 interface GameScoreConfig {
     maxRecords?: number;
@@ -18,15 +18,16 @@ interface GameScoreState {
 }
 
 export class GameScore implements Scene {
-    name: string = "Game-Score";
-    displayName?: string = "Game Score";
+    name = "Game-Score";
+    displayName = "Game Score";
 
-    private lapTracker: LapTracker;
     private config: Required<GameScoreConfig>;
     private state: GameScoreState;
 
-    constructor(lapTracker: LapTracker, config: GameScoreConfig = {}) {
-        this.lapTracker = lapTracker;
+    constructor(
+        private readonly lapTracker: ILapTracker,
+        config: GameScoreConfig = {}
+    ) {
         this.config = {
             maxRecords: 5,
             positionX: 20,
@@ -43,29 +44,18 @@ export class GameScore implements Scene {
             bestRaceTimes: [],
         };
 
-        // Set up race complete callback
         this.lapTracker.setRaceCompleteCallback(() => this.onRaceComplete());
     }
 
-    init(): void {
-        // Initialization logic if needed
-    }
+    init(): void {}
 
-    onEnter(): void {
-        // Entry logic if needed
-    }
+    onEnter(): void {}
 
-    onExit(): void {
-        // Exit logic if needed
-    }
+    onExit(): void {}
 
-    update(_context: FrameContext): void {
-        // Update logic if needed
-    }
+    update(_context: FrameContext): void {}
 
-    resize(): void {
-        // Resize logic if needed
-    }
+    resize(): void {}
 
     private onRaceComplete(): void {
         const lapTimes = this.lapTracker.getLapTimes();
@@ -90,20 +80,17 @@ export class GameScore implements Scene {
         ctx.font = `${this.config.fontSize}px ${this.config.fontFamily}`;
         ctx.textAlign = "left";
 
-        // Draw title
         ctx.fillText(
             this.config.title,
             this.config.positionX,
             this.config.positionY
         );
 
-        // Draw each time record
         for (let i = 0; i < this.state.bestRaceTimes.length; i++) {
             const time = this.state.bestRaceTimes[i];
             const yPos =
                 this.config.positionY + (i + 1) * (this.config.fontSize + 5);
 
-            // Highlight the best time
             ctx.fillStyle =
                 i === 0 ? this.config.bestTimeColor : this.config.textColor;
 
