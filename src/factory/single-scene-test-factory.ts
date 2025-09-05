@@ -4,6 +4,7 @@ import type { SceneInstanceFactory } from "./scene-instance-factory";
 import { TrackConfigService } from "../scenes/service/track-config.service";
 import { MultiSceneTestFactory } from "./multi-scene-test-factory";
 import { MultiSceneType } from "../types/multi-scene-type";
+import { MockLapTracker } from "../mock/mock-lap-tracker";
 
 export class SingleSceneTestFactory {
     constructor(
@@ -55,8 +56,11 @@ export class SingleSceneTestFactory {
                     console.log("Countdown done");
                 }
             );
-        if (sceneType === SceneType.CONTINUE)
-            return this.factory.createContinue();
+        if (sceneType === SceneType.CONTINUE) {
+            const continueScene = this.factory.createContinue();
+            continueScene.show();
+            return continueScene;
+        }
         if (sceneType === SceneType.MOUSE_CURSOR)
             return this.factory.createMouseCursor();
         if (sceneType === SceneType.MENU) {
@@ -72,10 +76,18 @@ export class SingleSceneTestFactory {
                 scenes.forEach((scene) => {
                     this.gameEngine.registerScene(scene.name!, scene);
                 });
-                menu.toggle()
+                menu.toggle();
                 this.gameEngine.setSceneMode("all");
             });
             return menu;
+        }
+        if (sceneType === SceneType.GAME_SCORE) {
+            const mockLapTracker = new MockLapTracker();
+            mockLapTracker.setMockLapTimes([12000]);
+            mockLapTracker.triggerRaceComplete();
+            const gameScore = this.factory.createGameScore();
+            gameScore.onRaceComplete(mockLapTracker);
+            return gameScore;
         }
         throw new Error(`Unknown scene type: ${sceneType}`);
     }

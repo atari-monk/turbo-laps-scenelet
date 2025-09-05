@@ -24,10 +24,7 @@ export class GameScore implements Scene {
     private config: Required<GameScoreConfig>;
     private state: GameScoreState;
 
-    constructor(
-        private readonly lapTracker: ILapTracker,
-        config: GameScoreConfig = {}
-    ) {
+    constructor(config: GameScoreConfig = {}) {
         this.config = {
             maxRecords: 5,
             positionX: 20,
@@ -43,8 +40,6 @@ export class GameScore implements Scene {
         this.state = {
             bestRaceTimes: [],
         };
-
-        this.lapTracker.setRaceCompleteCallback(() => this.onRaceComplete());
     }
 
     init(): void {}
@@ -57,9 +52,9 @@ export class GameScore implements Scene {
 
     resize(): void {}
 
-    private onRaceComplete(): void {
-        const lapTimes = this.lapTracker.getLapTimes();
-        if (lapTimes.length === 5) {
+    public onRaceComplete(lapTracker: ILapTracker): void {
+        const lapTimes = lapTracker.getLapTimes();
+        if (lapTimes.length === 1) {
             const totalTime = lapTimes.reduce((sum, time) => sum + time, 0);
             this.addRaceTime(totalTime);
         }

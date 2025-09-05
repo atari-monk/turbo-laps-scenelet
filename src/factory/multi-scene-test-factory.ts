@@ -98,11 +98,13 @@ export class MultiSceneTestFactory {
             () => {}
         );
         const continueBtn = this.factory.createContinue();
+        const gameSore = this.factory.createGameScore();
 
         player.setTrackBoundary(trackBoundary);
         player.setStartingPosition(startingGrid.getStartingPosition());
 
         lapTracker.setRaceCompleteCallback(() => {
+            gameSore.onRaceComplete(lapTracker);
             lapTracker.reset();
             player.setInputEnabled(false);
             player.setStartingPosition(startingGrid.getStartingPosition());
@@ -122,6 +124,7 @@ export class MultiSceneTestFactory {
             lapTracker,
             countdown,
             continueBtn,
+            gameSore,
         ];
     }
 }

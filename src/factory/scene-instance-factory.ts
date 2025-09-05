@@ -12,7 +12,7 @@ import { Countdown } from "../scenes/countdown";
 import { Continue } from "../scenes/continue";
 import { Menu } from "../scenes/menu";
 import type { PositionProvider } from "../scenes/types/position-provider";
-import type { GameScore } from "../scenes/game-score";
+import { GameScore } from "../scenes/game-score";
 
 export class SceneInstanceFactory {
     constructor(
