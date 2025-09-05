@@ -10,6 +10,7 @@ import { LapTracker } from "../scenes/lap-tracker";
 import { MouseCursor } from "../scenes/mouse-cursor";
 import { Countdown } from "../scenes/countdown";
 import { Continue } from "../scenes/continue";
+import { Menu } from "../scenes/menu";
 import type { PositionProvider } from "../scenes/types/position-provider";
 
 export class SceneInstanceFactory {
@@ -71,5 +72,9 @@ export class SceneInstanceFactory {
 
     public createMouseCursor(): MouseCursor {
         return new MouseCursor(this.gameEngine.input);
+    }
+
+    public createMenu(): Menu {
+        return new Menu(this.gameEngine.input);
     }
 }

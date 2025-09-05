@@ -56,6 +56,7 @@ export class SingleSceneTestFactory {
             return this.factory.createContinue();
         if (sceneType === SceneType.MOUSE_CURSOR)
             return this.factory.createMouseCursor();
+        if (sceneType === SceneType.MENU) return this.factory.createMenu();
         throw new Error(`Unknown scene type: ${sceneType}`);
     }
 }
