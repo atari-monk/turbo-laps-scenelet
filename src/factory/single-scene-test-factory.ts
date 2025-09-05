@@ -1,10 +1,10 @@
 import type { GameEngine, Scene } from "zippy-game-engine";
-import { SceneType } from "../types/scene-type";
+import { SceneType } from "../scenes/types/scene-type";
 import type { SceneInstanceFactory } from "./scene-instance-factory";
 import { TrackConfigService } from "../scenes/service/track-config.service";
 import { MultiSceneTestFactory } from "./multi-scene-test-factory";
-import { MultiSceneType } from "../types/multi-scene-type";
-import { MockLapTracker } from "../mock/mock-lap-tracker";
+import { MultiSceneType } from "../scenes/types/multi-scene-type";
+import { MockLapTracker } from "../scenes/mock/mock-lap-tracker";
 
 export class SingleSceneTestFactory {
     constructor(

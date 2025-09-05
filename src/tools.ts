@@ -1,6 +1,6 @@
 import { GameEngineFactory } from "zippy-game-engine";
-import { SceneType } from "./types/scene-type";
-import { MultiSceneType } from "./types/multi-scene-type";
+import { SceneType } from "./scenes/types/scene-type";
+import { MultiSceneType } from "./scenes/types/multi-scene-type";
 
 export function getCanvasSizeById(canvasId: string): {
     canvas: HTMLCanvasElement;
