@@ -4,4 +4,5 @@ export enum MultiSceneType {
     CAR_OUT_OF_TRACK = "Car-Out-Of-Track",
     LAP_MEASUREMENT = "Lap-Measurement",
     RACE_RESTART = "Race-Restart",
+    GAME = "Game"
 }

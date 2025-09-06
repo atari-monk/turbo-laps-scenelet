@@ -12,4 +12,5 @@ export enum SceneType {
     COUNTDOWN = "Countdown",
     CONTINUE = "Continue",
     MOUSE_CURSOR = "Mouse-Cursor",
+    GAME = "Game",
 }

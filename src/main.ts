@@ -15,14 +15,13 @@ import {
 import { MultiSceneTestFactory } from "./factory/multi-scene-test-factory";
 import { SingleSceneTestFactory } from "./factory/single-scene-test-factory";
 import { SceneInstanceFactory } from "./factory/scene-instance-factory";
+import { buildMenu } from "./factory/game-builder";
 
 const urlParams = new URLSearchParams(window.location.search);
 const SCENE_MODE = (urlParams.get("mode") as "all" | "current") || "current";
 const SCENE_NAME =
     urlParams.get("scene") ||
-    (SCENE_MODE === "all"
-        ? MultiSceneType.CAR_OUT_OF_TRACK
-        : SceneType.RECTANGLE_TRACK);
+    (SCENE_MODE === "all" ? MultiSceneType.GAME : SceneType.GAME);
 
 let gameEngine: GameEngine;
 
@@ -39,9 +38,9 @@ if (SCENE_MODE == "current" && isSceneType(SCENE_NAME)) {
 } else {
     console.warn(`Unknown scene: ${SCENE_NAME}. Using default.`);
     if (SCENE_MODE === "all") {
-        multiScene = MultiSceneType.CAR_OUT_OF_TRACK;
+        multiScene = MultiSceneType.GAME;
     } else {
-        currentScene = SceneType.RECTANGLE_TRACK;
+        currentScene = SceneType.GAME;
     }
 }
 
@@ -57,7 +56,14 @@ window.addEventListener("load", async () => {
 
         const instanceFactory = new SceneInstanceFactory(gameEngine, canvas);
 
-        if (currentScene) {
+        if (
+            currentScene === SceneType.GAME ||
+            multiScene === MultiSceneType.GAME
+        ) {
+            const menu = buildMenu(instanceFactory, gameEngine);
+            gameEngine.registerScene(menu.name!, menu);
+            gameEngine.transitionToScene(menu.name!);
+        } else if (currentScene) {
             const factory = new SingleSceneTestFactory(
                 canvas,
                 gameEngine,
@@ -66,9 +72,7 @@ window.addEventListener("load", async () => {
             const scene = factory.createSingleSceneTest(currentScene);
             gameEngine.registerScene(scene.name!, scene);
             gameEngine.transitionToScene(scene.name!);
-        }
-
-        if (multiScene) {
+        } else if (multiScene) {
             const factory = new MultiSceneTestFactory(canvas, instanceFactory);
             const scenes = factory.createMultiSceneTest(multiScene);
             scenes.forEach((scene) => {
