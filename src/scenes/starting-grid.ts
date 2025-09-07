@@ -9,13 +9,21 @@ export interface StartingGridConfig {
     offset: number;
 }
 
-export class StartingGrid implements Scene {
+export interface IStartingGrid extends Scene {
+    getStartingPosition(): {
+        x: number;
+        y: number;
+        angle: number;
+    };
+}
+
+export class StartingGrid implements IStartingGrid {
     name: string = "Starting-Grid";
     displayName?: string = "Starting Grid";
 
     private readonly configService = TrackConfigService.getInstance();
     private config: StartingGridConfig;
-    
+
     constructor(config: Partial<StartingGridConfig> = {}) {
         this.config = {
             ...this.getDefaultConfig(),
@@ -69,7 +77,11 @@ export class StartingGrid implements Scene {
         context.ctx.restore();
     }
 
-    getStartingPosition() {
+    getStartingPosition(): {
+        x: number;
+        y: number;
+        angle: number;
+    } {
         return this.calculateStartPosition();
     }
 
