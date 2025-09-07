@@ -7,6 +7,7 @@ import type { IPlayer } from "../scenes/arrow-player";
 import type { ILapTracker } from "../scenes/lap-tracker";
 import type { ICountdown } from "../scenes/countdown";
 import type { IContinue } from "../scenes/continue";
+import type { IGameScore } from "../scenes/game-score";
 
 export class GameBuilder implements IBuilder {
     private scenes: Scene[] = [];
@@ -16,6 +17,7 @@ export class GameBuilder implements IBuilder {
     private lapTracker?: ILapTracker;
     private countdown?: ICountdown;
     private continueBtn?: IContinue;
+    private gameScore?: IGameScore;
 
     constructor(private readonly factory: SceneInstanceFactory) {}
 
@@ -86,8 +88,12 @@ export class GameBuilder implements IBuilder {
                 "StartingGrid must be set before adding LapTracker"
             );
         }
+        if (!this.gameScore) {
+            throw new Error("GameScore must be set before adding LapTracker");
+        }
         this.lapTracker = this.factory.createLapTracker(this.player);
         this.lapTracker.setRaceCompleteCallback(() => {
+            this.gameScore!.onRaceComplete(this.lapTracker!);
             this.lapTracker!.reset();
             this.player!.setInputEnabled(false);
             this.player!.setStartingPosition(
@@ -109,6 +115,12 @@ export class GameBuilder implements IBuilder {
             this.countdown!.startAgain();
         });
         this.scenes.push(this.continueBtn);
+        return this;
+    }
+
+    withGameScore(): GameBuilder {
+        this.gameScore = this.factory.createGameScore();
+        this.scenes.push(this.gameScore);
         return this;
     }
 
@@ -140,6 +152,7 @@ export function buildGame(factory: SceneInstanceFactory): Scene[] {
         .withStartingGrid()
         .withTrackBoundary()
         .withPlayer()
+        .withGameScore()
         .withLapTracker()
         .withCountdown()
         .withContinueBtn()

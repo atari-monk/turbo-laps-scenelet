@@ -17,7 +17,11 @@ interface GameScoreState {
     bestRaceTimes: number[];
 }
 
-export class GameScore implements Scene {
+export interface IGameScore extends Scene {
+    onRaceComplete(lapTracker: ILapTracker): void;
+}
+
+export class GameScore implements IGameScore {
     name = "Game-Score";
     displayName = "Game Score";
 
