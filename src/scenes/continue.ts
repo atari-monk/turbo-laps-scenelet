@@ -1,7 +1,13 @@
 import type { InputSystem, Scene } from "zippy-game-engine";
 import type { FrameContext } from "zippy-shared-lib";
 
-export class Continue implements Scene {
+export interface IContinue extends Scene {
+    show(): void;
+    hide(): void;
+    setOnRestartRace(callback: () => void): void;
+}
+
+export class Continue implements IContinue {
     name = "Continue";
     displayName = "Continue";
 

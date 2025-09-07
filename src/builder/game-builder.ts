@@ -5,6 +5,8 @@ import type { IStartingGrid } from "../scenes/starting-grid";
 import type { ITrackBoundary } from "../scenes/track-boundary";
 import type { IPlayer } from "../scenes/arrow-player";
 import type { ILapTracker } from "../scenes/lap-tracker";
+import type { ICountdown } from "../scenes/countdown";
+import type { IContinue } from "../scenes/continue";
 
 export class GameBuilder implements IBuilder {
     private scenes: Scene[] = [];
@@ -12,6 +14,8 @@ export class GameBuilder implements IBuilder {
     private trackBoundary?: ITrackBoundary;
     private player?: IPlayer;
     private lapTracker?: ILapTracker;
+    private countdown?: ICountdown;
+    private continueBtn?: IContinue;
 
     constructor(private readonly factory: SceneInstanceFactory) {}
 
@@ -62,14 +66,14 @@ export class GameBuilder implements IBuilder {
         if (!this.lapTracker) {
             throw new Error("LapTracker must be set before adding Countdown");
         }
-        const countdown = this.factory.createCountdown(
+        this.countdown = this.factory.createCountdown(
             () => {
                 this.player!.setInputEnabled(true);
                 this.lapTracker!.start();
             },
             () => {}
         );
-        this.scenes.push(countdown);
+        this.scenes.push(this.countdown);
         return this;
     }
 
@@ -89,8 +93,22 @@ export class GameBuilder implements IBuilder {
             this.player!.setStartingPosition(
                 this.startingGrid!.getStartingPosition()
             );
+            this.continueBtn!.show();
         });
         this.scenes.push(this.lapTracker);
+        return this;
+    }
+
+    withContinueBtn(): GameBuilder {
+        if (!this.countdown) {
+            throw new Error("Countdown must be set before adding Continue");
+        }
+        this.continueBtn = this.factory.createContinue();
+        this.continueBtn.setOnRestartRace(() => {
+            this.continueBtn!.hide();
+            this.countdown!.startAgain();
+        });
+        this.scenes.push(this.continueBtn);
         return this;
     }
 
@@ -124,6 +142,7 @@ export function buildGame(factory: SceneInstanceFactory): Scene[] {
         .withPlayer()
         .withLapTracker()
         .withCountdown()
+        .withContinueBtn()
         .build();
     return scenes;
 }
