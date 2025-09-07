@@ -1,4 +1,4 @@
-import { MultiSceneType } from "../scenes/types/multi-scene-type";
+import { MultiSceneType } from "../scenes/type/multi-scene-type";
 import type { Scene } from "zippy-game-engine";
 import type { SceneInstanceFactory } from "./scene-instance-factory";
 import { TrackConfigService } from "../scenes/service/track-config.service";

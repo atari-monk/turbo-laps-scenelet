@@ -2,8 +2,8 @@ import "./style.css";
 import "fullscreen-canvas-vanilla";
 import { createGameCanvas } from "fullscreen-canvas-vanilla";
 import { GameEngine } from "zippy-game-engine";
-import { SceneType } from "./scenes/types/scene-type";
-import { MultiSceneType } from "./scenes/types/multi-scene-type";
+import { SceneType } from "./scenes/type/scene-type";
+import { MultiSceneType } from "./scenes/type/multi-scene-type";
 import {
     getCanvasSizeById,
     isMultiSceneType,
@@ -15,7 +15,7 @@ import {
 import { MultiSceneTestFactory } from "./factory/multi-scene-test-factory";
 import { SingleSceneTestFactory } from "./factory/single-scene-test-factory";
 import { SceneInstanceFactory } from "./factory/scene-instance-factory";
-import { buildMenu } from "./factory/game-builder";
+import { buildMenu } from "./builder/game-builder";
 
 const urlParams = new URLSearchParams(window.location.search);
 const SCENE_MODE = (urlParams.get("mode") as "all" | "current") || "current";

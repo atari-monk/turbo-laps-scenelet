@@ -11,7 +11,7 @@ import { MouseCursor } from "../scenes/mouse-cursor";
 import { Countdown } from "../scenes/countdown";
 import { Continue } from "../scenes/continue";
 import { Menu } from "../scenes/menu";
-import type { PositionProvider } from "../scenes/types/position-provider";
+import type { PositionProvider } from "../scenes/type/position-provider";
 import { GameScore } from "../scenes/game-score";
 
 export class SceneInstanceFactory {

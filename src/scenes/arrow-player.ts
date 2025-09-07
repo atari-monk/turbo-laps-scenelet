@@ -2,7 +2,7 @@ import type { FrameContext } from "zippy-shared-lib";
 import type { Scene, InputSystem } from "zippy-game-engine";
 import type { TrackBoundary } from "./track-boundary";
 import type { StartingGrid } from "./starting-grid";
-import type { PositionProvider } from "./types/position-provider";
+import type { PositionProvider } from "./type/position-provider";
 
 export class ArrowPlayer implements Scene, PositionProvider {
     name?: string = "Arrow-Player";

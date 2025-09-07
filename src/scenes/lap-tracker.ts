@@ -1,7 +1,7 @@
 import type { FrameContext } from "zippy-shared-lib";
 import type { Scene } from "zippy-game-engine";
 import { TrackConfigService } from "./service/track-config.service";
-import type { PositionProvider } from "./types/position-provider";
+import type { PositionProvider } from "./type/position-provider";
 
 export interface ILapTracker {
     setRaceCompleteCallback(callback: () => void): void;

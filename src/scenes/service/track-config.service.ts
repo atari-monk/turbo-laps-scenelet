@@ -1,5 +1,5 @@
-import type { TrackState } from "../types/track-state";
-import type { TrackConfig } from "../types/track-config";
+import type { TrackState } from "../type/track-state";
+import type { TrackConfig } from "../type/track-config";
 
 export class TrackConfigService {
     private static instance: TrackConfigService;
