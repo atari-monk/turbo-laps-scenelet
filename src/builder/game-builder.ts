@@ -1,14 +1,15 @@
-import type { GameEngine, Scene } from "zippy-game-engine";
+import type { Scene } from "zippy-game-engine";
 import type { SceneInstanceFactory } from "../factory/scene-instance-factory";
 import type { IBuilder } from "./type/IBuilder";
-import { MenuBuilder } from "./menu-builder";
 import type { IStartingGrid } from "../scenes/starting-grid";
 import type { ITrackBoundary } from "../scenes/track-boundary";
+import type { IPlayer } from "../scenes/arrow-player";
 
 export class GameBuilder implements IBuilder {
     private scenes: Scene[] = [];
     private startingGrid?: IStartingGrid;
     private trackBoundary?: ITrackBoundary;
+    private player?: IPlayer;
 
     constructor(private readonly factory: SceneInstanceFactory) {}
 
@@ -38,16 +39,34 @@ export class GameBuilder implements IBuilder {
             throw new Error("Track Boundary must be set before adding player");
         }
 
-        const player = this.factory.createArrowPlayer(true);
-        player.setStartingPosition(this.startingGrid.getStartingPosition());
-        player.setTrackBoundary(this.trackBoundary);
-        this.scenes.push(player);
+        this.player = this.factory.createArrowPlayer(false);
+        this.player.setStartingPosition(
+            this.startingGrid.getStartingPosition()
+        );
+        this.player.setTrackBoundary(this.trackBoundary);
+        this.scenes.push(this.player);
         return this;
     }
 
     withTrackBoundary() {
         this.trackBoundary = this.factory.createTrackBoundary();
         this.scenes.push(this.trackBoundary);
+        return this;
+    }
+
+    withCountdown(): GameBuilder {
+        if (!this.player) {
+            throw new Error("Player must be set before adding Countdown");
+        }
+
+        const countdown = this.factory.createCountdown(
+            () => {
+                this.player!.setInputEnabled(true);
+                //this.lapTracker.start();
+            },
+            () => {}
+        );
+        this.scenes.push(countdown);
         return this;
     }
 
@@ -74,14 +93,6 @@ export class GameBuilder implements IBuilder {
     }
 }
 
-export function buildMenu(
-    factory: SceneInstanceFactory,
-    gameEngine: GameEngine
-): Scene {
-    const scene = new MenuBuilder(factory, gameEngine).withStartMenu().build();
-    return scene;
-}
-
 export function buildGame(factory: SceneInstanceFactory): Scene[] {
     const scenes = new GameBuilder(factory)
         .withRectangleTrack()
@@ -89,6 +100,7 @@ export function buildGame(factory: SceneInstanceFactory): Scene[] {
         .withStartingGrid()
         .withTrackBoundary()
         .withPlayer()
+        .withCountdown()
         .build();
     return scenes;
 }

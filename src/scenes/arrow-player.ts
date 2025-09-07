@@ -7,6 +7,14 @@ export interface IPlayer extends Scene {
     get velocity(): number;
     set velocity(value: number);
     get position(): { x: number; y: number };
+    setInputEnabled(enabled: boolean): void;
+    setStartingPosition(position: {
+        x: number;
+        y: number;
+        angle: number;
+    }): void;
+    setTrackBoundary(trackBoundary: ITrackBoundary): void;
+    setInputEnabled(enabled: boolean): void;
 }
 
 export class ArrowPlayer implements IPlayer {

@@ -29,3 +29,11 @@ export class MenuBuilder implements IBuilder {
         return this.scene;
     }
 }
+
+export function buildMenu(
+    factory: SceneInstanceFactory,
+    gameEngine: GameEngine
+): Scene {
+    const scene = new MenuBuilder(factory, gameEngine).withStartMenu().build();
+    return scene;
+}
