@@ -23,14 +23,36 @@ export class GameBuilder implements IBuilder {
     }
 
     withPlayer(): GameBuilder {
+        if (!this.startingGrid) {
+            throw new Error("Starting grid must be set before adding player");
+        }
+
         const player = this.factory.createArrowPlayer(true);
-        player.setStartingPosition(this.startingGrid!.getStartingPosition());
+        player.setStartingPosition(this.startingGrid.getStartingPosition());
         this.scenes.push(player);
         return this;
     }
 
     build(): Scene[] {
+        if (this.scenes.length === 0) {
+            throw new Error("No scenes configured");
+        }
+        this.validateScenes();
         return this.scenes;
+    }
+
+    private validateScenes(): void {
+        const isStartingGrid = (
+            scene: Scene
+        ): scene is IStartingGrid & Scene => {
+            return "getStartingPosition" in scene;
+        };
+
+        const startingGrids = this.scenes.filter(isStartingGrid);
+
+        if (startingGrids.length === 0) {
+            console.warn("No starting grid scenes found");
+        }
     }
 }
 
