@@ -1,6 +1,6 @@
 import type { FrameContext } from "zippy-shared-lib";
 import type { Scene } from "zippy-game-engine";
-import type { ArrowPlayer } from "./arrow-player";
+import type { IPlayer } from "./arrow-player";
 import { TrackConfigService } from "./service/track-config.service";
 
 interface TrackBoundaryConfig {
@@ -12,7 +12,11 @@ interface TrackBoundaryConfig {
     offTrackSlowdown: number;
 }
 
-export class TrackBoundary implements Scene {
+export interface ITrackBoundary extends Scene {
+    checkCarOnTrack(player: IPlayer, deltaTime: number): boolean;
+}
+
+export class TrackBoundary implements ITrackBoundary {
     name = "Track-Boundary";
     displayName = "Track Boundary";
 
@@ -68,7 +72,7 @@ export class TrackBoundary implements Scene {
     }
 
     render(context: FrameContext): void {
-        this.renderDebug(context.ctx);
+        //this.renderDebug(context.ctx);
 
         if (!this.isOnTrack) {
             const ctx = context.ctx;
@@ -83,9 +87,9 @@ export class TrackBoundary implements Scene {
 
     resize(): void {}
 
-    checkCarOnTrack(car: ArrowPlayer, deltaTime: number): boolean {
+    checkCarOnTrack(player: IPlayer, deltaTime: number): boolean {
         const wasOnTrack = this.isOnTrack;
-        this.isOnTrack = this.isCarOnTrack(car);
+        this.isOnTrack = this.isCarOnTrack(player);
 
         if (!this.isOnTrack) {
             this.offTrackTimer += deltaTime;
@@ -96,7 +100,7 @@ export class TrackBoundary implements Scene {
                 return false;
             }
 
-            car.velocity *= this.config.offTrackSlowdown;
+            player.velocity *= this.config.offTrackSlowdown;
         } else {
             this.offTrackTimer = 0;
         }
@@ -108,7 +112,7 @@ export class TrackBoundary implements Scene {
         return this.isOnTrack;
     }
 
-    isCarOnTrack(car: ArrowPlayer): boolean {
+    isCarOnTrack(player: IPlayer): boolean {
         const trackConfig = this.configService.getConfig();
         const trackState = this.configService.getState();
 
@@ -117,22 +121,22 @@ export class TrackBoundary implements Scene {
 
         const points = [
             {
-                x: car.position.x - carWidth / 2,
-                y: car.position.y - carHeight / 2,
+                x: player.position.x - carWidth / 2,
+                y: player.position.y - carHeight / 2,
             },
             {
-                x: car.position.x + carWidth / 2,
-                y: car.position.y - carHeight / 2,
+                x: player.position.x + carWidth / 2,
+                y: player.position.y - carHeight / 2,
             },
             {
-                x: car.position.x - carWidth / 2,
-                y: car.position.y + carHeight / 2,
+                x: player.position.x - carWidth / 2,
+                y: player.position.y + carHeight / 2,
             },
             {
-                x: car.position.x + carWidth / 2,
-                y: car.position.y + carHeight / 2,
+                x: player.position.x + carWidth / 2,
+                y: player.position.y + carHeight / 2,
             },
-            { x: car.position.x, y: car.position.y },
+            { x: player.position.x, y: player.position.y },
         ];
 
         const halfLength = trackConfig.trackWidth / 2;

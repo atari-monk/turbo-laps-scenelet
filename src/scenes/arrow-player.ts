@@ -1,13 +1,18 @@
 import type { FrameContext } from "zippy-shared-lib";
 import type { Scene, InputSystem } from "zippy-game-engine";
-import type { TrackBoundary } from "./track-boundary";
+import type { ITrackBoundary } from "./track-boundary";
 import type { StartingGrid } from "./starting-grid";
-import type { PositionProvider } from "./type/position-provider";
 
-export class ArrowPlayer implements Scene, PositionProvider {
+export interface IPlayer extends Scene {
+    get velocity(): number;
+    set velocity(value: number);
+    get position(): { x: number; y: number };
+}
+
+export class ArrowPlayer implements IPlayer {
     name?: string = "Arrow-Player";
     displayName?: string = "Arrow Player";
-    private trackBoundary?: TrackBoundary;
+    private trackBoundary?: ITrackBoundary;
     private inputEnabled: boolean = false;
 
     setInputEnabled(enabled: boolean): void {
@@ -17,7 +22,7 @@ export class ArrowPlayer implements Scene, PositionProvider {
         }
     }
 
-    setTrackBoundary(trackBoundary: TrackBoundary): void {
+    setTrackBoundary(trackBoundary: ITrackBoundary): void {
         this.trackBoundary = trackBoundary;
     }
 
