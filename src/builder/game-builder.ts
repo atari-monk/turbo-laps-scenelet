@@ -4,12 +4,14 @@ import type { IBuilder } from "./type/IBuilder";
 import type { IStartingGrid } from "../scenes/starting-grid";
 import type { ITrackBoundary } from "../scenes/track-boundary";
 import type { IPlayer } from "../scenes/arrow-player";
+import type { ILapTracker } from "../scenes/lap-tracker";
 
 export class GameBuilder implements IBuilder {
     private scenes: Scene[] = [];
     private startingGrid?: IStartingGrid;
     private trackBoundary?: ITrackBoundary;
     private player?: IPlayer;
+    private lapTracker?: ILapTracker;
 
     constructor(private readonly factory: SceneInstanceFactory) {}
 
@@ -38,7 +40,6 @@ export class GameBuilder implements IBuilder {
         if (!this.trackBoundary) {
             throw new Error("Track Boundary must be set before adding player");
         }
-
         this.player = this.factory.createArrowPlayer(false);
         this.player.setStartingPosition(
             this.startingGrid.getStartingPosition()
@@ -58,15 +59,38 @@ export class GameBuilder implements IBuilder {
         if (!this.player) {
             throw new Error("Player must be set before adding Countdown");
         }
-
+        if (!this.lapTracker) {
+            throw new Error("LapTracker must be set before adding Countdown");
+        }
         const countdown = this.factory.createCountdown(
             () => {
                 this.player!.setInputEnabled(true);
-                //this.lapTracker.start();
+                this.lapTracker!.start();
             },
             () => {}
         );
         this.scenes.push(countdown);
+        return this;
+    }
+
+    withLapTracker(): GameBuilder {
+        if (!this.player) {
+            throw new Error("Player must be set before adding LapTracker");
+        }
+        if (!this.startingGrid) {
+            throw new Error(
+                "StartingGrid must be set before adding LapTracker"
+            );
+        }
+        this.lapTracker = this.factory.createLapTracker(this.player);
+        this.lapTracker.setRaceCompleteCallback(() => {
+            this.lapTracker!.reset();
+            this.player!.setInputEnabled(false);
+            this.player!.setStartingPosition(
+                this.startingGrid!.getStartingPosition()
+            );
+        });
+        this.scenes.push(this.lapTracker);
         return this;
     }
 
@@ -84,9 +108,7 @@ export class GameBuilder implements IBuilder {
         ): scene is IStartingGrid & Scene => {
             return "getStartingPosition" in scene;
         };
-
         const startingGrids = this.scenes.filter(isStartingGrid);
-
         if (startingGrids.length === 0) {
             console.warn("No starting grid scenes found");
         }
@@ -100,6 +122,7 @@ export function buildGame(factory: SceneInstanceFactory): Scene[] {
         .withStartingGrid()
         .withTrackBoundary()
         .withPlayer()
+        .withLapTracker()
         .withCountdown()
         .build();
     return scenes;

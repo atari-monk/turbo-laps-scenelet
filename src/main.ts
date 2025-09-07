@@ -15,7 +15,7 @@ import {
 import { MultiSceneTestFactory } from "./factory/multi-scene-test-factory";
 import { SingleSceneTestFactory } from "./factory/single-scene-test-factory";
 import { SceneInstanceFactory } from "./factory/scene-instance-factory";
-import { buildMenu } from "./builder/game-builder";
+import { buildMenu } from "./builder/menu-builder";
 
 const urlParams = new URLSearchParams(window.location.search);
 const SCENE_MODE = (urlParams.get("mode") as "all" | "current") || "current";
