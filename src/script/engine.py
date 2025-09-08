@@ -168,7 +168,7 @@ class EngineSoundGenerator:
     def save_to_wav(self, audio, filename):
         wavfile.write(filename, self.config.sample_rate, np.int16(audio * 32767))
 
-def create_default_config(filename='engine_config.json'):
+def create_default_config(filename='engine.json'):
     config = EngineSoundConfig()
     config.save(filename)
     return f"Default configuration saved to {filename}"
@@ -176,7 +176,7 @@ def create_default_config(filename='engine_config.json'):
 def main():
     parser = argparse.ArgumentParser(description="Generate Formula 1 engine sound")
     parser.add_argument("--output", "-o", default="car-engine.wav", help="Output WAV filename")
-    parser.add_argument("--config", "-c", default="engine_config.json", help="Configuration JSON file")
+    parser.add_argument("--config", "-c", default="engine.json", help="Configuration JSON file")
     parser.add_argument("--create-config", action="store_true", help="Create a default configuration file and exit")
     args = parser.parse_args()
 

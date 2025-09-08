@@ -93,7 +93,7 @@ class HornSoundGenerator:
     def save_to_wav(self, audio, filename):
         wavfile.write(filename, self.config.sample_rate, np.int16(audio * 32767))
 
-def create_horn_config(filename='horn_config.json'):
+def create_horn_config(filename='horn.json'):
     config = HornSoundConfig()
     config.save(filename)
     return f"Horn configuration saved to {filename}"
@@ -101,7 +101,7 @@ def create_horn_config(filename='horn_config.json'):
 def main():
     parser = argparse.ArgumentParser(description="Generate standard car horn sound")
     parser.add_argument("--output", "-o", default="car-horn.wav", help="Output WAV filename")
-    parser.add_argument("--config", "-c", default="horn_config.json", help="Configuration JSON file")
+    parser.add_argument("--config", "-c", default="horn.json", help="Configuration JSON file")
     parser.add_argument("--create-config", action="store_true", help="Create a default configuration file and exit")
     args = parser.parse_args()
 

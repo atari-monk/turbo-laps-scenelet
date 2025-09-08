@@ -240,7 +240,7 @@ export class ArrowPlayer implements IPlayer {
     private handleHornSound(): void {
         if (this.input.keyboard.isKeyDown("h")) {
             this.audioService.playSound(this.soundConfig.hornSoundKey, {
-                volume: 0.7,
+                volume: 1.0,
                 interrupt: true,
             });
         }

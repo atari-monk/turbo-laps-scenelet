@@ -1,0 +1,15 @@
+{
+    "sample_rate": 44100,
+    "duration": 3,
+    "base_freq": 200,
+    "freq_variation": 0.3,
+    "amplitude_envelope_attack": 0.05,
+    "amplitude_envelope_release": 0.3,
+    "noise_amplitude": 0.8,
+    "tone_amplitude": 0.4,
+    "rumble_amplitude": 0.2,
+    "rumble_freq_low": 30,
+    "rumble_freq_high": 80,
+    "texture_variation": 0.5,
+    "seamless_loop": false
+}
