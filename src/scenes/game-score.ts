@@ -4,13 +4,12 @@ import type { ILapTracker } from "./lap-tracker";
 
 interface GameScoreConfig {
     maxRecords?: number;
-    positionX?: number;
-    positionY?: number;
     textColor?: string;
     bestTimeColor?: string;
     fontSize?: number;
     fontFamily?: string;
     title?: string;
+    padding?: number;
 }
 
 interface GameScoreState {
@@ -31,13 +30,12 @@ export class GameScore implements IGameScore {
     constructor(config: GameScoreConfig = {}) {
         this.config = {
             maxRecords: 5,
-            positionX: 20,
-            positionY: 100,
             textColor: "white",
             bestTimeColor: "gold",
             fontSize: 16,
             fontFamily: "Arial",
             title: "Best Race Times (5 laps):",
+            padding: 20,
             ...config,
         };
 
@@ -74,29 +72,38 @@ export class GameScore implements IGameScore {
         if (this.state.bestRaceTimes.length === 0) return;
 
         const ctx = context.ctx;
+        const canvas = context.ctx.canvas;
         ctx.save();
         ctx.fillStyle = this.config.textColor;
         ctx.font = `${this.config.fontSize}px ${this.config.fontFamily}`;
         ctx.textAlign = "left";
+        ctx.textBaseline = "bottom";
 
-        ctx.fillText(
-            this.config.title,
-            this.config.positionX,
-            this.config.positionY
-        );
+        const titleMetrics = ctx.measureText(this.config.title);
+        const titleHeight =
+            titleMetrics.actualBoundingBoxAscent +
+            titleMetrics.actualBoundingBoxDescent;
+        const lineHeight = this.config.fontSize + 5;
+        const totalHeight =
+            titleHeight + this.state.bestRaceTimes.length * lineHeight;
+
+        const xPos = this.config.padding;
+        const yPos = canvas.height - this.config.padding;
+
+        ctx.fillText(this.config.title, xPos, yPos - totalHeight + titleHeight);
 
         for (let i = 0; i < this.state.bestRaceTimes.length; i++) {
             const time = this.state.bestRaceTimes[i];
-            const yPos =
-                this.config.positionY + (i + 1) * (this.config.fontSize + 5);
+            const textYPos =
+                yPos - totalHeight + titleHeight + (i + 1) * lineHeight;
 
             ctx.fillStyle =
                 i === 0 ? this.config.bestTimeColor : this.config.textColor;
 
             ctx.fillText(
                 `${i + 1}. ${(time / 1000).toFixed(2)}s`,
-                this.config.positionX,
-                yPos
+                xPos,
+                textYPos
             );
         }
 
