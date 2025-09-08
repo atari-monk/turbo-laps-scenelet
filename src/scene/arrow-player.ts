@@ -35,8 +35,8 @@ export class ArrowPlayer implements IPlayer {
     private spriteLoaded: boolean = false;
 
     private config: CarConfig = {
-        carWidth: 90,
-        carHeight: 130,
+        carWidth: 50,
+        carHeight: 110,
         carColor: "red",
         moveSpeed: 300,
         turnSpeed: 180,
