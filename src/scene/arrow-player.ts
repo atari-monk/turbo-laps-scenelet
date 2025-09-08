@@ -14,7 +14,16 @@ export interface IPlayer extends Scene {
         angle: number;
     }): void;
     setTrackBoundary(trackBoundary: ITrackBoundary): void;
-    setInputEnabled(enabled: boolean): void;
+}
+
+interface CarConfig {
+    carWidth: number;
+    carHeight: number;
+    carColor: string;
+    moveSpeed: number;
+    turnSpeed: number;
+    useSprite: boolean;
+    spriteUrl?: string;
 }
 
 export class ArrowPlayer implements IPlayer {
@@ -22,24 +31,17 @@ export class ArrowPlayer implements IPlayer {
     displayName?: string = "Arrow Player";
     private trackBoundary?: ITrackBoundary;
     private inputEnabled: boolean = false;
+    private carImage?: HTMLImageElement;
+    private spriteLoaded: boolean = false;
 
-    setInputEnabled(enabled: boolean): void {
-        this.inputEnabled = enabled;
-        if (!enabled) {
-            this.state.velocity = 0;
-        }
-    }
-
-    setTrackBoundary(trackBoundary: ITrackBoundary): void {
-        this.trackBoundary = trackBoundary;
-    }
-
-    private config = {
-        carWidth: 30,
-        carHeight: 50,
+    private config: CarConfig = {
+        carWidth: 90,
+        carHeight: 130,
         carColor: "red",
         moveSpeed: 300,
         turnSpeed: 180,
+        useSprite: true,
+        spriteUrl: "assets/sprite/race_car.png",
     };
 
     private state = {
@@ -66,12 +68,23 @@ export class ArrowPlayer implements IPlayer {
         enableInput = false
     ) {
         if (enableInput) this.setInputEnabled(true);
+        this.loadSprite();
     }
 
-    setStartingGrid(startingGrid: StartingGrid) {
+    setInputEnabled(enabled: boolean): void {
+        this.inputEnabled = enabled;
+        if (!enabled) {
+            this.state.velocity = 0;
+        }
+    }
+
+    setTrackBoundary(trackBoundary: ITrackBoundary): void {
+        this.trackBoundary = trackBoundary;
+    }
+
+    setStartingGrid(startingGrid: StartingGrid): void {
         const startPos = startingGrid.getStartingPosition();
-        this.state.position = { x: startPos.x, y: startPos.y };
-        this.state.rotation = startPos.angle * (180 / Math.PI);
+        this.setStartingPosition(startPos);
     }
 
     setStartingPosition(position: {
@@ -84,26 +97,32 @@ export class ArrowPlayer implements IPlayer {
         this.state.velocity = 0;
     }
 
+    private loadSprite(): void {
+        if (!this.config.spriteUrl) return;
+
+        this.carImage = new Image();
+        this.carImage.onload = () => {
+            this.spriteLoaded = true;
+        };
+        this.carImage.onerror = () => {
+            this.config.useSprite = false;
+        };
+        this.carImage.src = this.config.spriteUrl;
+    }
+
     init(): void {}
 
     update(context: FrameContext): void {
         this.handleMovement(context.deltaTime);
         if (this.trackBoundary) {
-            const isOnTrack = this.trackBoundary.checkCarOnTrack(
-                this,
-                context.deltaTime
-            );
-            if (!isOnTrack) {
-            }
+            this.trackBoundary.checkCarOnTrack(this, context.deltaTime);
         } else {
             this.keepInBounds();
         }
     }
 
     private handleMovement(deltaTime: number): void {
-        if (!this.inputEnabled) {
-            return;
-        }
+        if (!this.inputEnabled) return;
 
         if (this.input.keyboard.isKeyDown("ArrowUp")) {
             this.state.velocity = this.config.moveSpeed;
@@ -151,6 +170,16 @@ export class ArrowPlayer implements IPlayer {
         ctx.translate(this.state.position.x, this.state.position.y);
         ctx.rotate((this.state.rotation * Math.PI) / 180);
 
+        if (this.config.useSprite && this.spriteLoaded && this.carImage) {
+            this.renderSprite(ctx);
+        } else {
+            this.renderGeometricCar(ctx);
+        }
+
+        ctx.restore();
+    }
+
+    private renderGeometricCar(ctx: CanvasRenderingContext2D): void {
         ctx.fillStyle = this.config.carColor;
         ctx.fillRect(
             -this.config.carWidth / 2,
@@ -166,8 +195,18 @@ export class ArrowPlayer implements IPlayer {
             this.config.carWidth - 10,
             this.config.carHeight / 3
         );
+    }
 
-        ctx.restore();
+    private renderSprite(ctx: CanvasRenderingContext2D): void {
+        if (!this.carImage) return;
+
+        ctx.drawImage(
+            this.carImage,
+            -this.config.carWidth / 2,
+            -this.config.carHeight / 2,
+            this.config.carWidth,
+            this.config.carHeight
+        );
     }
 
     onEnter(): void {
