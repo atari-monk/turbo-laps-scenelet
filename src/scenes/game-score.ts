@@ -6,6 +6,7 @@ interface GameScoreConfig {
     maxRecords?: number;
     textColor?: string;
     bestTimeColor?: string;
+    lastTimeColor?: string;
     fontSize?: number;
     fontFamily?: string;
     title?: string;
@@ -14,6 +15,7 @@ interface GameScoreConfig {
 
 interface GameScoreState {
     bestRaceTimes: number[];
+    lastRaceTimeIndex: number | null;
 }
 
 export interface IGameScore extends Scene {
@@ -32,6 +34,7 @@ export class GameScore implements IGameScore {
             maxRecords: 5,
             textColor: "white",
             bestTimeColor: "gold",
+            lastTimeColor: "red",
             fontSize: 16,
             fontFamily: "Arial",
             title: "Best Race Times (5 laps):",
@@ -41,6 +44,7 @@ export class GameScore implements IGameScore {
 
         this.state = {
             bestRaceTimes: [],
+            lastRaceTimeIndex: null,
         };
     }
 
@@ -63,9 +67,13 @@ export class GameScore implements IGameScore {
     }
 
     private addRaceTime(time: number): void {
-        this.state.bestRaceTimes = [...this.state.bestRaceTimes, time]
+        const previousTimes = [...this.state.bestRaceTimes];
+        const newTimes = [...previousTimes, time]
             .sort((a, b) => a - b)
             .slice(0, this.config.maxRecords);
+
+        this.state.lastRaceTimeIndex = newTimes.indexOf(time);
+        this.state.bestRaceTimes = newTimes;
     }
 
     render(context: FrameContext): void {
@@ -74,7 +82,6 @@ export class GameScore implements IGameScore {
         const ctx = context.ctx;
         const canvas = context.ctx.canvas;
         ctx.save();
-        ctx.fillStyle = this.config.textColor;
         ctx.font = `${this.config.fontSize}px ${this.config.fontFamily}`;
         ctx.textAlign = "left";
         ctx.textBaseline = "bottom";
@@ -90,6 +97,7 @@ export class GameScore implements IGameScore {
         const xPos = this.config.padding;
         const yPos = canvas.height - this.config.padding;
 
+        ctx.fillStyle = this.config.textColor;
         ctx.fillText(this.config.title, xPos, yPos - totalHeight + titleHeight);
 
         for (let i = 0; i < this.state.bestRaceTimes.length; i++) {
@@ -97,8 +105,13 @@ export class GameScore implements IGameScore {
             const textYPos =
                 yPos - totalHeight + titleHeight + (i + 1) * lineHeight;
 
-            ctx.fillStyle =
-                i === 0 ? this.config.bestTimeColor : this.config.textColor;
+            if (i === 0) {
+                ctx.fillStyle = this.config.bestTimeColor;
+            } else if (i === this.state.lastRaceTimeIndex) {
+                ctx.fillStyle = this.config.lastTimeColor;
+            } else {
+                ctx.fillStyle = this.config.textColor;
+            }
 
             ctx.fillText(
                 `${i + 1}. ${(time / 1000).toFixed(2)}s`,
@@ -112,6 +125,7 @@ export class GameScore implements IGameScore {
 
     reset(): void {
         this.state.bestRaceTimes = [];
+        this.state.lastRaceTimeIndex = null;
     }
 
     getBestTimes(): number[] {
