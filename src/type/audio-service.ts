@@ -9,4 +9,5 @@ export interface AudioService {
     resumeSound(key: string): void;
     setVolume(key: string, volume: number): void;
     preloadSounds(sounds: SoundConfig[]): Promise<void>;
+    setSoundPitch(key: string, pitch: number): void;
 }

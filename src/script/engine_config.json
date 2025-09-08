@@ -1,0 +1,18 @@
+{
+    "sample_rate": 44100,
+    "duration": 20,
+    "base_freq": 120,
+    "rpm_variation": 0.2,
+    "exhaust_notes": 3,
+    "main_amplitude": 0.6,
+    "harmonic_amplitude": 0.4,
+    "exhaust_amplitude": 0.01,
+    "rpm_modulation_freq": 0.5,
+    "rpm_modulation_depth": 0.3,
+    "harmonic_weights": [0.35, 0.23333333333333334, 0.175, 0.14],
+    "burst_count": 2000,
+    "min_burst_length": 50,
+    "max_burst_length": 200,
+    "seamless_loop": true,
+    "loop_length": 20.0
+}

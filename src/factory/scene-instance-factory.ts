@@ -13,6 +13,7 @@ import { Continue } from "../scene/continue";
 import { Menu } from "../scene/menu";
 import type { PositionProvider } from "../type/position-provider";
 import { GameScore } from "../scene/game-score";
+import { WebAudioService } from "../service/web-audio-service";
 
 export class SceneInstanceFactory {
     constructor(
@@ -28,11 +29,12 @@ export class SceneInstanceFactory {
         return new RectangleTrack(this.canvas);
     }
 
-    public createArrowPlayer(enableControls = false): ArrowPlayer {
+    public createArrowPlayer(enableInput = false): ArrowPlayer {
         return new ArrowPlayer(
             this.canvas,
             this.gameEngine.input,
-            enableControls
+            new WebAudioService(),
+            enableInput
         );
     }
 

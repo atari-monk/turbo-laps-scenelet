@@ -4,6 +4,7 @@ import type { SoundConfig } from "../type/sound-config";
 
 export class WebAudioService implements AudioService {
     private sounds: Map<string, HTMLAudioElement> = new Map();
+    private activeSounds: Map<string, HTMLAudioElement> = new Map();
 
     async loadSound(key: string, path: string): Promise<void> {
         if (this.sounds.has(key)) {
@@ -40,36 +41,44 @@ export class WebAudioService implements AudioService {
             return;
         }
 
-        sound.currentTime = 0;
-        sound.volume = options?.volume ?? 1;
-        sound.loop = options?.loop ?? false;
-
-        if (options?.onEnd) {
-            sound.onended = options.onEnd;
+        if (options?.interrupt && this.activeSounds.has(key)) {
+            this.stopSound(key);
         }
 
-        sound.play().catch((error) => {
+        const audio = sound.cloneNode() as HTMLAudioElement;
+        audio.currentTime = 0;
+        audio.volume = options?.volume ?? 1;
+        audio.loop = options?.loop ?? false;
+
+        if (options?.onEnd) {
+            audio.onended = options.onEnd;
+        }
+
+        audio.play().catch((error) => {
             console.error(`Failed to play sound ${key}:`, error);
         });
+
+        this.activeSounds.set(key, audio);
     }
 
     stopSound(key: string): void {
-        const sound = this.sounds.get(key);
+        const sound = this.activeSounds.get(key);
         if (sound) {
             sound.pause();
             sound.currentTime = 0;
+            this.activeSounds.delete(key);
         }
     }
 
     pauseSound(key: string): void {
-        const sound = this.sounds.get(key);
+        const sound = this.activeSounds.get(key);
         if (sound) {
             sound.pause();
         }
     }
 
     resumeSound(key: string): void {
-        const sound = this.sounds.get(key);
+        const sound = this.activeSounds.get(key);
         if (sound) {
             sound.play().catch((error) => {
                 console.error(`Failed to resume sound ${key}:`, error);
@@ -78,9 +87,16 @@ export class WebAudioService implements AudioService {
     }
 
     setVolume(key: string, volume: number): void {
-        const sound = this.sounds.get(key);
+        const sound = this.activeSounds.get(key);
         if (sound) {
             sound.volume = Math.max(0, Math.min(1, volume));
+        }
+    }
+
+    setSoundPitch(key: string, pitch: number): void {
+        const sound = this.activeSounds.get(key);
+        if (sound) {
+            sound.playbackRate = Math.max(0.1, Math.min(4, pitch));
         }
     }
 }
