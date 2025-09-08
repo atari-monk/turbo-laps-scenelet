@@ -75,6 +75,7 @@ export class ArrowPlayer implements IPlayer {
         isEnginePlaying: false,
         isSkidding: false,
         lastVelocity: 0,
+        wasOnTrack: true,
     };
 
     get velocity(): number {
@@ -150,6 +151,7 @@ export class ArrowPlayer implements IPlayer {
         this.state.position = { x: position.x, y: position.y };
         this.state.rotation = position.angle * (180 / Math.PI);
         this.state.velocity = 0;
+        this.state.wasOnTrack = true;
     }
 
     private loadSprite(): void {
@@ -172,9 +174,22 @@ export class ArrowPlayer implements IPlayer {
         this.handleSoundEffects(context.deltaTime);
 
         if (this.trackBoundary) {
-            this.trackBoundary.checkCarOnTrack(this, context.deltaTime);
+            const isOnTrack = this.trackBoundary.checkCarOnTrack(
+                this,
+                context.deltaTime
+            );
+            this.handleTrackStateChange(isOnTrack);
         } else {
             this.keepInBounds();
+        }
+    }
+
+    private handleTrackStateChange(isOnTrack: boolean): void {
+        if (!this.state.wasOnTrack && isOnTrack) {
+            this.state.wasOnTrack = true;
+        } else if (this.state.wasOnTrack && !isOnTrack) {
+            this.state.wasOnTrack = false;
+            this.playCrashSound();
         }
     }
 
@@ -348,6 +363,7 @@ export class ArrowPlayer implements IPlayer {
         };
         this.state.rotation = 0;
         this.state.velocity = 0;
+        this.state.wasOnTrack = true;
     }
 
     onExit(): void {
