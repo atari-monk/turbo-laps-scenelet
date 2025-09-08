@@ -1,18 +1,18 @@
 import type { GameEngine } from "zippy-game-engine";
-import { ElipseTrack } from "../scenes/elipse-track";
-import { RectangleTrack } from "../scenes/rectangle-track";
-import { ArrowPlayer } from "../scenes/arrow-player";
-import { TrackBoundary } from "../scenes/track-boundary";
-import { StartingGrid } from "../scenes/starting-grid";
-import { RoadMarkings } from "../scenes/road-markings";
-import { TrackGrass } from "../scenes/track-grass";
-import { LapTracker } from "../scenes/lap-tracker";
-import { MouseCursor } from "../scenes/mouse-cursor";
-import { Countdown } from "../scenes/countdown";
-import { Continue } from "../scenes/continue";
-import { Menu } from "../scenes/menu";
-import type { PositionProvider } from "../scenes/type/position-provider";
-import { GameScore } from "../scenes/game-score";
+import { ElipseTrack } from "../scene/elipse-track";
+import { RectangleTrack } from "../scene/rectangle-track";
+import { ArrowPlayer } from "../scene/arrow-player";
+import { TrackBoundary } from "../scene/track-boundary";
+import { StartingGrid } from "../scene/starting-grid";
+import { RoadMarkings } from "../scene/road-markings";
+import { TrackGrass } from "../scene/track-grass";
+import { LapTracker } from "../scene/lap-tracker";
+import { MouseCursor } from "../scene/mouse-cursor";
+import { Countdown } from "../scene/countdown";
+import { Continue } from "../scene/continue";
+import { Menu } from "../scene/menu";
+import type { PositionProvider } from "../type/position-provider";
+import { GameScore } from "../scene/game-score";
 
 export class SceneInstanceFactory {
     constructor(

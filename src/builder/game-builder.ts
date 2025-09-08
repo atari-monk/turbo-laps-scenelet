@@ -1,13 +1,13 @@
 import type { Scene } from "zippy-game-engine";
 import type { SceneInstanceFactory } from "../factory/scene-instance-factory";
-import type { IBuilder } from "./type/IBuilder";
-import type { IStartingGrid } from "../scenes/starting-grid";
-import type { ITrackBoundary } from "../scenes/track-boundary";
-import type { IPlayer } from "../scenes/arrow-player";
-import type { ILapTracker } from "../scenes/lap-tracker";
-import type { ICountdown } from "../scenes/countdown";
-import type { IContinue } from "../scenes/continue";
-import type { IGameScore } from "../scenes/game-score";
+import type { IBuilder } from "../type/IBuilder";
+import type { IStartingGrid } from "../scene/starting-grid";
+import type { ITrackBoundary } from "../scene/track-boundary";
+import type { IPlayer } from "../scene/arrow-player";
+import type { ILapTracker } from "../scene/lap-tracker";
+import type { ICountdown } from "../scene/countdown";
+import type { IContinue } from "../scene/continue";
+import type { IGameScore } from "../scene/game-score";
 
 export class GameBuilder implements IBuilder {
     private scenes: Scene[] = [];

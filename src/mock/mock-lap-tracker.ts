@@ -1,4 +1,4 @@
-import type { ILapTracker } from "../scenes/lap-tracker";
+import type { ILapTracker } from "../scene/lap-tracker";
 
 export class MockLapTracker implements ILapTracker {
     private lapTimes: number[] = [];

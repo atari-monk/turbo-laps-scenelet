@@ -2,8 +2,8 @@ import "./style.css";
 import "fullscreen-canvas-vanilla";
 import { createGameCanvas } from "fullscreen-canvas-vanilla";
 import { GameEngine } from "zippy-game-engine";
-import { SceneType } from "./scenes/type/scene-type";
-import { MultiSceneType } from "./scenes/type/multi-scene-type";
+import { SceneType } from "./type/scene-type";
+import { MultiSceneType } from "./type/multi-scene-type";
 import {
     getCanvasSizeById,
     isMultiSceneType,

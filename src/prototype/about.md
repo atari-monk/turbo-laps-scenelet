@@ -1,0 +1,1 @@
+Use pnpm dev and http://localhost:5173/src/prototype/sprite
