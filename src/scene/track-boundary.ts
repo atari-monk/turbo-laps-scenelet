@@ -1,7 +1,7 @@
 import type { FrameContext } from "zippy-shared-lib";
 import type { Scene } from "zippy-game-engine";
 import type { IPlayer } from "./arrow-player";
-import { TrackConfigService } from "./service/track-config.service";
+import { TrackConfigService } from "../service/track-config.service";
 
 interface TrackBoundaryConfig {
     outerBoundaryOffset: number;

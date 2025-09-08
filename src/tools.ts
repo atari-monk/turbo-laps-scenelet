@@ -64,3 +64,7 @@ export function logSelection(
         console.log(`Testing single scene: ${currentScene}`);
     }
 }
+
+export function delay(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}

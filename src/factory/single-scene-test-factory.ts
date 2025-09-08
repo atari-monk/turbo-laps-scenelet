@@ -1,10 +1,13 @@
 import type { GameEngine, Scene } from "zippy-game-engine";
 import { SceneType } from "../type/scene-type";
 import type { SceneInstanceFactory } from "./scene-instance-factory";
-import { TrackConfigService } from "../scene/service/track-config.service";
 import { MultiSceneTestFactory } from "./multi-scene-test-factory";
 import { MultiSceneType } from "../type/multi-scene-type";
 import { MockLapTracker } from "../mock/mock-lap-tracker";
+import { TrackConfigService } from "../service/track-config.service";
+import { SoundSceneFactory } from "./sound-scene-factory";
+import { WebAudioService } from "../service/web-audio-service";
+import type { SoundConfig } from "../type/sound-config";
 
 export class SingleSceneTestFactory {
     constructor(
@@ -88,6 +91,18 @@ export class SingleSceneTestFactory {
             const gameScore = this.factory.createGameScore();
             gameScore.onRaceComplete(mockLapTracker);
             return gameScore;
+        }
+        if (sceneType === SceneType.SOUND_DEMO) {
+            const sounds: SoundConfig[] = [
+                { key: "background-music", path: `/assets/audio/melody.wav` },
+                { key: "click-sound", path: `/assets/audio/click.wav` },
+                { key: "effect-sound", path: `/assets/audio/effect.mp3` },
+            ];
+            return SoundSceneFactory.createSoundSceneWithCustomSounds(
+                sounds,
+                new WebAudioService(),
+                this.gameEngine.input
+            );
         }
         throw new Error(`Unknown scene type: ${sceneType}`);
     }

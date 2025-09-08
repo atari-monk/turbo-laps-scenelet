@@ -1,7 +1,7 @@
 import { MultiSceneType } from "../type/multi-scene-type";
 import type { Scene } from "zippy-game-engine";
 import type { SceneInstanceFactory } from "./scene-instance-factory";
-import { TrackConfigService } from "../scene/service/track-config.service";
+import { TrackConfigService } from "../service/track-config.service";
 
 export class MultiSceneTestFactory {
     constructor(
