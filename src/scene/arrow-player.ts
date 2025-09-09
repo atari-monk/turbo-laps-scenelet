@@ -36,8 +36,8 @@ interface CarSoundConfig {
     crashSoundPath: string;
     hornSoundKey: string;
     hornSoundPath: string;
-    // skidSoundKey: string;
-    // skidSoundPath: string;
+    skidSoundKey: string;
+    skidSoundPath: string;
 }
 
 export class ArrowPlayer implements IPlayer {
@@ -66,8 +66,8 @@ export class ArrowPlayer implements IPlayer {
         crashSoundPath: "/assets/audio/car-crash.wav",
         hornSoundKey: "car-horn",
         hornSoundPath: "/assets/audio/car-horn.wav",
-        // skidSoundKey: "car-skid",
-        // skidSoundPath: "/assets/audio/car-skid.wav",
+        skidSoundKey: "car-skid",
+        skidSoundPath: "/assets/audio/car-skid.wav",
     };
 
     private state = {
@@ -78,6 +78,8 @@ export class ArrowPlayer implements IPlayer {
         isSkidding: false,
         lastVelocity: 0,
         wasOnTrack: true,
+        lastRotation: 0,
+        inputEnabled: true,
     };
 
     get velocity(): number {
@@ -117,10 +119,10 @@ export class ArrowPlayer implements IPlayer {
                 key: this.soundConfig.hornSoundKey,
                 path: this.soundConfig.hornSoundPath,
             },
-            // {
-            //     key: this.soundConfig.skidSoundKey,
-            //     path: this.soundConfig.skidSoundPath,
-            // },
+            {
+                key: this.soundConfig.skidSoundKey,
+                path: this.soundConfig.skidSoundPath,
+            },
         ];
 
         this.audioService.preloadSounds(soundConfigs).catch(() => {
@@ -130,9 +132,11 @@ export class ArrowPlayer implements IPlayer {
 
     setInputEnabled(enabled: boolean): void {
         this.inputEnabled = enabled;
+        this.state.inputEnabled = enabled;
         if (!enabled) {
             this.state.velocity = 0;
             this.stopEngineSound();
+            this.stopSkidSound();
         }
     }
 
@@ -152,8 +156,10 @@ export class ArrowPlayer implements IPlayer {
     }): void {
         this.state.position = { x: position.x, y: position.y };
         this.state.rotation = position.angle * (180 / Math.PI);
+        this.state.lastRotation = this.state.rotation;
         this.state.velocity = 0;
         this.state.wasOnTrack = true;
+        this.stopSkidSound();
     }
 
     private loadSprite(): void {
@@ -193,6 +199,7 @@ export class ArrowPlayer implements IPlayer {
         } else if (this.state.wasOnTrack && !isOnTrack) {
             this.state.wasOnTrack = false;
             this.playCrashSound();
+            this.stopSkidSound();
         }
     }
 
@@ -200,6 +207,7 @@ export class ArrowPlayer implements IPlayer {
         if (!this.inputEnabled) return;
 
         const previousVelocity = this.state.velocity;
+        const previousRotation = this.state.rotation;
 
         if (this.input.keyboard.isKeyDown("ArrowUp")) {
             this.state.velocity = this.config.moveSpeed;
@@ -227,12 +235,13 @@ export class ArrowPlayer implements IPlayer {
         }
 
         this.state.lastVelocity = previousVelocity;
+        this.state.lastRotation = previousRotation;
     }
 
-    private handleSoundEffects(_deltaTime: number): void {
+    private handleSoundEffects(deltaTime: number): void {
         this.handleEngineSound();
         this.handleHornSound();
-        //this.handleSkidSound();
+        this.handleSkidSound(deltaTime);
     }
 
     private handleEngineSound(): void {
@@ -264,21 +273,33 @@ export class ArrowPlayer implements IPlayer {
         }
     }
 
-    // private handleSkidSound(): void {
-    //     const isSkidding =
-    //         Math.abs(this.state.velocity - this.state.lastVelocity) > 100;
+    private handleSkidSound(deltaTime: number): void {
+        if (!this.state.inputEnabled) {
+            this.stopSkidSound();
+            return;
+        }
 
-    //     if (isSkidding && !this.state.isSkidding) {
-    //         this.audioService.playSound(this.soundConfig.skidSoundKey, {
-    //             volume: 0.6,
-    //             loop: true,
-    //         });
-    //         this.state.isSkidding = true;
-    //     } else if (!isSkidding && this.state.isSkidding) {
-    //         this.audioService.stopSound(this.soundConfig.skidSoundKey);
-    //         this.state.isSkidding = false;
-    //     }
-    // }
+        const speedThreshold = this.config.moveSpeed * 0.6;
+        const rotationDelta = Math.abs(
+            this.state.rotation - this.state.lastRotation
+        );
+        const rotationThreshold = 30 * deltaTime;
+
+        const isHighSpeed = Math.abs(this.state.velocity) > speedThreshold;
+        const isTurning = rotationDelta > rotationThreshold;
+        const isSkidding =
+            isHighSpeed && isTurning && this.state.velocity !== 0;
+
+        if (isSkidding && !this.state.isSkidding) {
+            this.audioService.playSound(this.soundConfig.skidSoundKey, {
+                volume: 0.6,
+                loop: true,
+            });
+            this.state.isSkidding = true;
+        } else if (!isSkidding && this.state.isSkidding) {
+            this.stopSkidSound();
+        }
+    }
 
     private playEngineSound(): void {
         this.audioService.playSound(this.soundConfig.engineSoundKey, {
@@ -291,6 +312,11 @@ export class ArrowPlayer implements IPlayer {
     private stopEngineSound(): void {
         this.audioService.stopSound(this.soundConfig.engineSoundKey);
         this.state.isEnginePlaying = false;
+    }
+
+    private stopSkidSound(): void {
+        this.audioService.stopSound(this.soundConfig.skidSoundKey);
+        this.state.isSkidding = false;
     }
 
     public playCrashSound(): void {
@@ -365,8 +391,11 @@ export class ArrowPlayer implements IPlayer {
             y: this.canvas.height / 2,
         };
         this.state.rotation = 0;
+        this.state.lastRotation = 0;
         this.state.velocity = 0;
         this.state.wasOnTrack = true;
+        this.state.inputEnabled = true;
+        this.stopSkidSound();
     }
 
     onExit(): void {
@@ -376,7 +405,7 @@ export class ArrowPlayer implements IPlayer {
 
     private stopAllSounds(): void {
         this.stopEngineSound();
-        //this.audioService.stopSound(this.soundConfig.skidSoundKey);
+        this.stopSkidSound();
         this.audioService.stopSound(this.soundConfig.hornSoundKey);
     }
 
