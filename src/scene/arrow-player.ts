@@ -54,8 +54,8 @@ export class ArrowPlayer implements IPlayer {
         carWidth: 50,
         carHeight: 110,
         carColor: "red",
-        moveSpeed: 300,
-        turnSpeed: 180,
+        moveSpeed: 700,
+        turnSpeed: 200,
         useSprite: true,
         spriteUrl: "assets/sprite/race_car.png",
         allowStationaryTurning: false,
@@ -218,9 +218,9 @@ export class ArrowPlayer implements IPlayer {
             if (this.input.keyboard.isKeyDown("ArrowUp")) {
                 this.state.velocity = this.config.moveSpeed;
             } else if (this.input.keyboard.isKeyDown("ArrowDown")) {
-                this.state.velocity = -this.config.moveSpeed * 0.5;
+                this.state.velocity = -this.config.moveSpeed * 0.3;
             } else if (this.input.keyboard.isKeyDown(" ")) {
-                this.state.velocity *= 0.9;
+                this.state.velocity *= 0.95;
             }
 
             const canTurn =
