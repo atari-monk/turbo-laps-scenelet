@@ -35,8 +35,8 @@ interface CarSoundConfig {
     crashSoundPath: string;
     hornSoundKey: string;
     hornSoundPath: string;
-    skidSoundKey: string;
-    skidSoundPath: string;
+    // skidSoundKey: string;
+    // skidSoundPath: string;
 }
 
 export class ArrowPlayer implements IPlayer {
@@ -64,8 +64,8 @@ export class ArrowPlayer implements IPlayer {
         crashSoundPath: "/assets/audio/car-crash.wav",
         hornSoundKey: "car-horn",
         hornSoundPath: "/assets/audio/car-horn.wav",
-        skidSoundKey: "car-skid",
-        skidSoundPath: "/assets/audio/car-skid.wav",
+        // skidSoundKey: "car-skid",
+        // skidSoundPath: "/assets/audio/car-skid.wav",
     };
 
     private state = {
@@ -115,10 +115,10 @@ export class ArrowPlayer implements IPlayer {
                 key: this.soundConfig.hornSoundKey,
                 path: this.soundConfig.hornSoundPath,
             },
-            {
-                key: this.soundConfig.skidSoundKey,
-                path: this.soundConfig.skidSoundPath,
-            },
+            // {
+            //     key: this.soundConfig.skidSoundKey,
+            //     path: this.soundConfig.skidSoundPath,
+            // },
         ];
 
         this.audioService.preloadSounds(soundConfigs).catch(() => {
@@ -229,7 +229,7 @@ export class ArrowPlayer implements IPlayer {
     private handleSoundEffects(_deltaTime: number): void {
         this.handleEngineSound();
         this.handleHornSound();
-        this.handleSkidSound();
+        //this.handleSkidSound();
     }
 
     private handleEngineSound(): void {
@@ -261,21 +261,21 @@ export class ArrowPlayer implements IPlayer {
         }
     }
 
-    private handleSkidSound(): void {
-        const isSkidding =
-            Math.abs(this.state.velocity - this.state.lastVelocity) > 100;
+    // private handleSkidSound(): void {
+    //     const isSkidding =
+    //         Math.abs(this.state.velocity - this.state.lastVelocity) > 100;
 
-        if (isSkidding && !this.state.isSkidding) {
-            this.audioService.playSound(this.soundConfig.skidSoundKey, {
-                volume: 0.6,
-                loop: true,
-            });
-            this.state.isSkidding = true;
-        } else if (!isSkidding && this.state.isSkidding) {
-            this.audioService.stopSound(this.soundConfig.skidSoundKey);
-            this.state.isSkidding = false;
-        }
-    }
+    //     if (isSkidding && !this.state.isSkidding) {
+    //         this.audioService.playSound(this.soundConfig.skidSoundKey, {
+    //             volume: 0.6,
+    //             loop: true,
+    //         });
+    //         this.state.isSkidding = true;
+    //     } else if (!isSkidding && this.state.isSkidding) {
+    //         this.audioService.stopSound(this.soundConfig.skidSoundKey);
+    //         this.state.isSkidding = false;
+    //     }
+    // }
 
     private playEngineSound(): void {
         this.audioService.playSound(this.soundConfig.engineSoundKey, {
@@ -373,7 +373,7 @@ export class ArrowPlayer implements IPlayer {
 
     private stopAllSounds(): void {
         this.stopEngineSound();
-        this.audioService.stopSound(this.soundConfig.skidSoundKey);
+        //this.audioService.stopSound(this.soundConfig.skidSoundKey);
         this.audioService.stopSound(this.soundConfig.hornSoundKey);
     }
 

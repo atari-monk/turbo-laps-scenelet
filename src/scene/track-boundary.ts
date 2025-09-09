@@ -70,7 +70,7 @@ export class TrackBoundary implements ITrackBoundary {
             this.offTrackTimer = 0;
             this.pulseAnimationPhase = 0;
         } else {
-            this.offTrackTimer += deltaTime;
+            this.offTrackTimer += deltaTime * 1000;
             this.pulseAnimationPhase += deltaTime / 500;
         }
     }
@@ -117,7 +117,7 @@ export class TrackBoundary implements ITrackBoundary {
         this.isOnTrack = this.isCarOnTrack(player);
 
         if (!this.isOnTrack) {
-            this.offTrackTimer += deltaTime;
+            this.offTrackTimer += deltaTime * 1000;
 
             if (this.offTrackTimer > this.config.maxOffTrackTime) {
                 this.offTrackTimer = 0;
