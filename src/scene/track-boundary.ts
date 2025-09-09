@@ -25,6 +25,7 @@ export class TrackBoundary implements ITrackBoundary {
     private offTrackTimer = 0;
     private hapticFeedback?: (duration: number) => void;
     private readonly configService = TrackConfigService.getInstance();
+    private pulseAnimationPhase = 0;
 
     constructor(
         private readonly canvas: HTMLCanvasElement,
@@ -57,6 +58,7 @@ export class TrackBoundary implements ITrackBoundary {
     onEnter(): void {
         this.isOnTrack = true;
         this.offTrackTimer = 0;
+        this.pulseAnimationPhase = 0;
     }
 
     onExit(): void {}
@@ -66,21 +68,44 @@ export class TrackBoundary implements ITrackBoundary {
 
         if (this.isOnTrack) {
             this.offTrackTimer = 0;
+            this.pulseAnimationPhase = 0;
         } else {
             this.offTrackTimer += deltaTime;
+            this.pulseAnimationPhase += deltaTime / 500;
         }
     }
 
     render(context: FrameContext): void {
-        //this.renderDebug(context.ctx);
-
         if (!this.isOnTrack) {
             const ctx = context.ctx;
+            const canvas = context.ctx.canvas;
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+
+            const pulseIntensity =
+                0.5 + Math.abs(Math.sin(this.pulseAnimationPhase)) * 0.5;
+            const remainingTime = Math.ceil(
+                (this.config.maxOffTrackTime - this.offTrackTimer) / 1000
+            );
+
             ctx.save();
-            ctx.fillStyle = "rgba(255, 0, 0, 0.7)";
-            ctx.font = "24px Arial";
+
+            const opacity = 0.8 + pulseIntensity * 0.2;
+            ctx.fillStyle = `rgba(255, 0, 0, ${opacity})`;
+            ctx.font = "bold 48px Arial";
             ctx.textAlign = "center";
-            ctx.fillText("OFF TRACK!", context.ctx.canvas.width / 2, 50);
+            ctx.textBaseline = "middle";
+            ctx.shadowColor = "rgba(255, 255, 255, 0.8)";
+            ctx.shadowBlur = 10;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+
+            ctx.fillText("OFF TRACK!", centerX, centerY - 40);
+
+            ctx.font = "bold 36px Arial";
+            ctx.shadowBlur = 5;
+            ctx.fillText(`Reset in: ${remainingTime}s`, centerX, centerY + 40);
+
             ctx.restore();
         }
     }
