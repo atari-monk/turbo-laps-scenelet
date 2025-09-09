@@ -29,6 +29,7 @@ export class LapTracker implements ILapTracker {
     private currentSector: number;
     private lapCount: number;
     private sectorTimes: number[];
+    private completedSectorTimes: number[][];
     private lastSectorTime: number;
     private startTime: number;
     private lastLapStart: number;
@@ -46,6 +47,7 @@ export class LapTracker implements ILapTracker {
         this.currentSector = 0;
         this.lapCount = 0;
         this.sectorTimes = new Array(this.sectors).fill(0);
+        this.completedSectorTimes = [];
         this.lastSectorTime = 0;
         this.startTime = 0;
         this.lastLapStart = 0;
@@ -90,6 +92,7 @@ export class LapTracker implements ILapTracker {
                 if (newSector === 0) {
                     const lapTime = now - this.lastLapStart;
                     this.lapTimes.push(lapTime);
+                    this.completedSectorTimes.push([...this.sectorTimes]);
                     this.lastLapStart = now;
                     this.lapCount++;
                     this.sectorTimes.fill(0);
@@ -122,13 +125,35 @@ export class LapTracker implements ILapTracker {
         ctx.fillText(`Lap: ${this.lapCount}/${maxLaps}`, 20, 50);
         ctx.fillText(`Sector: ${this.currentSector + 1}`, 20, 70);
 
-        for (let i = 0; i < this.sectorTimes.length; i++) {
-            ctx.fillText(
-                `Sector ${i + 1}: ${(this.sectorTimes[i] / 1000).toFixed(2)}s`,
-                20,
-                90 + i * 20
-            );
+        let yOffset = 90;
+
+        if (this.completedSectorTimes.length > 0) {
+            const lastLapSectors =
+                this.completedSectorTimes[this.completedSectorTimes.length - 1];
+            for (let i = 0; i < lastLapSectors.length; i++) {
+                ctx.fillText(
+                    `Sector ${i + 1}: ${(lastLapSectors[i] / 1000).toFixed(
+                        2
+                    )}s`,
+                    20,
+                    yOffset + i * 20
+                );
+            }
+            yOffset += lastLapSectors.length * 20 + 20;
         }
+
+        for (let i = 0; i < this.sectorTimes.length; i++) {
+            if (this.sectorTimes[i] > 0) {
+                ctx.fillText(
+                    `Current S${i + 1}: ${(this.sectorTimes[i] / 1000).toFixed(
+                        2
+                    )}s`,
+                    20,
+                    yOffset + i * 20
+                );
+            }
+        }
+        yOffset += this.sectorTimes.length * 20;
 
         if (this.isRunning) {
             ctx.fillText(
@@ -137,14 +162,14 @@ export class LapTracker implements ILapTracker {
                     1000
                 ).toFixed(2)}s`,
                 20,
-                90 + this.sectorTimes.length * 20
+                yOffset
             );
             ctx.fillText(
                 `Total: ${((performance.now() - this.startTime) / 1000).toFixed(
                     2
                 )}s`,
                 20,
-                110 + this.sectorTimes.length * 20
+                yOffset + 20
             );
         }
 
@@ -175,6 +200,7 @@ export class LapTracker implements ILapTracker {
         this.lapCount = 0;
         this.currentSector = 0;
         this.sectorTimes.fill(0);
+        this.completedSectorTimes = [];
         this.lapTimes = [];
         this.lastSectorTime = 0;
         this.startTime = 0;
