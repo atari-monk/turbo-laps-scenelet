@@ -27,6 +27,7 @@ interface CarConfig {
     turnSpeed: number;
     useSprite: boolean;
     spriteUrl?: string;
+    allowStationaryTurning: boolean;
 }
 
 interface CarSoundConfig {
@@ -57,6 +58,7 @@ export class ArrowPlayer implements IPlayer {
         turnSpeed: 180,
         useSprite: true,
         spriteUrl: "assets/sprite/race_car.png",
+        allowStationaryTurning: false,
     };
 
     private soundConfig: CarSoundConfig = {
@@ -217,11 +219,16 @@ export class ArrowPlayer implements IPlayer {
             this.state.velocity = 0;
         }
 
-        if (this.input.keyboard.isKeyDown("ArrowLeft")) {
-            this.state.rotation -= this.config.turnSpeed * deltaTime;
-        }
-        if (this.input.keyboard.isKeyDown("ArrowRight")) {
-            this.state.rotation += this.config.turnSpeed * deltaTime;
+        const canTurn =
+            this.config.allowStationaryTurning || this.state.velocity !== 0;
+
+        if (canTurn) {
+            if (this.input.keyboard.isKeyDown("ArrowLeft")) {
+                this.state.rotation -= this.config.turnSpeed * deltaTime;
+            }
+            if (this.input.keyboard.isKeyDown("ArrowRight")) {
+                this.state.rotation += this.config.turnSpeed * deltaTime;
+            }
         }
 
         this.state.rotation = ((this.state.rotation % 360) + 360) % 360;
