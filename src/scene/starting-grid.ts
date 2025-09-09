@@ -35,7 +35,7 @@ export class StartingGrid implements IStartingGrid {
         return {
             stripeWidth: 10,
             stripeLength: 50,
-            stripeCount: 5,
+            stripeCount: 11,
             offset: 40,
         };
     }
@@ -65,6 +65,7 @@ export class StartingGrid implements IStartingGrid {
         context.ctx.save();
 
         for (let i = 0; i < this.config.stripeCount; i++) {
+            context.ctx.globalAlpha = 0.4;
             context.ctx.fillStyle = i % 2 === 0 ? "white" : "black";
             context.ctx.fillRect(
                 startPos.x - totalWidth / 2 + i * this.config.stripeWidth,
