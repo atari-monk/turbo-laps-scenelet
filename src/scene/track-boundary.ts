@@ -2,6 +2,7 @@ import type { FrameContext } from "zippy-shared-lib";
 import type { Scene } from "zippy-game-engine";
 import type { IPlayer } from "./arrow-player";
 import { TrackConfigService } from "../service/track-config.service";
+import type { IStartingGrid } from "./starting-grid";
 
 interface TrackBoundaryConfig {
     outerBoundaryOffset: number;
@@ -13,7 +14,11 @@ interface TrackBoundaryConfig {
 }
 
 export interface ITrackBoundary extends Scene {
-    checkCarOnTrack(player: IPlayer, deltaTime: number): boolean;
+    checkCarOnTrack(
+        player: IPlayer,
+        startingGrid: IStartingGrid,
+        deltaTime: number
+    ): boolean;
 }
 
 export class TrackBoundary implements ITrackBoundary {
@@ -112,16 +117,19 @@ export class TrackBoundary implements ITrackBoundary {
 
     resize(): void {}
 
-    checkCarOnTrack(player: IPlayer, deltaTime: number): boolean {
+    checkCarOnTrack(
+        player: IPlayer,
+        startingGrid: IStartingGrid,
+        deltaTime: number
+    ): boolean {
         const wasOnTrack = this.isOnTrack;
         this.isOnTrack = this.isCarOnTrack(player);
 
         if (!this.isOnTrack) {
             this.offTrackTimer += deltaTime * 1000;
 
-            if (this.offTrackTimer > this.config.maxOffTrackTime) {
-                this.offTrackTimer = 0;
-                this.isOnTrack = true;
+            if (this.offTrackTimer >= this.config.maxOffTrackTime) {
+                this.resetCar(player, startingGrid);
                 return false;
             }
 
@@ -135,6 +143,13 @@ export class TrackBoundary implements ITrackBoundary {
         }
 
         return this.isOnTrack;
+    }
+
+    private resetCar(player: IPlayer, startingGrid: IStartingGrid): void {
+        this.offTrackTimer = 0;
+        this.isOnTrack = true;
+        player.setStartingPosition(startingGrid.getStartingPosition());
+        player.velocity = 0;
     }
 
     isCarOnTrack(player: IPlayer): boolean {

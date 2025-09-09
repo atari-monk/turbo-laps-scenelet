@@ -1,7 +1,7 @@
 import type { FrameContext } from "zippy-shared-lib";
 import type { Scene, InputSystem } from "zippy-game-engine";
 import type { ITrackBoundary } from "./track-boundary";
-import type { StartingGrid } from "./starting-grid";
+import type { IStartingGrid } from "./starting-grid";
 import type { AudioService } from "../type/audio-service";
 import type { SoundConfig } from "../type/sound-config";
 
@@ -16,6 +16,7 @@ export interface IPlayer extends Scene {
         angle: number;
     }): void;
     setTrackBoundary(trackBoundary: ITrackBoundary): void;
+    setStartingGrid(startingGrid: IStartingGrid): void;
 }
 
 interface CarConfig {
@@ -43,6 +44,7 @@ export class ArrowPlayer implements IPlayer {
     name?: string = "Arrow-Player";
     displayName?: string = "Arrow Player";
     private trackBoundary?: ITrackBoundary;
+    private startingGrid?: IStartingGrid;
     private inputEnabled: boolean = false;
     private carImage?: HTMLImageElement;
     private spriteLoaded: boolean = false;
@@ -138,9 +140,9 @@ export class ArrowPlayer implements IPlayer {
         this.trackBoundary = trackBoundary;
     }
 
-    setStartingGrid(startingGrid: StartingGrid): void {
-        const startPos = startingGrid.getStartingPosition();
-        this.setStartingPosition(startPos);
+    setStartingGrid(startingGrid: IStartingGrid): void {
+        this.startingGrid = startingGrid;
+        this.setStartingPosition(startingGrid.getStartingPosition());
     }
 
     setStartingPosition(position: {
@@ -176,6 +178,7 @@ export class ArrowPlayer implements IPlayer {
         if (this.trackBoundary) {
             const isOnTrack = this.trackBoundary.checkCarOnTrack(
                 this,
+                this.startingGrid!,
                 context.deltaTime
             );
             this.handleTrackStateChange(isOnTrack);

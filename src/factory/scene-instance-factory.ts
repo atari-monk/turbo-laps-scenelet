@@ -56,10 +56,9 @@ export class SceneInstanceFactory {
 
     public createLapTracker(
         positionProvider: PositionProvider,
-        turnOn = false,
-        sectors = 4
+        turnOn = false
     ): LapTracker {
-        return new LapTracker(positionProvider, turnOn, sectors);
+        return new LapTracker(positionProvider, turnOn);
     }
 
     public createCountdown(

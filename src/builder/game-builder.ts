@@ -53,6 +53,7 @@ export class GameBuilder implements IBuilder {
             throw new Error("Track Boundary must be set before adding player");
         }
         this.player = this.factory.createArrowPlayer(false);
+        this.player.setStartingGrid(this.startingGrid!);
         this.player.setStartingPosition(
             this.startingGrid.getStartingPosition()
         );
