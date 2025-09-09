@@ -37,6 +37,7 @@ export class LapTracker implements ILapTracker {
     private onRaceComplete?: () => void;
     private isRunning: boolean;
     private readonly configService = TrackConfigService.getInstance();
+    private completedSectors: boolean[];
 
     constructor(
         private readonly positionProvider: PositionProvider,
@@ -53,6 +54,7 @@ export class LapTracker implements ILapTracker {
         this.lastLapStart = 0;
         this.lapTimes = [];
         this.isRunning = false;
+        this.completedSectors = new Array(this.sectors).fill(false);
     }
 
     init(): void {}
@@ -78,34 +80,57 @@ export class LapTracker implements ILapTracker {
 
         if (newSector !== this.currentSector) {
             const now = performance.now();
+            const sectorDifference =
+                (newSector - this.currentSector + this.sectors) % this.sectors;
+            const isMovingForward =
+                sectorDifference === 1 ||
+                (this.currentSector === this.sectors - 1 && newSector === 0);
+            const isMovingBackward =
+                sectorDifference === this.sectors - 1 ||
+                (this.currentSector === 0 && newSector === this.sectors - 1);
 
-            const expectedNextSector = (this.currentSector + 1) % this.sectors;
-            const isMovingForward = newSector === expectedNextSector;
-            const isCompletingLap =
-                this.currentSector === this.sectors - 1 && newSector === 0;
-
-            if (isMovingForward || isCompletingLap) {
-                this.sectorTimes[this.currentSector] =
-                    now - this.lastSectorTime;
-                this.lastSectorTime = now;
-
-                if (newSector === 0) {
-                    const lapTime = now - this.lastLapStart;
-                    this.lapTimes.push(lapTime);
-                    this.completedSectorTimes.push([...this.sectorTimes]);
-                    this.lastLapStart = now;
-                    this.lapCount++;
-                    this.sectorTimes.fill(0);
-
-                    const maxLaps = this.configService.getLapConfig().maxLaps;
-                    if (this.lapCount >= maxLaps && this.onRaceComplete) {
-                        this.stop();
-                        this.onRaceComplete();
-                    }
-                }
+            if (isMovingForward) {
+                this.handleForwardMovement(newSector, now);
+            } else if (isMovingBackward) {
+                this.handleBackwardMovement(newSector);
             }
+
             this.currentSector = newSector;
         }
+    }
+
+    private handleForwardMovement(newSector: number, timestamp: number): void {
+        this.sectorTimes[this.currentSector] = timestamp - this.lastSectorTime;
+        this.lastSectorTime = timestamp;
+        this.completedSectors[this.currentSector] = true;
+
+        if (newSector === 0 && this.isLapComplete()) {
+            const lapTime = timestamp - this.lastLapStart;
+            this.lapTimes.push(lapTime);
+            this.completedSectorTimes.push([...this.sectorTimes]);
+            this.lastLapStart = timestamp;
+            this.lapCount++;
+            this.sectorTimes.fill(0);
+            this.completedSectors.fill(false);
+
+            const maxLaps = this.configService.getLapConfig().maxLaps;
+            if (this.lapCount >= maxLaps && this.onRaceComplete) {
+                this.stop();
+                this.onRaceComplete();
+            }
+        }
+    }
+
+    private handleBackwardMovement(newSector: number): void {
+        this.completedSectors[this.currentSector] = false;
+
+        if (newSector === 0) {
+            this.completedSectors.fill(false);
+        }
+    }
+
+    private isLapComplete(): boolean {
+        return this.completedSectors.every((completed) => completed);
     }
 
     render(context: FrameContext): void {
@@ -188,6 +213,7 @@ export class LapTracker implements ILapTracker {
             this.startTime = now;
             this.lastLapStart = now;
             this.lastSectorTime = now;
+            this.completedSectors.fill(false);
         }
     }
 
@@ -205,6 +231,7 @@ export class LapTracker implements ILapTracker {
         this.lastSectorTime = 0;
         this.startTime = 0;
         this.lastLapStart = 0;
+        this.completedSectors.fill(false);
     }
 
     getLapTimes(): number[] {
