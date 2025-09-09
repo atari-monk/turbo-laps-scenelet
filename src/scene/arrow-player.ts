@@ -82,6 +82,7 @@ export class ArrowPlayer implements IPlayer {
         wasOnTrack: true,
         lastRotation: 0,
         inputEnabled: true,
+        keysEnabled: true,
     };
 
     get velocity(): number {
@@ -198,8 +199,10 @@ export class ArrowPlayer implements IPlayer {
     private handleTrackStateChange(isOnTrack: boolean): void {
         if (!this.state.wasOnTrack && isOnTrack) {
             this.state.wasOnTrack = true;
+            this.state.keysEnabled = true;
         } else if (this.state.wasOnTrack && !isOnTrack) {
             this.state.wasOnTrack = false;
+            this.state.keysEnabled = false;
             this.playCrashSound();
             this.stopSkidSound();
         }
@@ -211,23 +214,25 @@ export class ArrowPlayer implements IPlayer {
         const previousVelocity = this.state.velocity;
         const previousRotation = this.state.rotation;
 
-        if (this.input.keyboard.isKeyDown("ArrowUp")) {
-            this.state.velocity = this.config.moveSpeed;
-        } else if (this.input.keyboard.isKeyDown("ArrowDown")) {
-            this.state.velocity = -this.config.moveSpeed * 0.5;
-        } else if (this.input.keyboard.isKeyDown(" ")) {
-            this.state.velocity = 0;
-        }
-
-        const canTurn =
-            this.config.allowStationaryTurning || this.state.velocity !== 0;
-
-        if (canTurn) {
-            if (this.input.keyboard.isKeyDown("ArrowLeft")) {
-                this.state.rotation -= this.config.turnSpeed * deltaTime;
+        if (this.state.keysEnabled) {
+            if (this.input.keyboard.isKeyDown("ArrowUp")) {
+                this.state.velocity = this.config.moveSpeed;
+            } else if (this.input.keyboard.isKeyDown("ArrowDown")) {
+                this.state.velocity = -this.config.moveSpeed * 0.5;
+            } else if (this.input.keyboard.isKeyDown(" ")) {
+                this.state.velocity *= 0.9;
             }
-            if (this.input.keyboard.isKeyDown("ArrowRight")) {
-                this.state.rotation += this.config.turnSpeed * deltaTime;
+
+            const canTurn =
+                this.config.allowStationaryTurning || this.state.velocity !== 0;
+
+            if (canTurn) {
+                if (this.input.keyboard.isKeyDown("ArrowLeft")) {
+                    this.state.rotation -= this.config.turnSpeed * deltaTime;
+                }
+                if (this.input.keyboard.isKeyDown("ArrowRight")) {
+                    this.state.rotation += this.config.turnSpeed * deltaTime;
+                }
             }
         }
 
