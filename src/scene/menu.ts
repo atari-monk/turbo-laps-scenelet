@@ -1,5 +1,6 @@
 import type { InputSystem, Scene } from "zippy-game-engine";
 import type { FrameContext } from "zippy-shared-lib";
+import { TrackConfigService } from "../service/track-config.service";
 
 interface MenuButton {
     x: number;
@@ -8,6 +9,7 @@ interface MenuButton {
     height: number;
     text: string;
     isHovered: boolean;
+    wasPressed: boolean;
     action?: () => void;
 }
 
@@ -16,7 +18,10 @@ export class Menu implements Scene {
     displayName = "Menu";
 
     private buttons: MenuButton[] = [];
+    private lapButtons: MenuButton[] = [];
     private isActive = true;
+    private readonly configService = TrackConfigService.getInstance();
+    private wasMousePressed: boolean = false;
 
     constructor(private inputSystem: InputSystem) {
         this.initializeButtons();
@@ -31,8 +36,42 @@ export class Menu implements Scene {
                 height: 60,
                 text: "START",
                 isHovered: false,
+                wasPressed: false,
             },
         ];
+
+        this.lapButtons = [
+            {
+                x: 0,
+                y: 0,
+                width: 40,
+                height: 40,
+                text: "-",
+                isHovered: false,
+                wasPressed: false,
+                action: () => this.adjustLapCount(-1),
+            },
+            {
+                x: 0,
+                y: 0,
+                width: 40,
+                height: 40,
+                text: "+",
+                isHovered: false,
+                wasPressed: false,
+                action: () => this.adjustLapCount(1),
+            },
+        ];
+    }
+
+    private adjustLapCount(delta: number) {
+        const currentLaps = this.configService.getLapConfig().maxLaps;
+        const newLaps = Math.max(1, currentLaps + delta);
+        this.configService.updateLapConfig({ maxLaps: newLaps });
+    }
+
+    getLapConfig() {
+        return this.configService.getLapConfig();
     }
 
     setOnStartGame(callback: () => void) {
@@ -63,6 +102,14 @@ export class Menu implements Scene {
         this.buttons[0].x = centerX - this.buttons[0].width / 2;
         this.buttons[0].y = centerY + 80;
 
+        const lapControlsWidth = 95;
+        const lapControlsStartX = centerX - lapControlsWidth / 2;
+
+        this.lapButtons[0].x = lapControlsStartX;
+        this.lapButtons[0].y = centerY + 170;
+        this.lapButtons[1].x = lapControlsStartX + 60;
+        this.lapButtons[1].y = centerY + 170;
+
         const mousePos = this.inputSystem.mouse.getPosition();
         const displayWidth = canvas.clientWidth || canvas.width;
         const displayHeight = canvas.clientHeight || canvas.height;
@@ -73,17 +120,32 @@ export class Menu implements Scene {
         const mouseY = mousePos.y * scaleY;
         const isMousePressed = this.inputSystem.mouse.isButtonDown(0);
 
-        this.buttons.forEach((button) => {
+        const allButtons = [...this.buttons, ...this.lapButtons];
+
+        allButtons.forEach((button) => {
             button.isHovered =
                 mouseX >= button.x &&
                 mouseX <= button.x + button.width &&
                 mouseY >= button.y &&
                 mouseY <= button.y + button.height;
 
-            if (button.isHovered && isMousePressed && button.action) {
-                button.action();
+            if (button.isHovered && isMousePressed && !this.wasMousePressed) {
+                button.wasPressed = true;
+            }
+
+            if (button.isHovered && !isMousePressed && button.wasPressed) {
+                if (button.action) {
+                    button.action();
+                }
+                button.wasPressed = false;
+            }
+
+            if (!isMousePressed) {
+                button.wasPressed = false;
             }
         });
+
+        this.wasMousePressed = isMousePressed;
     }
 
     render(context: FrameContext) {
@@ -93,6 +155,7 @@ export class Menu implements Scene {
         const canvas = ctx.canvas;
         const centerX = canvas.width / 2;
         const centerY = canvas.height / 2;
+        const lapConfig = this.configService.getLapConfig();
 
         ctx.fillStyle = "#2c3e50";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -104,12 +167,16 @@ export class Menu implements Scene {
 
         ctx.fillStyle = "#bdc3c7";
         ctx.font = "24px 'Arial'";
-        ctx.fillText("5-Lap Time Trial", centerX, centerY - 20);
+        ctx.fillText(
+            `${lapConfig.maxLaps}-Lap Time Trial`,
+            centerX,
+            centerY - 20
+        );
 
         ctx.fillStyle = "#95a5a6";
         ctx.font = "18px 'Arial'";
         ctx.fillText(
-            "Complete 5 laps around the track as fast as possible!",
+            `Complete ${lapConfig.maxLaps} laps around the track as fast as possible!`,
             centerX,
             centerY + 20
         );
@@ -133,6 +200,23 @@ export class Menu implements Scene {
                 button.text,
                 button.x + button.width / 2,
                 button.y + button.height / 2 + 8
+            );
+        });
+
+        this.lapButtons.forEach((button) => {
+            ctx.fillStyle = button.isHovered ? "#3498db" : "#2980b9";
+            ctx.fillRect(button.x, button.y, button.width, button.height);
+
+            ctx.strokeStyle = "#ecf0f1";
+            ctx.lineWidth = 2;
+            ctx.strokeRect(button.x, button.y, button.width, button.height);
+
+            ctx.fillStyle = "#ffffff";
+            ctx.font = "bold 20px 'Arial'";
+            ctx.fillText(
+                button.text,
+                button.x + button.width / 2,
+                button.y + button.height / 2 + 6
             );
         });
     }

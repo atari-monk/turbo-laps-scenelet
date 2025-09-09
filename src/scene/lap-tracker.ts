@@ -16,6 +16,11 @@ export interface ILapTracker extends Scene {
     reset(): void;
 }
 
+interface LapTrackerConfig {
+    sectors?: number;
+    turnOn?: boolean;
+}
+
 export class LapTracker implements ILapTracker {
     name = "Lap-Tracker";
     displayName = "Lap Tracker";
@@ -28,7 +33,6 @@ export class LapTracker implements ILapTracker {
     private startTime: number;
     private lastLapStart: number;
     private lapTimes: number[];
-    private maxLaps: number;
     private onRaceComplete?: () => void;
     private isRunning: boolean;
     private readonly configService = TrackConfigService.getInstance();
@@ -36,17 +40,16 @@ export class LapTracker implements ILapTracker {
     constructor(
         private readonly positionProvider: PositionProvider,
         private readonly turnOn = false,
-        sectors = 4
+        config: LapTrackerConfig = {}
     ) {
-        this.sectors = sectors;
+        this.sectors = config.sectors || 4;
         this.currentSector = 0;
         this.lapCount = 0;
-        this.sectorTimes = new Array(sectors).fill(0);
+        this.sectorTimes = new Array(this.sectors).fill(0);
         this.lastSectorTime = 0;
         this.startTime = 0;
         this.lastLapStart = 0;
         this.lapTimes = [];
-        this.maxLaps = 1;
         this.isRunning = false;
     }
 
@@ -91,7 +94,8 @@ export class LapTracker implements ILapTracker {
                     this.lapCount++;
                     this.sectorTimes.fill(0);
 
-                    if (this.lapCount >= this.maxLaps && this.onRaceComplete) {
+                    const maxLaps = this.configService.getLapConfig().maxLaps;
+                    if (this.lapCount >= maxLaps && this.onRaceComplete) {
                         this.stop();
                         this.onRaceComplete();
                     }
@@ -103,6 +107,8 @@ export class LapTracker implements ILapTracker {
 
     render(context: FrameContext): void {
         const ctx = context.ctx;
+        const maxLaps = this.configService.getLapConfig().maxLaps;
+
         ctx.save();
         ctx.fillStyle = "white";
         ctx.font = "16px Arial";
@@ -113,7 +119,7 @@ export class LapTracker implements ILapTracker {
             20,
             30
         );
-        ctx.fillText(`Lap: ${this.lapCount}/${this.maxLaps}`, 20, 50);
+        ctx.fillText(`Lap: ${this.lapCount}/${maxLaps}`, 20, 50);
         ctx.fillText(`Sector: ${this.currentSector + 1}`, 20, 70);
 
         for (let i = 0; i < this.sectorTimes.length; i++) {

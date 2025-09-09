@@ -1,6 +1,7 @@
 import type { Scene } from "zippy-game-engine";
 import type { FrameContext } from "zippy-shared-lib";
 import type { ILapTracker } from "./lap-tracker";
+import { TrackConfigService } from "../service/track-config.service";
 
 interface GameScoreConfig {
     maxRecords?: number;
@@ -28,6 +29,7 @@ export class GameScore implements IGameScore {
 
     private config: Required<GameScoreConfig>;
     private state: GameScoreState;
+    private readonly configService = TrackConfigService.getInstance();
 
     constructor(config: GameScoreConfig = {}) {
         this.config = {
@@ -37,7 +39,7 @@ export class GameScore implements IGameScore {
             lastTimeColor: "red",
             fontSize: 16,
             fontFamily: "Arial",
-            title: "Best Race Times (5 laps):",
+            title: "Best Race Times",
             padding: 20,
             ...config,
         };
@@ -60,7 +62,7 @@ export class GameScore implements IGameScore {
 
     public onRaceComplete(lapTracker: ILapTracker): void {
         const lapTimes = lapTracker.getLapTimes();
-        if (lapTimes.length === 1) {
+        if (lapTimes.length >= 1) {
             const totalTime = lapTimes.reduce((sum, time) => sum + time, 0);
             this.addRaceTime(totalTime);
         }
@@ -81,12 +83,15 @@ export class GameScore implements IGameScore {
 
         const ctx = context.ctx;
         const canvas = context.ctx.canvas;
+        const lapConfig = this.configService.getLapConfig();
+
         ctx.save();
         ctx.font = `${this.config.fontSize}px ${this.config.fontFamily}`;
         ctx.textAlign = "left";
         ctx.textBaseline = "bottom";
 
-        const titleMetrics = ctx.measureText(this.config.title);
+        const title = `${this.config.title} (${lapConfig.maxLaps} laps)`;
+        const titleMetrics = ctx.measureText(title);
         const titleHeight =
             titleMetrics.actualBoundingBoxAscent +
             titleMetrics.actualBoundingBoxDescent;
@@ -98,7 +103,7 @@ export class GameScore implements IGameScore {
         const yPos = canvas.height - this.config.padding;
 
         ctx.fillStyle = this.config.textColor;
-        ctx.fillText(this.config.title, xPos, yPos - totalHeight + titleHeight);
+        ctx.fillText(title, xPos, yPos - totalHeight + titleHeight);
 
         for (let i = 0; i < this.state.bestRaceTimes.length; i++) {
             const time = this.state.bestRaceTimes[i];

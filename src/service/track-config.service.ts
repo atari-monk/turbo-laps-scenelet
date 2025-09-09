@@ -1,6 +1,10 @@
 import type { TrackState } from "../type/track-state";
 import type { TrackConfig } from "../type/track-config";
 
+export interface LapConfig {
+    maxLaps: number;
+}
+
 export class TrackConfigService {
     private static instance: TrackConfigService;
     private config: TrackConfig = {
@@ -15,6 +19,9 @@ export class TrackConfigService {
         centerY: 0,
         radiusX: 0,
         radiusY: 0,
+    };
+    private lapConfig: LapConfig = {
+        maxLaps: 5,
     };
 
     private constructor() {}
@@ -34,8 +41,16 @@ export class TrackConfigService {
         return this.state;
     }
 
+    getLapConfig(): LapConfig {
+        return { ...this.lapConfig };
+    }
+
     updateConfig(updates: Partial<TrackConfig>): void {
         this.config = { ...this.config, ...updates };
+    }
+
+    updateLapConfig(updates: Partial<LapConfig>): void {
+        this.lapConfig = { ...this.lapConfig, ...updates };
     }
 
     calculateTrackState(canvas: HTMLCanvasElement): void {
