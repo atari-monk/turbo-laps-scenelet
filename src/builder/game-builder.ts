@@ -1,6 +1,5 @@
 import type { Scene } from "zippy-game-engine";
 import type { SceneInstanceFactory } from "../factory/scene-instance-factory";
-import type { IBuilder } from "../type/IBuilder";
 import type { IStartingGrid } from "../scene/starting-grid";
 import type { ITrackBoundary } from "../scene/track-boundary";
 import type { IPlayer } from "../scene/arrow-player";
@@ -8,6 +7,7 @@ import type { ILapTracker } from "../scene/lap-tracker";
 import type { ICountdown } from "../scene/countdown";
 import type { IContinue } from "../scene/continue";
 import type { IGameScore } from "../scene/game-score";
+import type { IBuilder } from "../type/i-builder";
 
 export class GameBuilder implements IBuilder {
     private scenes: Scene[] = [];
@@ -30,6 +30,12 @@ export class GameBuilder implements IBuilder {
     withTrackGrass(): GameBuilder {
         const grass = this.factory.createTrackGrass();
         this.scenes.push(grass);
+        return this;
+    }
+
+    withRoadMarkings(): GameBuilder {
+        const roadMarkings = this.factory.createRoadMarkings();
+        this.scenes.push(roadMarkings);
         return this;
     }
 
@@ -149,6 +155,7 @@ export function buildGame(factory: SceneInstanceFactory): Scene[] {
     const scenes = new GameBuilder(factory)
         .withRectangleTrack()
         .withTrackGrass()
+        .withRoadMarkings()
         .withStartingGrid()
         .withTrackBoundary()
         .withPlayer()
