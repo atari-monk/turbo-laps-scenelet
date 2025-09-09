@@ -11,6 +11,8 @@ interface TrackBoundaryConfig {
     debugInnerColor: string;
     maxOffTrackTime: number;
     offTrackSlowdown: number;
+    enableMargins: boolean;
+    debugMode: boolean;
 }
 
 export interface ITrackBoundary extends Scene {
@@ -31,6 +33,8 @@ export class TrackBoundary implements ITrackBoundary {
     private hapticFeedback?: (duration: number) => void;
     private readonly configService = TrackConfigService.getInstance();
     private pulseAnimationPhase = 0;
+    private enableMargins: boolean;
+    private debugMode: boolean;
 
     constructor(
         private readonly canvas: HTMLCanvasElement,
@@ -40,6 +44,8 @@ export class TrackBoundary implements ITrackBoundary {
             ...this.getDefaultConfig(),
             ...config,
         };
+        this.enableMargins = this.config.enableMargins;
+        this.debugMode = this.config.debugMode;
         this.configService.calculateTrackState(this.canvas);
     }
 
@@ -49,9 +55,15 @@ export class TrackBoundary implements ITrackBoundary {
             innerBoundaryOffset: 35,
             debugOuterColor: "rgba(0, 255, 0, 0.3)",
             debugInnerColor: "rgba(255, 0, 0, 0.3)",
-            maxOffTrackTime: 3000,
+            maxOffTrackTime: 5000,
             offTrackSlowdown: 0.95,
+            enableMargins: false,
+            debugMode: false,
         };
+    }
+
+    toggleMargins(enabled: boolean): void {
+        this.enableMargins = enabled;
     }
 
     setHapticFeedback(callback: (duration: number) => void): void {
@@ -81,6 +93,7 @@ export class TrackBoundary implements ITrackBoundary {
     }
 
     render(context: FrameContext): void {
+        if (this.debugMode) this.renderDebug(context.ctx);
         if (!this.isOnTrack) {
             const ctx = context.ctx;
             const canvas = context.ctx.canvas;
@@ -166,7 +179,7 @@ export class TrackBoundary implements ITrackBoundary {
             },
             {
                 x: player.position.x + carWidth / 2,
-                y: player.position.y - carHeight / 2,
+                y: player.position.y + carHeight / 2,
             },
             {
                 x: player.position.x - carWidth / 2,
@@ -186,19 +199,20 @@ export class TrackBoundary implements ITrackBoundary {
         const cx = trackState.centerX;
         const cy = trackState.centerY;
 
-        const outerHalfLength =
-            halfLength + roadWidth / 2 + this.config.outerBoundaryOffset;
-        const outerHalfHeight =
-            halfHeight + roadWidth / 2 + this.config.outerBoundaryOffset;
-        const outerRadius =
-            radius + roadWidth / 2 + this.config.outerBoundaryOffset;
+        const outerOffset = this.enableMargins
+            ? this.config.outerBoundaryOffset
+            : 0;
+        const innerOffset = this.enableMargins
+            ? this.config.innerBoundaryOffset
+            : 0;
 
-        const innerHalfLength =
-            halfLength - roadWidth / 2 - this.config.innerBoundaryOffset;
-        const innerHalfHeight =
-            halfHeight - roadWidth / 2 - this.config.innerBoundaryOffset;
-        const innerRadius =
-            radius - roadWidth / 2 - this.config.innerBoundaryOffset;
+        const outerHalfLength = halfLength + roadWidth / 2 + outerOffset;
+        const outerHalfHeight = halfHeight + roadWidth / 2 + outerOffset;
+        const outerRadius = radius + roadWidth / 2 + outerOffset;
+
+        const innerHalfLength = halfLength - roadWidth / 2 - innerOffset;
+        const innerHalfHeight = halfHeight - roadWidth / 2 - innerOffset;
+        const innerRadius = radius - roadWidth / 2 - innerOffset;
 
         for (const point of points) {
             if (
@@ -270,14 +284,21 @@ export class TrackBoundary implements ITrackBoundary {
         const cx = trackState.centerX;
         const cy = trackState.centerY;
 
+        const outerOffset = this.enableMargins
+            ? this.config.outerBoundaryOffset
+            : 0;
+        const innerOffset = this.enableMargins
+            ? this.config.innerBoundaryOffset
+            : 0;
+
         ctx.fillStyle = this.config.debugOuterColor;
         this.drawRoundedRect(
             ctx,
             cx,
             cy,
-            halfLength + roadWidth / 2 + this.config.outerBoundaryOffset,
-            halfHeight + roadWidth / 2 + this.config.outerBoundaryOffset,
-            radius + roadWidth / 2 + this.config.outerBoundaryOffset
+            halfLength + roadWidth / 2 + outerOffset,
+            halfHeight + roadWidth / 2 + outerOffset,
+            radius + roadWidth / 2 + outerOffset
         );
 
         ctx.fillStyle = this.config.debugInnerColor;
@@ -285,9 +306,9 @@ export class TrackBoundary implements ITrackBoundary {
             ctx,
             cx,
             cy,
-            halfLength - roadWidth / 2 - this.config.innerBoundaryOffset,
-            halfHeight - roadWidth / 2 - this.config.innerBoundaryOffset,
-            radius - roadWidth / 2 - this.config.innerBoundaryOffset
+            halfLength - roadWidth / 2 - innerOffset,
+            halfHeight - roadWidth / 2 - innerOffset,
+            radius - roadWidth / 2 - innerOffset
         );
     }
 
