@@ -8,6 +8,7 @@ export interface ICountdown extends Scene {
 export class Countdown implements ICountdown {
     name = "Countdown";
     displayName = "Countdown";
+    showOverlay = false;
 
     private countdownState: "waiting" | "counting" | "go" | "complete" =
         "waiting";
@@ -85,8 +86,9 @@ export class Countdown implements ICountdown {
         ctx.save();
 
         if (
-            this.countdownState === "waiting" ||
-            this.countdownState === "counting"
+            this.showOverlay &&
+            (this.countdownState === "waiting" ||
+                this.countdownState === "counting")
         ) {
             ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
