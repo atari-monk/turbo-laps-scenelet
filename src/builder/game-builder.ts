@@ -62,6 +62,23 @@ export class GameBuilder implements IBuilder {
         return this;
     }
 
+    withTurboPlayer(): GameBuilder {
+        if (!this.startingGrid) {
+            throw new Error("Starting grid must be set before adding player");
+        }
+        if (!this.trackBoundary) {
+            throw new Error("Track Boundary must be set before adding player");
+        }
+        this.player = this.factory.createTurboPlayer(false);
+        this.player.setStartingGrid(this.startingGrid!);
+        this.player.setStartingPosition(
+            this.startingGrid.getStartingPosition()
+        );
+        this.player.setTrackBoundary(this.trackBoundary);
+        this.scenes.push(this.player);
+        return this;
+    }
+
     withTrackBoundary() {
         this.trackBoundary = this.factory.createTrackBoundary();
         this.scenes.push(this.trackBoundary);
@@ -160,6 +177,7 @@ export function buildGame(factory: SceneInstanceFactory): Scene[] {
         .withStartingGrid()
         .withTrackBoundary()
         .withPlayer()
+        //.withTurboPlayer()
         .withGameScore()
         .withLapTracker()
         .withCountdown()

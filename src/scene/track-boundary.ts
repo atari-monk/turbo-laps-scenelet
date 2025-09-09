@@ -57,7 +57,7 @@ export class TrackBoundary implements ITrackBoundary {
             debugInnerColor: "rgba(255, 0, 0, 0.3)",
             maxOffTrackTime: 5000,
             offTrackSlowdown: 0.95,
-            enableMargins: false,
+            enableMargins: true,
             debugMode: false,
         };
     }

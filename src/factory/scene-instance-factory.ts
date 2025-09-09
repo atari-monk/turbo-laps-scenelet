@@ -14,6 +14,7 @@ import { Menu } from "../scene/menu";
 import type { PositionProvider } from "../type/position-provider";
 import { GameScore } from "../scene/game-score";
 import { WebAudioService } from "../service/web-audio-service";
+import { TurboCarPlayer } from "../scene/turbo-car-player";
 
 export class SceneInstanceFactory {
     constructor(
@@ -31,6 +32,15 @@ export class SceneInstanceFactory {
 
     public createArrowPlayer(enableInput = false): ArrowPlayer {
         return new ArrowPlayer(
+            this.canvas,
+            this.gameEngine.input,
+            new WebAudioService(),
+            enableInput
+        );
+    }
+
+    public createTurboPlayer(enableInput = false): TurboCarPlayer {
+        return new TurboCarPlayer(
             this.canvas,
             this.gameEngine.input,
             new WebAudioService(),
