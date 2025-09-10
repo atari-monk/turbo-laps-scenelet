@@ -7,37 +7,23 @@ import type { SoundConfig } from "../type/sound-config";
 import type { ICar } from "../car/type/i-car";
 import type { CarConfig } from "../car/type/car-config";
 import type { CarSoundConfig } from "../car/type/car-sound-config";
+import {
+    DEFAULT_CAR_CONFIG,
+    DEFAULT_SOUND_CONFIG,
+} from "../car/default-car-config";
+import { ConfigService } from "../service/config-service";
 
 export class Car implements ICar {
-    name?: string = "Arrow-Player";
-    displayName?: string = "Arrow Player";
+    name?: string = "Car";
+    displayName?: string = "Car";
     private trackBoundary?: ITrackBoundary;
     private startingGrid?: IStartingGrid;
     private inputEnabled: boolean = false;
     private carImage?: HTMLImageElement;
     private spriteLoaded: boolean = false;
 
-    private config: CarConfig = {
-        carWidth: 50,
-        carHeight: 110,
-        carColor: "red",
-        moveSpeed: 700,
-        turnSpeed: 200,
-        useSprite: true,
-        spriteUrl: "assets/sprite/race_car.png",
-        allowStationaryTurning: false,
-    };
-
-    private soundConfig: CarSoundConfig = {
-        engineSoundKey: "car-engine",
-        engineSoundPath: "/assets/audio/car-engine.wav",
-        crashSoundKey: "car-crash",
-        crashSoundPath: "/assets/audio/car-crash.wav",
-        hornSoundKey: "car-horn",
-        hornSoundPath: "/assets/audio/car-horn.wav",
-        skidSoundKey: "car-skid",
-        skidSoundPath: "/assets/audio/car-skid.wav",
-    };
+    private config: CarConfig = { ...DEFAULT_CAR_CONFIG };
+    private soundConfig: CarSoundConfig = { ...DEFAULT_SOUND_CONFIG };
 
     private state = {
         position: { x: 0, y: 0 },
@@ -71,8 +57,31 @@ export class Car implements ICar {
         enableInput = false
     ) {
         if (enableInput) this.setInputEnabled(true);
-        this.loadSprite();
-        this.preloadCarSounds();
+        this.loadConfigurations().then(() => {
+            this.loadSprite();
+            this.preloadCarSounds();
+        });
+    }
+
+    private async loadConfigurations(): Promise<void> {
+        try {
+            this.config = await ConfigService.loadConfig(
+                "/config/car-config.json",
+                DEFAULT_CAR_CONFIG
+            );
+
+            this.soundConfig = await ConfigService.loadConfig(
+                "/config/car-sound-config.json",
+                DEFAULT_SOUND_CONFIG
+            );
+        } catch (error) {
+            console.warn(
+                "Failed to load car configurations, using defaults. Error:",
+                error
+            );
+            this.config = { ...DEFAULT_CAR_CONFIG };
+            this.soundConfig = { ...DEFAULT_SOUND_CONFIG };
+        }
     }
 
     private preloadCarSounds(): void {

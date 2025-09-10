@@ -1,0 +1,10 @@
+{
+    "engineSoundKey": "car-engine",
+    "engineSoundPath": "/assets/audio/car-engine.wav",
+    "crashSoundKey": "car-crash",
+    "crashSoundPath": "/assets/audio/car-crash.wav",
+    "hornSoundKey": "car-horn",
+    "hornSoundPath": "/assets/audio/car-horn.wav",
+    "skidSoundKey": "car-skid",
+    "skidSoundPath": "/assets/audio/car-skid.wav"
+}

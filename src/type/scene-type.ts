@@ -1,7 +1,7 @@
 export enum SceneType {
     ELIPSE_TRACK = "Elipse-Track",
     RECTANGLE_TRACK = "Rectangle-Track",
-    ARROW_PLAYER = "Arrow-Player",
+    CAR = "Car",
     TRACK_BOUNDARY = "Track-Boundary",
     STARTING_GRID = "Starting-Grid",
     ROAD_MARKINGS = "Road-Markings",

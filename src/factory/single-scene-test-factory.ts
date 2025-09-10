@@ -21,8 +21,7 @@ export class SingleSceneTestFactory {
             return this.factory.createElipseTrack();
         if (sceneType === SceneType.RECTANGLE_TRACK)
             return this.factory.createRectangleTrack();
-        if (sceneType === SceneType.ARROW_PLAYER)
-            return this.factory.createCar(true);
+        if (sceneType === SceneType.CAR) return this.factory.createCar(true);
 
         if (
             [
