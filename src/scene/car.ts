@@ -1,100 +1,25 @@
 import type { FrameContext } from "zippy-shared-lib";
-import type { InputSystem } from "zippy-game-engine";
 import type { ITrackBoundary } from "./track-boundary";
 import type { IStartingGrid } from "./starting-grid";
-import type { AudioService } from "../type/audio-service";
-import type { SoundConfig } from "../type/sound-config";
 import type { ICar } from "../car/type/i-car";
 import type { CarConfig } from "../car/type/car-config";
-import type { CarSoundConfig } from "../car/type/car-sound-config";
-import { DEFAULT_CAR_CONFIG } from "../car/default-car-config";
 import type { CarState } from "../car/type/car-state";
-import { DEFAULT_SOUND_CONFIG } from "../car/default-sound-config";
 import { MovementSystem } from "../car/movement-system";
 import { CarSoundManager } from "../car/car-sound-manager";
 import { INPUT_MAPPING } from "../car/type/input-mapping";
+import type { InputSystem } from "zippy-game-engine";
 
 export class Car implements ICar {
-    name?: string = "Car";
-    displayName?: string = "Car";
-    private movementSystem!: MovementSystem;
-    private soundManager!: CarSoundManager;
-    private trackBoundary?: ITrackBoundary;
-    private startingGrid?: IStartingGrid;
-    private carImage?: HTMLImageElement;
-    private spriteLoaded: boolean = false;
-    private isInitialized: boolean = false;
-    private initializationPromise: Promise<void>;
-
-    private carConfig: CarConfig;
-    private soundConfig: CarSoundConfig;
-
-    private state: CarState = this.createInitialState();
-
-    get velocity(): number {
-        return this.state.velocity;
-    }
-
-    set velocity(value: number) {
-        this.state.velocity = value;
-    }
-
-    get position(): { x: number; y: number } {
-        return { ...this.state.position };
-    }
-
     constructor(
-        config: {
-            carConfig: CarConfig;
-            soundConfig: CarSoundConfig;
-        },
         private readonly canvas: HTMLCanvasElement,
         private readonly input: InputSystem,
-        private readonly audioService: AudioService
+        private readonly carConfig: CarConfig,
+        private readonly movementSystem: MovementSystem,
+        private readonly soundManager: CarSoundManager
     ) {
-        this.carConfig = config.carConfig;
-        this.soundConfig = config.soundConfig;
+        this.state = this.createInitialState();
         this.setInputEnabled(this.carConfig.inputEnabled);
-
-        this.initializationPromise = this.initializeCarSystems();
-    }
-
-    async waitForInitialization(): Promise<void> {
-        await this.initializationPromise;
-    }
-
-    private async initializeCarSystems(): Promise<void> {
-        try {
-            this.movementSystem = new MovementSystem(
-                this.carConfig,
-                this.input,
-                this.state
-            );
-            this.soundManager = new CarSoundManager(
-                this.audioService,
-                this.soundConfig,
-                this.state
-            );
-
-            this.loadSprite();
-            this.preloadCarSounds();
-
-            this.isInitialized = true;
-        } catch (error) {
-            console.error("Failed to initialize car systems:", error);
-            this.movementSystem = new MovementSystem(
-                DEFAULT_CAR_CONFIG,
-                this.input,
-                this.state
-            );
-            this.soundManager = new CarSoundManager(
-                this.audioService,
-                DEFAULT_SOUND_CONFIG,
-                this.state
-            );
-            this.isInitialized = true;
-            throw error;
-        }
+        this.loadSprite();
     }
 
     private createInitialState(): CarState {
@@ -112,37 +37,10 @@ export class Car implements ICar {
         };
     }
 
-    private preloadCarSounds(): void {
-        const soundConfigs: SoundConfig[] = [
-            {
-                key: this.soundConfig.engineSoundKey,
-                path: this.soundConfig.engineSoundPath,
-            },
-            {
-                key: this.soundConfig.crashSoundKey,
-                path: this.soundConfig.crashSoundPath,
-            },
-            {
-                key: this.soundConfig.hornSoundKey,
-                path: this.soundConfig.hornSoundPath,
-            },
-            {
-                key: this.soundConfig.skidSoundKey,
-                path: this.soundConfig.skidSoundPath,
-            },
-        ];
-
-        this.audioService.preloadSounds(soundConfigs).catch(() => {
-            console.warn("Failed to preload some car sounds");
-        });
-    }
-
     setInputEnabled(enabled: boolean): void {
         this.state.inputEnabled = enabled;
         if (!enabled) {
             this.state.velocity = 0;
-            this.soundManager?.stopEngine();
-            this.soundManager?.stopSkid();
         }
     }
 
@@ -184,8 +82,6 @@ export class Car implements ICar {
     init(): void {}
 
     update(context: FrameContext): void {
-        if (!this.isInitialized) return;
-
         this.movementSystem.update(context.deltaTime);
         this.handleSoundEffects(context.deltaTime);
 
@@ -246,8 +142,6 @@ export class Car implements ICar {
     }
 
     render(context: FrameContext): void {
-        if (!this.isInitialized) return;
-
         const ctx = context.ctx;
         ctx.save();
         ctx.translate(this.state.position.x, this.state.position.y);
@@ -316,7 +210,31 @@ export class Car implements ICar {
 
     private cleanup(): void {}
 
+    name?: string = "Car";
+    displayName?: string = "Car";
+    private trackBoundary?: ITrackBoundary;
+    private startingGrid?: IStartingGrid;
+    private carImage?: HTMLImageElement;
+    private spriteLoaded: boolean = false;
+    private state: CarState;
+
+    get velocity(): number {
+        return this.state.velocity;
+    }
+
+    set velocity(value: number) {
+        this.state.velocity = value;
+    }
+
+    get position(): { x: number; y: number } {
+        return { ...this.state.position };
+    }
+
     get rotation(): number {
         return this.state.rotation;
+    }
+
+    get carState(): CarState {
+        return this.state;
     }
 }

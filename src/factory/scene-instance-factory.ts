@@ -15,6 +15,9 @@ import type { PositionProvider } from "../type/position-provider";
 import { GameScore } from "../scene/game-score";
 import { WebAudioService } from "../service/web-audio-service";
 import { loadCarConfigurations } from "../car/load-car-config";
+import { MovementSystem } from "../car/movement-system";
+import { CarSoundManager } from "../car/car-sound-manager";
+import { preloadCarSounds } from "../car/preload-car-sounds";
 
 export class SceneInstanceFactory {
     constructor(
@@ -33,13 +36,21 @@ export class SceneInstanceFactory {
     public async createCar(inputEnabled: boolean = false): Promise<Car> {
         const config = await loadCarConfigurations();
         config.carConfig.inputEnabled = inputEnabled;
+        const audioService = new WebAudioService();
+        const movementSystem = new MovementSystem(this.gameEngine.input);
+        const carSoundManager = new CarSoundManager(audioService);
+        movementSystem.carConfig = config.carConfig;
+        carSoundManager.soundConfig = config.soundConfig;
         const car = new Car(
-            config,
             this.canvas,
             this.gameEngine.input,
-            new WebAudioService()
+            config.carConfig,
+            movementSystem,
+            carSoundManager
         );
-        await car.waitForInitialization();
+        movementSystem.carState = car.carState;
+        carSoundManager.carState = car.carState;
+        await preloadCarSounds(config.soundConfig, audioService);
         return car;
     }
 

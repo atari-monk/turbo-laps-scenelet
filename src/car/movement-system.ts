@@ -4,11 +4,7 @@ import type { CarState } from "./type/car-state";
 import { INPUT_MAPPING } from "./type/input-mapping";
 
 export class MovementSystem {
-    constructor(
-        private config: CarConfig,
-        private input: InputSystem,
-        private state: CarState
-    ) {}
+    constructor(private readonly input: InputSystem) {}
 
     update(deltaTime: number): void {
         if (!this.state.inputEnabled) return;
@@ -68,4 +64,15 @@ export class MovementSystem {
     private isKeyPressed(key: string): boolean {
         return this.input.keyboard.isKeyDown(key) && this.state.keysEnabled;
     }
+
+    set carConfig(value: CarConfig) {
+        this.config = value;
+    }
+
+    set carState(value: CarState) {
+        this.state = value;
+    }
+
+    private config!: CarConfig;
+    private state!: CarState;
 }
