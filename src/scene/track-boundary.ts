@@ -1,6 +1,6 @@
 import type { FrameContext } from "zippy-shared-lib";
 import type { Scene } from "zippy-game-engine";
-import type { IPlayer } from "./arrow-player";
+import type { IPlayer } from "./IPlayer";
 import { TrackConfigService } from "../service/track-config.service";
 import type { IStartingGrid } from "./starting-grid";
 

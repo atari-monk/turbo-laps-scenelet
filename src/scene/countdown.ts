@@ -111,9 +111,7 @@ export class Countdown implements ICountdown {
                 break;
 
             case "go":
-                this.drawGoText(ctx, centerX - 300, centerY);
                 this.drawGoText(ctx, centerX, centerY);
-                this.drawGoText(ctx, centerX + 300, centerY);
                 break;
         }
 

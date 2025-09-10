@@ -2,7 +2,7 @@ import type { Scene } from "zippy-game-engine";
 import type { SceneInstanceFactory } from "../factory/scene-instance-factory";
 import type { IStartingGrid } from "../scene/starting-grid";
 import type { ITrackBoundary } from "../scene/track-boundary";
-import type { IPlayer } from "../scene/arrow-player";
+import type { IPlayer } from "../scene/IPlayer";
 import type { ILapTracker } from "../scene/lap-tracker";
 import type { ICountdown } from "../scene/countdown";
 import type { IContinue } from "../scene/continue";
@@ -52,7 +52,7 @@ export class GameBuilder implements IBuilder {
         if (!this.trackBoundary) {
             throw new Error("Track Boundary must be set before adding player");
         }
-        this.player = this.factory.createArrowPlayer(false);
+        this.player = this.factory.createCar(false);
         this.player.setStartingGrid(this.startingGrid!);
         this.player.setStartingPosition(
             this.startingGrid.getStartingPosition()

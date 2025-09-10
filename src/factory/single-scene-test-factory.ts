@@ -22,7 +22,7 @@ export class SingleSceneTestFactory {
         if (sceneType === SceneType.RECTANGLE_TRACK)
             return this.factory.createRectangleTrack();
         if (sceneType === SceneType.ARROW_PLAYER)
-            return this.factory.createArrowPlayer(true);
+            return this.factory.createCar(true);
 
         if (
             [

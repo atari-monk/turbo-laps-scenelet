@@ -36,7 +36,7 @@ export class MultiSceneTestFactory {
     private createStartRaceTest(): Scene[] {
         const track = this.factory.createRectangleTrack();
         const startingGrid = this.factory.createStartingGrid();
-        const player = this.factory.createArrowPlayer();
+        const player = this.factory.createCar();
         const countdown = this.factory.createCountdown(
             () => player.setInputEnabled(true),
             () => console.log("Countdown done")
@@ -51,7 +51,7 @@ export class MultiSceneTestFactory {
         TrackConfigService.getInstance().calculateTrackState(this.canvas);
         const trackBoundary = this.factory.createTrackBoundary();
         const startingGrid = this.factory.createStartingGrid();
-        const player = this.factory.createArrowPlayer(true);
+        const player = this.factory.createCar(true);
 
         player.setTrackBoundary(trackBoundary);
         player.setStartingPosition(startingGrid.getStartingPosition());
@@ -62,7 +62,7 @@ export class MultiSceneTestFactory {
     private createLapMeasurementTest(): Scene[] {
         const track = this.factory.createRectangleTrack();
         const startingGrid = this.factory.createStartingGrid();
-        const player = this.factory.createArrowPlayer();
+        const player = this.factory.createCar();
         const lapTracker = this.factory.createLapTracker(player);
         const countdown = this.factory.createCountdown(
             () => {
@@ -88,7 +88,7 @@ export class MultiSceneTestFactory {
         const track = this.factory.createRectangleTrack();
         const trackBoundary = this.factory.createTrackBoundary();
         const startingGrid = this.factory.createStartingGrid();
-        const player = this.factory.createArrowPlayer();
+        const player = this.factory.createCar();
         const lapTracker = this.factory.createLapTracker(player);
         const countdown = this.factory.createCountdown(
             () => {

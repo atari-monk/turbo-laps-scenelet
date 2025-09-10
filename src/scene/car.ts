@@ -1,47 +1,14 @@
 import type { FrameContext } from "zippy-shared-lib";
-import type { Scene, InputSystem } from "zippy-game-engine";
+import type { InputSystem } from "zippy-game-engine";
 import type { ITrackBoundary } from "./track-boundary";
 import type { IStartingGrid } from "./starting-grid";
 import type { AudioService } from "../type/audio-service";
 import type { SoundConfig } from "../type/sound-config";
+import type { ICar } from "../car/type/i-car";
+import type { CarConfig } from "../car/type/car-config";
+import type { CarSoundConfig } from "../car/type/car-sound-config";
 
-export interface IPlayer extends Scene {
-    get velocity(): number;
-    set velocity(value: number);
-    get position(): { x: number; y: number };
-    setInputEnabled(enabled: boolean): void;
-    setStartingPosition(position: {
-        x: number;
-        y: number;
-        angle: number;
-    }): void;
-    setTrackBoundary(trackBoundary: ITrackBoundary): void;
-    setStartingGrid(startingGrid: IStartingGrid): void;
-}
-
-interface CarConfig {
-    carWidth: number;
-    carHeight: number;
-    carColor: string;
-    moveSpeed: number;
-    turnSpeed: number;
-    useSprite: boolean;
-    spriteUrl?: string;
-    allowStationaryTurning: boolean;
-}
-
-interface CarSoundConfig {
-    engineSoundKey: string;
-    engineSoundPath: string;
-    crashSoundKey: string;
-    crashSoundPath: string;
-    hornSoundKey: string;
-    hornSoundPath: string;
-    skidSoundKey: string;
-    skidSoundPath: string;
-}
-
-export class ArrowPlayer implements IPlayer {
+export class Car implements ICar {
     name?: string = "Arrow-Player";
     displayName?: string = "Arrow Player";
     private trackBoundary?: ITrackBoundary;
