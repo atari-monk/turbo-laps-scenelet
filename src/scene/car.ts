@@ -18,12 +18,14 @@ import { INPUT_MAPPING } from "../car/type/input-mapping";
 export class Car implements ICar {
     name?: string = "Car";
     displayName?: string = "Car";
-    private movementSystem: MovementSystem;
-    private soundManager: CarSoundManager;
+    private movementSystem!: MovementSystem;
+    private soundManager!: CarSoundManager;
     private trackBoundary?: ITrackBoundary;
     private startingGrid?: IStartingGrid;
     private carImage?: HTMLImageElement;
     private spriteLoaded: boolean = false;
+    private isInitialized: boolean = false;
+    private initializationPromise: Promise<void>;
 
     private config: CarConfig = { ...DEFAULT_CAR_CONFIG };
     private soundConfig: CarSoundConfig = { ...DEFAULT_SOUND_CONFIG };
@@ -49,21 +51,48 @@ export class Car implements ICar {
         enableInput = false
     ) {
         if (enableInput) this.setInputEnabled(true);
-        this.loadConfigurations().then(() => {
+
+        this.initializationPromise = this.initializeCarSystems();
+    }
+
+    async waitForInitialization(): Promise<void> {
+        await this.initializationPromise;
+    }
+
+    private async initializeCarSystems(): Promise<void> {
+        try {
+            await this.loadConfigurations();
+
+            this.movementSystem = new MovementSystem(
+                this.config,
+                this.input,
+                this.state
+            );
+            this.soundManager = new CarSoundManager(
+                this.audioService,
+                this.soundConfig,
+                this.state
+            );
+
             this.loadSprite();
             this.preloadCarSounds();
-        });
 
-        this.movementSystem = new MovementSystem(
-            this.config,
-            this.input,
-            this.state
-        );
-        this.soundManager = new CarSoundManager(
-            this.audioService,
-            this.soundConfig,
-            this.state
-        );
+            this.isInitialized = true;
+        } catch (error) {
+            console.error("Failed to initialize car systems:", error);
+            this.movementSystem = new MovementSystem(
+                DEFAULT_CAR_CONFIG,
+                this.input,
+                this.state
+            );
+            this.soundManager = new CarSoundManager(
+                this.audioService,
+                DEFAULT_SOUND_CONFIG,
+                this.state
+            );
+            this.isInitialized = true;
+            throw error;
+        }
     }
 
     private createInitialState(): CarState {
@@ -83,15 +112,19 @@ export class Car implements ICar {
 
     private async loadConfigurations(): Promise<void> {
         try {
-            this.config = await ConfigService.loadConfig(
-                "/config/car-config.json",
-                DEFAULT_CAR_CONFIG
-            );
+            const [carConfig, soundConfig] = await Promise.all([
+                ConfigService.loadConfig(
+                    "/config/car-config.json",
+                    DEFAULT_CAR_CONFIG
+                ),
+                ConfigService.loadConfig(
+                    "/config/car-sound-config.json",
+                    DEFAULT_SOUND_CONFIG
+                ),
+            ]);
 
-            this.soundConfig = await ConfigService.loadConfig(
-                "/config/car-sound-config.json",
-                DEFAULT_SOUND_CONFIG
-            );
+            this.config = carConfig;
+            this.soundConfig = soundConfig;
         } catch (error) {
             console.warn(
                 "Failed to load car configurations, using defaults. Error:",
@@ -99,6 +132,7 @@ export class Car implements ICar {
             );
             this.config = { ...DEFAULT_CAR_CONFIG };
             this.soundConfig = { ...DEFAULT_SOUND_CONFIG };
+            throw error;
         }
     }
 
@@ -131,8 +165,8 @@ export class Car implements ICar {
         this.state.inputEnabled = enabled;
         if (!enabled) {
             this.state.velocity = 0;
-            this.soundManager.stopEngine();
-            this.soundManager.stopSkid();
+            this.soundManager?.stopEngine();
+            this.soundManager?.stopSkid();
         }
     }
 
@@ -155,7 +189,7 @@ export class Car implements ICar {
         this.state.lastRotation = this.state.rotation;
         this.state.velocity = 0;
         this.state.wasOnTrack = true;
-        this.soundManager.stopSkid();
+        this.soundManager?.stopSkid();
     }
 
     private loadSprite(): void {
@@ -174,6 +208,8 @@ export class Car implements ICar {
     init(): void {}
 
     update(context: FrameContext): void {
+        if (!this.isInitialized) return;
+
         this.movementSystem.update(context.deltaTime);
         this.handleSoundEffects(context.deltaTime);
 
@@ -196,18 +232,18 @@ export class Car implements ICar {
         } else if (this.state.wasOnTrack && !isOnTrack) {
             this.state.wasOnTrack = false;
             this.state.keysEnabled = false;
-            this.soundManager.playCrash();
-            this.soundManager.stopSkid();
+            this.soundManager?.playCrash();
+            this.soundManager?.stopSkid();
         }
     }
 
     private handleSoundEffects(deltaTime: number): void {
-        this.soundManager.handleEngine(
+        this.soundManager?.handleEngine(
             this.state.velocity,
             this.config.moveSpeed
         );
-        this.soundManager.handleHorn(this.isKeyPressed(INPUT_MAPPING.HORN));
-        this.soundManager.handleSkid(
+        this.soundManager?.handleHorn(this.isKeyPressed(INPUT_MAPPING.HORN));
+        this.soundManager?.handleSkid(
             deltaTime,
             { moveSpeed: this.config.moveSpeed },
             this.state.rotation,
@@ -234,6 +270,8 @@ export class Car implements ICar {
     }
 
     render(context: FrameContext): void {
+        if (!this.isInitialized) return;
+
         const ctx = context.ctx;
         ctx.save();
         ctx.translate(this.state.position.x, this.state.position.y);
@@ -288,12 +326,12 @@ export class Car implements ICar {
         this.state.velocity = 0;
         this.state.wasOnTrack = true;
         this.state.inputEnabled = true;
-        this.soundManager.stopSkid();
+        this.soundManager?.stopSkid();
     }
 
     onExit(): void {
         this.cleanup();
-        this.soundManager.stopAll();
+        this.soundManager?.stopAll();
     }
 
     resize(): void {

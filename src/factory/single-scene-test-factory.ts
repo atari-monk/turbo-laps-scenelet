@@ -16,12 +16,12 @@ export class SingleSceneTestFactory {
         private readonly factory: SceneInstanceFactory
     ) {}
 
-    createSingleSceneTest(sceneType: SceneType): Scene {
+    async createSingleSceneTest(sceneType: SceneType): Promise<Scene> {
         if (sceneType === SceneType.ELIPSE_TRACK)
             return this.factory.createElipseTrack();
         if (sceneType === SceneType.RECTANGLE_TRACK)
             return this.factory.createRectangleTrack();
-        if (sceneType === SceneType.CAR) return this.factory.createCar(true);
+        if (sceneType === SceneType.CAR) return await this.factory.createCar(true);
 
         if (
             [
@@ -67,12 +67,12 @@ export class SingleSceneTestFactory {
             return this.factory.createMouseCursor();
         if (sceneType === SceneType.MENU) {
             const menu = this.factory.createMenu();
-            menu.setOnStartGame(() => {
+            menu.setOnStartGame(async () => {
                 const factory = new MultiSceneTestFactory(
                     this.canvas,
                     this.factory
                 );
-                const scenes = factory.createMultiSceneTest(
+                const scenes = await factory.createMultiSceneTest(
                     MultiSceneType.RACE_RESTART
                 );
                 scenes.forEach((scene) => {

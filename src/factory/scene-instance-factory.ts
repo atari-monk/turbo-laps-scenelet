@@ -29,13 +29,15 @@ export class SceneInstanceFactory {
         return new RectangleTrack(this.canvas);
     }
 
-    public createCar(enableInput = false): Car {
-        return new Car(
+    public async createCar(enableInput = false): Promise<Car> {
+        const car = new Car(
             this.canvas,
             this.gameEngine.input,
             new WebAudioService(),
             enableInput
         );
+        await car.waitForInitialization();
+        return car;
     }
 
     public createTrackBoundary(): TrackBoundary {

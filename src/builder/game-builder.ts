@@ -2,18 +2,18 @@ import type { Scene } from "zippy-game-engine";
 import type { SceneInstanceFactory } from "../factory/scene-instance-factory";
 import type { IStartingGrid } from "../scene/starting-grid";
 import type { ITrackBoundary } from "../scene/track-boundary";
-import type { IPlayer } from "../scene/IPlayer";
 import type { ILapTracker } from "../scene/lap-tracker";
 import type { ICountdown } from "../scene/countdown";
 import type { IContinue } from "../scene/continue";
 import type { IGameScore } from "../scene/game-score";
 import type { IBuilder } from "../type/i-builder";
+import type { ICar } from "../car/type/i-car";
 
 export class GameBuilder implements IBuilder {
     private scenes: Scene[] = [];
     private startingGrid?: IStartingGrid;
     private trackBoundary?: ITrackBoundary;
-    private player?: IPlayer;
+    private car?: ICar;
     private lapTracker?: ILapTracker;
     private countdown?: ICountdown;
     private continueBtn?: IContinue;
@@ -21,72 +21,55 @@ export class GameBuilder implements IBuilder {
 
     constructor(private readonly factory: SceneInstanceFactory) {}
 
-    withRectangleTrack(): GameBuilder {
+    async withRectangleTrack(): Promise<GameBuilder> {
         const track = this.factory.createRectangleTrack();
         this.scenes.push(track);
         return this;
     }
 
-    withTrackGrass(): GameBuilder {
+    async withTrackGrass(): Promise<GameBuilder> {
         const grass = this.factory.createTrackGrass();
         this.scenes.push(grass);
         return this;
     }
 
-    withRoadMarkings(): GameBuilder {
+    async withRoadMarkings(): Promise<GameBuilder> {
         const roadMarkings = this.factory.createRoadMarkings();
         this.scenes.push(roadMarkings);
         return this;
     }
 
-    withStartingGrid(): GameBuilder {
+    async withStartingGrid(): Promise<GameBuilder> {
         this.startingGrid = this.factory.createStartingGrid();
         this.scenes.push(this.startingGrid);
         return this;
     }
 
-    withPlayer(): GameBuilder {
+    async withCar(): Promise<GameBuilder> {
         if (!this.startingGrid) {
             throw new Error("Starting grid must be set before adding player");
         }
         if (!this.trackBoundary) {
             throw new Error("Track Boundary must be set before adding player");
         }
-        this.player = this.factory.createCar(false);
-        this.player.setStartingGrid(this.startingGrid!);
-        this.player.setStartingPosition(
+        this.car = await this.factory.createCar(false);
+        this.car.setStartingGrid(this.startingGrid!);
+        this.car.setStartingPosition(
             this.startingGrid.getStartingPosition()
         );
-        this.player.setTrackBoundary(this.trackBoundary);
-        this.scenes.push(this.player);
+        this.car.setTrackBoundary(this.trackBoundary);
+        this.scenes.push(this.car);
         return this;
     }
 
-    withTurboPlayer(): GameBuilder {
-        if (!this.startingGrid) {
-            throw new Error("Starting grid must be set before adding player");
-        }
-        if (!this.trackBoundary) {
-            throw new Error("Track Boundary must be set before adding player");
-        }
-        this.player = this.factory.createTurboPlayer(false);
-        this.player.setStartingGrid(this.startingGrid!);
-        this.player.setStartingPosition(
-            this.startingGrid.getStartingPosition()
-        );
-        this.player.setTrackBoundary(this.trackBoundary);
-        this.scenes.push(this.player);
-        return this;
-    }
-
-    withTrackBoundary() {
+    async withTrackBoundary(): Promise<GameBuilder> {
         this.trackBoundary = this.factory.createTrackBoundary();
         this.scenes.push(this.trackBoundary);
         return this;
     }
 
-    withCountdown(): GameBuilder {
-        if (!this.player) {
+    async withCountdown(): Promise<GameBuilder> {
+        if (!this.car) {
             throw new Error("Player must be set before adding Countdown");
         }
         if (!this.lapTracker) {
@@ -94,7 +77,7 @@ export class GameBuilder implements IBuilder {
         }
         this.countdown = this.factory.createCountdown(
             () => {
-                this.player!.setInputEnabled(true);
+                this.car!.setInputEnabled(true);
                 this.lapTracker!.start();
             },
             () => {}
@@ -103,8 +86,8 @@ export class GameBuilder implements IBuilder {
         return this;
     }
 
-    withLapTracker(): GameBuilder {
-        if (!this.player) {
+    async withLapTracker(): Promise<GameBuilder> {
+        if (!this.car) {
             throw new Error("Player must be set before adding LapTracker");
         }
         if (!this.startingGrid) {
@@ -115,12 +98,12 @@ export class GameBuilder implements IBuilder {
         if (!this.gameScore) {
             throw new Error("GameScore must be set before adding LapTracker");
         }
-        this.lapTracker = this.factory.createLapTracker(this.player);
+        this.lapTracker = this.factory.createLapTracker(this.car);
         this.lapTracker.setRaceCompleteCallback(() => {
             this.gameScore!.onRaceComplete(this.lapTracker!);
             this.lapTracker!.reset();
-            this.player!.setInputEnabled(false);
-            this.player!.setStartingPosition(
+            this.car!.setInputEnabled(false);
+            this.car!.setStartingPosition(
                 this.startingGrid!.getStartingPosition()
             );
             this.continueBtn!.show();
@@ -129,7 +112,7 @@ export class GameBuilder implements IBuilder {
         return this;
     }
 
-    withContinueBtn(): GameBuilder {
+    async withContinueBtn(): Promise<GameBuilder> {
         if (!this.countdown) {
             throw new Error("Countdown must be set before adding Continue");
         }
@@ -142,7 +125,7 @@ export class GameBuilder implements IBuilder {
         return this;
     }
 
-    withGameScore(): GameBuilder {
+    async withGameScore(): Promise<GameBuilder> {
         this.gameScore = this.factory.createGameScore();
         this.scenes.push(this.gameScore);
         return this;
@@ -169,19 +152,21 @@ export class GameBuilder implements IBuilder {
     }
 }
 
-export function buildGame(factory: SceneInstanceFactory): Scene[] {
-    const scenes = new GameBuilder(factory)
+export async function buildGame(
+    factory: SceneInstanceFactory
+): Promise<Scene[]> {
+    const builder = new GameBuilder(factory);
+    const scenes = await builder
         .withRectangleTrack()
-        .withTrackGrass()
-        .withRoadMarkings()
-        .withStartingGrid()
-        .withTrackBoundary()
-        .withPlayer()
-        //.withTurboPlayer()
-        .withGameScore()
-        .withLapTracker()
-        .withCountdown()
-        .withContinueBtn()
-        .build();
+        .then((b) => b.withTrackGrass())
+        .then((b) => b.withRoadMarkings())
+        .then((b) => b.withStartingGrid())
+        .then((b) => b.withTrackBoundary())
+        .then((b) => b.withCar())
+        .then((b) => b.withGameScore())
+        .then((b) => b.withLapTracker())
+        .then((b) => b.withCountdown())
+        .then((b) => b.withContinueBtn())
+        .then((b) => b.build());
     return scenes;
 }

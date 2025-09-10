@@ -9,18 +9,18 @@ export class MultiSceneTestFactory {
         private readonly factory: SceneInstanceFactory
     ) {}
 
-    public createMultiSceneTest(sceneType: MultiSceneType): Scene[] {
+    public async createMultiSceneTest(sceneType: MultiSceneType): Promise<Scene[]> {
         switch (sceneType) {
             case MultiSceneType.TRACK_CURSOR:
                 return this.createTrackCursorTest();
             case MultiSceneType.START_RACE:
-                return this.createStartRaceTest();
+                return await this.createStartRaceTest();
             case MultiSceneType.CAR_OUT_OF_TRACK:
-                return this.createCarOutOfTrackTest();
+                return await this.createCarOutOfTrackTest();
             case MultiSceneType.LAP_MEASUREMENT:
-                return this.createLapMeasurementTest();
+                return await this.createLapMeasurementTest();
             case MultiSceneType.RACE_RESTART:
-                return this.createRaceRestartTest();
+                return await this.createRaceRestartTest();
             default:
                 throw new Error(`Unknown multi-scene type: ${sceneType}`);
         }
@@ -33,10 +33,10 @@ export class MultiSceneTestFactory {
         ];
     }
 
-    private createStartRaceTest(): Scene[] {
+    private async createStartRaceTest(): Promise<Scene[]> {
         const track = this.factory.createRectangleTrack();
         const startingGrid = this.factory.createStartingGrid();
-        const player = this.factory.createCar();
+        const player = await this.factory.createCar();
         const countdown = this.factory.createCountdown(
             () => player.setInputEnabled(true),
             () => console.log("Countdown done")
@@ -47,11 +47,11 @@ export class MultiSceneTestFactory {
         return [track, startingGrid, player, countdown];
     }
 
-    private createCarOutOfTrackTest(): Scene[] {
+    private async createCarOutOfTrackTest(): Promise<Scene[]> {
         TrackConfigService.getInstance().calculateTrackState(this.canvas);
         const trackBoundary = this.factory.createTrackBoundary();
         const startingGrid = this.factory.createStartingGrid();
-        const player = this.factory.createCar(true);
+        const player = await this.factory.createCar(true);
 
         player.setTrackBoundary(trackBoundary);
         player.setStartingPosition(startingGrid.getStartingPosition());
@@ -59,10 +59,10 @@ export class MultiSceneTestFactory {
         return [trackBoundary, startingGrid, player];
     }
 
-    private createLapMeasurementTest(): Scene[] {
+    private async createLapMeasurementTest(): Promise<Scene[]> {
         const track = this.factory.createRectangleTrack();
         const startingGrid = this.factory.createStartingGrid();
-        const player = this.factory.createCar();
+        const player = await this.factory.createCar();
         const lapTracker = this.factory.createLapTracker(player);
         const countdown = this.factory.createCountdown(
             () => {
@@ -84,11 +84,11 @@ export class MultiSceneTestFactory {
         return [track, startingGrid, player, lapTracker, countdown];
     }
 
-    private createRaceRestartTest(): Scene[] {
+    private async createRaceRestartTest(): Promise<Scene[]> {
         const track = this.factory.createRectangleTrack();
         const trackBoundary = this.factory.createTrackBoundary();
         const startingGrid = this.factory.createStartingGrid();
-        const player = this.factory.createCar();
+        const player = await this.factory.createCar();
         const lapTracker = this.factory.createLapTracker(player);
         const countdown = this.factory.createCountdown(
             () => {

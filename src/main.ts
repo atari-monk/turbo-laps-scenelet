@@ -69,12 +69,12 @@ window.addEventListener("load", async () => {
                 gameEngine,
                 instanceFactory
             );
-            const scene = factory.createSingleSceneTest(currentScene);
+            const scene = await factory.createSingleSceneTest(currentScene);
             gameEngine.registerScene(scene.name!, scene);
             gameEngine.transitionToScene(scene.name!);
         } else if (multiScene) {
             const factory = new MultiSceneTestFactory(canvas, instanceFactory);
-            const scenes = factory.createMultiSceneTest(multiScene);
+            const scenes = await factory.createMultiSceneTest(multiScene);
             scenes.forEach((scene) => {
                 gameEngine.registerScene(scene.name!, scene);
             });

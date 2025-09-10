@@ -1,7 +1,7 @@
 import type { Scene, GameEngine } from "zippy-game-engine";
 import type { SceneInstanceFactory } from "../factory/scene-instance-factory";
 import { buildGame } from "./game-builder";
-import type { IBuilder } from "../type/IBuilder";
+import type { IBuilder } from "../type/i-builder";
 
 export class MenuBuilder implements IBuilder {
     private scene: Scene = {};
@@ -13,8 +13,8 @@ export class MenuBuilder implements IBuilder {
 
     withStartMenu(): MenuBuilder {
         const menu = this.factory.createMenu();
-        menu.setOnStartGame(() => {
-            const scenes = buildGame(this.factory);
+        menu.setOnStartGame(async () => {
+            const scenes = await buildGame(this.factory);
             scenes.forEach((scene) => {
                 this.gameEngine.registerScene(scene.name!, scene);
             });
