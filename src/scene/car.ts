@@ -8,7 +8,6 @@ import type { ICar } from "../car/type/i-car";
 import type { CarConfig } from "../car/type/car-config";
 import type { CarSoundConfig } from "../car/type/car-sound-config";
 import { DEFAULT_CAR_CONFIG } from "../car/default-car-config";
-import { ConfigService } from "../service/config-service";
 import type { CarState } from "../car/type/car-state";
 import { DEFAULT_SOUND_CONFIG } from "../car/default-sound-config";
 import { MovementSystem } from "../car/movement-system";
@@ -27,8 +26,8 @@ export class Car implements ICar {
     private isInitialized: boolean = false;
     private initializationPromise: Promise<void>;
 
-    private config: CarConfig = { ...DEFAULT_CAR_CONFIG };
-    private soundConfig: CarSoundConfig = { ...DEFAULT_SOUND_CONFIG };
+    private carConfig: CarConfig;
+    private soundConfig: CarSoundConfig;
 
     private state: CarState = this.createInitialState();
 
@@ -45,12 +44,17 @@ export class Car implements ICar {
     }
 
     constructor(
+        config: {
+            carConfig: CarConfig;
+            soundConfig: CarSoundConfig;
+        },
         private readonly canvas: HTMLCanvasElement,
         private readonly input: InputSystem,
-        private readonly audioService: AudioService,
-        enableInput = false
+        private readonly audioService: AudioService
     ) {
-        if (enableInput) this.setInputEnabled(true);
+        this.carConfig = config.carConfig;
+        this.soundConfig = config.soundConfig;
+        this.setInputEnabled(this.carConfig.inputEnabled);
 
         this.initializationPromise = this.initializeCarSystems();
     }
@@ -61,10 +65,8 @@ export class Car implements ICar {
 
     private async initializeCarSystems(): Promise<void> {
         try {
-            await this.loadConfigurations();
-
             this.movementSystem = new MovementSystem(
-                this.config,
+                this.carConfig,
                 this.input,
                 this.state
             );
@@ -108,32 +110,6 @@ export class Car implements ICar {
             inputEnabled: true,
             keysEnabled: true,
         };
-    }
-
-    private async loadConfigurations(): Promise<void> {
-        try {
-            const [carConfig, soundConfig] = await Promise.all([
-                ConfigService.loadConfig(
-                    "/config/car-config.json",
-                    DEFAULT_CAR_CONFIG
-                ),
-                ConfigService.loadConfig(
-                    "/config/car-sound-config.json",
-                    DEFAULT_SOUND_CONFIG
-                ),
-            ]);
-
-            this.config = carConfig;
-            this.soundConfig = soundConfig;
-        } catch (error) {
-            console.warn(
-                "Failed to load car configurations, using defaults. Error:",
-                error
-            );
-            this.config = { ...DEFAULT_CAR_CONFIG };
-            this.soundConfig = { ...DEFAULT_SOUND_CONFIG };
-            throw error;
-        }
     }
 
     private preloadCarSounds(): void {
@@ -193,16 +169,16 @@ export class Car implements ICar {
     }
 
     private loadSprite(): void {
-        if (!this.config.spriteUrl) return;
+        if (!this.carConfig.spriteUrl) return;
 
         this.carImage = new Image();
         this.carImage.onload = () => {
             this.spriteLoaded = true;
         };
         this.carImage.onerror = () => {
-            this.config.useSprite = false;
+            this.carConfig.useSprite = false;
         };
-        this.carImage.src = this.config.spriteUrl;
+        this.carImage.src = this.carConfig.spriteUrl;
     }
 
     init(): void {}
@@ -240,12 +216,12 @@ export class Car implements ICar {
     private handleSoundEffects(deltaTime: number): void {
         this.soundManager?.handleEngine(
             this.state.velocity,
-            this.config.moveSpeed
+            this.carConfig.moveSpeed
         );
         this.soundManager?.handleHorn(this.isKeyPressed(INPUT_MAPPING.HORN));
         this.soundManager?.handleSkid(
             deltaTime,
-            { moveSpeed: this.config.moveSpeed },
+            { moveSpeed: this.carConfig.moveSpeed },
             this.state.rotation,
             this.state.lastRotation
         );
@@ -256,8 +232,8 @@ export class Car implements ICar {
     }
 
     private keepInBounds(): void {
-        const halfWidth = this.config.carWidth / 2;
-        const halfHeight = this.config.carHeight / 2;
+        const halfWidth = this.carConfig.carWidth / 2;
+        const halfHeight = this.carConfig.carHeight / 2;
 
         this.state.position.x = Math.max(
             halfWidth,
@@ -277,7 +253,7 @@ export class Car implements ICar {
         ctx.translate(this.state.position.x, this.state.position.y);
         ctx.rotate((this.state.rotation * Math.PI) / 180);
 
-        if (this.config.useSprite && this.spriteLoaded && this.carImage) {
+        if (this.carConfig.useSprite && this.spriteLoaded && this.carImage) {
             this.renderSprite(ctx);
         } else {
             this.renderGeometricCar(ctx);
@@ -287,20 +263,20 @@ export class Car implements ICar {
     }
 
     private renderGeometricCar(ctx: CanvasRenderingContext2D): void {
-        ctx.fillStyle = this.config.carColor;
+        ctx.fillStyle = this.carConfig.carColor;
         ctx.fillRect(
-            -this.config.carWidth / 2,
-            -this.config.carHeight / 2,
-            this.config.carWidth,
-            this.config.carHeight
+            -this.carConfig.carWidth / 2,
+            -this.carConfig.carHeight / 2,
+            this.carConfig.carWidth,
+            this.carConfig.carHeight
         );
 
         ctx.fillStyle = "#333";
         ctx.fillRect(
-            -this.config.carWidth / 2 + 5,
-            -this.config.carHeight / 2 + 5,
-            this.config.carWidth - 10,
-            this.config.carHeight / 3
+            -this.carConfig.carWidth / 2 + 5,
+            -this.carConfig.carHeight / 2 + 5,
+            this.carConfig.carWidth - 10,
+            this.carConfig.carHeight / 3
         );
     }
 
@@ -309,10 +285,10 @@ export class Car implements ICar {
 
         ctx.drawImage(
             this.carImage,
-            -this.config.carWidth / 2,
-            -this.config.carHeight / 2,
-            this.config.carWidth,
-            this.config.carHeight
+            -this.carConfig.carWidth / 2,
+            -this.carConfig.carHeight / 2,
+            this.carConfig.carWidth,
+            this.carConfig.carHeight
         );
     }
 

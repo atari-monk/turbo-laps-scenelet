@@ -6,5 +6,6 @@
     "turnSpeed": 200,
     "useSprite": true,
     "spriteUrl": "assets/sprite/race_car.png",
-    "allowStationaryTurning": false
+    "allowStationaryTurning": false,
+    "inputEnabled": false
 }

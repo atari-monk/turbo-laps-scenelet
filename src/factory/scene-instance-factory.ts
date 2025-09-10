@@ -14,6 +14,7 @@ import { Menu } from "../scene/menu";
 import type { PositionProvider } from "../type/position-provider";
 import { GameScore } from "../scene/game-score";
 import { WebAudioService } from "../service/web-audio-service";
+import { loadCarConfigurations } from "../car/load-car-config";
 
 export class SceneInstanceFactory {
     constructor(
@@ -29,12 +30,14 @@ export class SceneInstanceFactory {
         return new RectangleTrack(this.canvas);
     }
 
-    public async createCar(enableInput = false): Promise<Car> {
+    public async createCar(inputEnabled: boolean = false): Promise<Car> {
+        const config = await loadCarConfigurations();
+        config.carConfig.inputEnabled = inputEnabled;
         const car = new Car(
+            config,
             this.canvas,
             this.gameEngine.input,
-            new WebAudioService(),
-            enableInput
+            new WebAudioService()
         );
         await car.waitForInitialization();
         return car;

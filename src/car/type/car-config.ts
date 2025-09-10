@@ -7,4 +7,5 @@ export interface CarConfig {
     useSprite: boolean;
     spriteUrl?: string;
     allowStationaryTurning: boolean;
+    inputEnabled: boolean;
 }

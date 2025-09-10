@@ -9,4 +9,5 @@ export const DEFAULT_CAR_CONFIG: CarConfig = {
     useSprite: true,
     spriteUrl: "assets/sprite/race_car.png",
     allowStationaryTurning: false,
+    inputEnabled: false,
 };

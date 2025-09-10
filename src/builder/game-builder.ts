@@ -52,7 +52,7 @@ export class GameBuilder implements IBuilder {
         if (!this.trackBoundary) {
             throw new Error("Track Boundary must be set before adding player");
         }
-        this.car = await this.factory.createCar(false);
+        this.car = await this.factory.createCar();
         this.car.setStartingGrid(this.startingGrid!);
         this.car.setStartingPosition(
             this.startingGrid.getStartingPosition()
