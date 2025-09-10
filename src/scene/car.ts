@@ -7,36 +7,28 @@ import type { SoundConfig } from "../type/sound-config";
 import type { ICar } from "../car/type/i-car";
 import type { CarConfig } from "../car/type/car-config";
 import type { CarSoundConfig } from "../car/type/car-sound-config";
-import {
-    DEFAULT_CAR_CONFIG,
-    DEFAULT_SOUND_CONFIG,
-} from "../car/default-car-config";
+import { DEFAULT_CAR_CONFIG } from "../car/default-car-config";
 import { ConfigService } from "../service/config-service";
+import type { CarState } from "../car/type/car-state";
+import { DEFAULT_SOUND_CONFIG } from "../car/default-sound-config";
+import { MovementSystem } from "../car/movement-system";
+import { CarSoundManager } from "../car/car-sound-manager";
+import { INPUT_MAPPING } from "../car/type/input-mapping";
 
 export class Car implements ICar {
     name?: string = "Car";
     displayName?: string = "Car";
+    private movementSystem: MovementSystem;
+    private soundManager: CarSoundManager;
     private trackBoundary?: ITrackBoundary;
     private startingGrid?: IStartingGrid;
-    private inputEnabled: boolean = false;
     private carImage?: HTMLImageElement;
     private spriteLoaded: boolean = false;
 
     private config: CarConfig = { ...DEFAULT_CAR_CONFIG };
     private soundConfig: CarSoundConfig = { ...DEFAULT_SOUND_CONFIG };
 
-    private state = {
-        position: { x: 0, y: 0 },
-        rotation: 0,
-        velocity: 0,
-        isEnginePlaying: false,
-        isSkidding: false,
-        lastVelocity: 0,
-        wasOnTrack: true,
-        lastRotation: 0,
-        inputEnabled: true,
-        keysEnabled: true,
-    };
+    private state: CarState = this.createInitialState();
 
     get velocity(): number {
         return this.state.velocity;
@@ -61,6 +53,32 @@ export class Car implements ICar {
             this.loadSprite();
             this.preloadCarSounds();
         });
+
+        this.movementSystem = new MovementSystem(
+            this.config,
+            this.input,
+            this.state
+        );
+        this.soundManager = new CarSoundManager(
+            this.audioService,
+            this.soundConfig,
+            this.state
+        );
+    }
+
+    private createInitialState(): CarState {
+        return {
+            position: { x: 0, y: 0 },
+            rotation: 0,
+            velocity: 0,
+            isEnginePlaying: false,
+            isSkidding: false,
+            lastVelocity: 0,
+            wasOnTrack: true,
+            lastRotation: 0,
+            inputEnabled: true,
+            keysEnabled: true,
+        };
     }
 
     private async loadConfigurations(): Promise<void> {
@@ -110,12 +128,11 @@ export class Car implements ICar {
     }
 
     setInputEnabled(enabled: boolean): void {
-        this.inputEnabled = enabled;
         this.state.inputEnabled = enabled;
         if (!enabled) {
             this.state.velocity = 0;
-            this.stopEngineSound();
-            this.stopSkidSound();
+            this.soundManager.stopEngine();
+            this.soundManager.stopSkid();
         }
     }
 
@@ -138,7 +155,7 @@ export class Car implements ICar {
         this.state.lastRotation = this.state.rotation;
         this.state.velocity = 0;
         this.state.wasOnTrack = true;
-        this.stopSkidSound();
+        this.soundManager.stopSkid();
     }
 
     private loadSprite(): void {
@@ -157,13 +174,13 @@ export class Car implements ICar {
     init(): void {}
 
     update(context: FrameContext): void {
-        this.handleMovement(context.deltaTime);
+        this.movementSystem.update(context.deltaTime);
         this.handleSoundEffects(context.deltaTime);
 
-        if (this.trackBoundary) {
+        if (this.trackBoundary && this.startingGrid) {
             const isOnTrack = this.trackBoundary.checkCarOnTrack(
                 this,
-                this.startingGrid!,
+                this.startingGrid,
                 context.deltaTime
             );
             this.handleTrackStateChange(isOnTrack);
@@ -179,139 +196,27 @@ export class Car implements ICar {
         } else if (this.state.wasOnTrack && !isOnTrack) {
             this.state.wasOnTrack = false;
             this.state.keysEnabled = false;
-            this.playCrashSound();
-            this.stopSkidSound();
+            this.soundManager.playCrash();
+            this.soundManager.stopSkid();
         }
-    }
-
-    private handleMovement(deltaTime: number): void {
-        if (!this.inputEnabled) return;
-
-        const previousVelocity = this.state.velocity;
-        const previousRotation = this.state.rotation;
-
-        if (this.state.keysEnabled) {
-            if (this.input.keyboard.isKeyDown("ArrowUp")) {
-                this.state.velocity = this.config.moveSpeed;
-            } else if (this.input.keyboard.isKeyDown("ArrowDown")) {
-                this.state.velocity = -this.config.moveSpeed * 0.3;
-            } else if (this.input.keyboard.isKeyDown(" ")) {
-                this.state.velocity *= 0.95;
-            }
-
-            const canTurn =
-                this.config.allowStationaryTurning || this.state.velocity !== 0;
-
-            if (canTurn) {
-                if (this.input.keyboard.isKeyDown("ArrowLeft")) {
-                    this.state.rotation -= this.config.turnSpeed * deltaTime;
-                }
-                if (this.input.keyboard.isKeyDown("ArrowRight")) {
-                    this.state.rotation += this.config.turnSpeed * deltaTime;
-                }
-            }
-        }
-
-        this.state.rotation = ((this.state.rotation % 360) + 360) % 360;
-
-        if (this.state.velocity !== 0) {
-            const radians = (this.state.rotation * Math.PI) / 180;
-            this.state.position.x +=
-                Math.sin(radians) * this.state.velocity * deltaTime;
-            this.state.position.y +=
-                -Math.cos(radians) * this.state.velocity * deltaTime;
-        }
-
-        this.state.lastVelocity = previousVelocity;
-        this.state.lastRotation = previousRotation;
     }
 
     private handleSoundEffects(deltaTime: number): void {
-        this.handleEngineSound();
-        this.handleHornSound();
-        this.handleSkidSound(deltaTime);
-    }
-
-    private handleEngineSound(): void {
-        const isMoving = this.state.velocity !== 0;
-        const shouldPlayEngine = isMoving && this.inputEnabled;
-
-        if (shouldPlayEngine && !this.state.isEnginePlaying) {
-            this.playEngineSound();
-        } else if (!shouldPlayEngine && this.state.isEnginePlaying) {
-            this.stopEngineSound();
-        }
-
-        if (this.state.isEnginePlaying) {
-            const pitch =
-                0.5 + Math.abs(this.state.velocity) / this.config.moveSpeed;
-            this.audioService.setSoundPitch(
-                this.soundConfig.engineSoundKey,
-                pitch
-            );
-        }
-    }
-
-    private handleHornSound(): void {
-        if (this.input.keyboard.isKeyDown("h")) {
-            this.audioService.playSound(this.soundConfig.hornSoundKey, {
-                volume: 1.0,
-                interrupt: true,
-            });
-        }
-    }
-
-    private handleSkidSound(deltaTime: number): void {
-        if (!this.state.inputEnabled) {
-            this.stopSkidSound();
-            return;
-        }
-
-        const speedThreshold = this.config.moveSpeed * 0.6;
-        const rotationDelta = Math.abs(
-            this.state.rotation - this.state.lastRotation
+        this.soundManager.handleEngine(
+            this.state.velocity,
+            this.config.moveSpeed
         );
-        const rotationThreshold = 30 * deltaTime;
-
-        const isHighSpeed = Math.abs(this.state.velocity) > speedThreshold;
-        const isTurning = rotationDelta > rotationThreshold;
-        const isSkidding =
-            isHighSpeed && isTurning && this.state.velocity !== 0;
-
-        if (isSkidding && !this.state.isSkidding) {
-            this.audioService.playSound(this.soundConfig.skidSoundKey, {
-                volume: 0.6,
-                loop: true,
-            });
-            this.state.isSkidding = true;
-        } else if (!isSkidding && this.state.isSkidding) {
-            this.stopSkidSound();
-        }
+        this.soundManager.handleHorn(this.isKeyPressed(INPUT_MAPPING.HORN));
+        this.soundManager.handleSkid(
+            deltaTime,
+            { moveSpeed: this.config.moveSpeed },
+            this.state.rotation,
+            this.state.lastRotation
+        );
     }
 
-    private playEngineSound(): void {
-        this.audioService.playSound(this.soundConfig.engineSoundKey, {
-            volume: 0.5,
-            loop: true,
-        });
-        this.state.isEnginePlaying = true;
-    }
-
-    private stopEngineSound(): void {
-        this.audioService.stopSound(this.soundConfig.engineSoundKey);
-        this.state.isEnginePlaying = false;
-    }
-
-    private stopSkidSound(): void {
-        this.audioService.stopSound(this.soundConfig.skidSoundKey);
-        this.state.isSkidding = false;
-    }
-
-    public playCrashSound(): void {
-        this.audioService.playSound(this.soundConfig.crashSoundKey, {
-            volume: 0.8,
-            interrupt: true,
-        });
+    private isKeyPressed(key: string): boolean {
+        return this.input.keyboard.isKeyDown(key) && this.state.keysEnabled;
     }
 
     private keepInBounds(): void {
@@ -383,18 +288,12 @@ export class Car implements ICar {
         this.state.velocity = 0;
         this.state.wasOnTrack = true;
         this.state.inputEnabled = true;
-        this.stopSkidSound();
+        this.soundManager.stopSkid();
     }
 
     onExit(): void {
         this.cleanup();
-        this.stopAllSounds();
-    }
-
-    private stopAllSounds(): void {
-        this.stopEngineSound();
-        this.stopSkidSound();
-        this.audioService.stopSound(this.soundConfig.hornSoundKey);
+        this.soundManager.stopAll();
     }
 
     resize(): void {
