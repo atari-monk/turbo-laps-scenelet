@@ -9,3 +9,11 @@ for example:
 
 - Talk with ai to guide tacktic and strategy
 - Define 3 task and switch beetween if that speeds up stuff
+
+Proj log should be about organizing and time, not features and history
+Prompts have details
+- Archive old way and start new proj_log file with new way
+
+- Add a task to fix drink counting app
+Do app about testing game math
+Do app about testing libs

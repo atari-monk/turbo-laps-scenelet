@@ -9,6 +9,7 @@ import { CarSoundManager } from "../car/car-sound-manager";
 import { INPUT_MAPPING } from "../car/type/input-mapping";
 import type { InputSystem } from "zippy-game-engine";
 import { CarStateContext } from "../car/car-state-context";
+import type { CarRenderer } from "../car/car-renderer";
 
 export class Car implements ICar {
     constructor(
@@ -16,11 +17,11 @@ export class Car implements ICar {
         private readonly input: InputSystem,
         private readonly carConfig: CarConfig,
         private readonly stateContext: CarStateContext,
+        private readonly renderer: CarRenderer,
         private readonly movementSystem: MovementSystem,
         private readonly soundManager: CarSoundManager
     ) {
         this.setInputEnabled(this.carConfig.inputEnabled);
-        this.loadSprite();
     }
 
     setInputEnabled(enabled: boolean): void {
@@ -50,19 +51,6 @@ export class Car implements ICar {
         this.stateContext.updateVelocity(0);
         this.stateContext.updateWasOnTrack(true);
         this.soundManager?.stopSkid();
-    }
-
-    private loadSprite(): void {
-        if (!this.carConfig.spriteUrl) return;
-
-        this.carImage = new Image();
-        this.carImage.onload = () => {
-            this.spriteLoaded = true;
-        };
-        this.carImage.onerror = () => {
-            this.carConfig.useSprite = false;
-        };
-        this.carImage.src = this.carConfig.spriteUrl;
     }
 
     init(): void {}
@@ -135,51 +123,7 @@ export class Car implements ICar {
     }
 
     render(context: FrameContext): void {
-        const ctx = context.ctx;
-        ctx.save();
-        ctx.translate(
-            this.stateContext.position.x,
-            this.stateContext.position.y
-        );
-        ctx.rotate((this.stateContext.rotation * Math.PI) / 180);
-
-        if (this.carConfig.useSprite && this.spriteLoaded && this.carImage) {
-            this.renderSprite(ctx);
-        } else {
-            this.renderGeometricCar(ctx);
-        }
-
-        ctx.restore();
-    }
-
-    private renderGeometricCar(ctx: CanvasRenderingContext2D): void {
-        ctx.fillStyle = this.carConfig.carColor;
-        ctx.fillRect(
-            -this.carConfig.carWidth / 2,
-            -this.carConfig.carHeight / 2,
-            this.carConfig.carWidth,
-            this.carConfig.carHeight
-        );
-
-        ctx.fillStyle = "#333";
-        ctx.fillRect(
-            -this.carConfig.carWidth / 2 + 5,
-            -this.carConfig.carHeight / 2 + 5,
-            this.carConfig.carWidth - 10,
-            this.carConfig.carHeight / 3
-        );
-    }
-
-    private renderSprite(ctx: CanvasRenderingContext2D): void {
-        if (!this.carImage) return;
-
-        ctx.drawImage(
-            this.carImage,
-            -this.carConfig.carWidth / 2,
-            -this.carConfig.carHeight / 2,
-            this.carConfig.carWidth,
-            this.carConfig.carHeight
-        );
+        this.renderer.render(context);
     }
 
     onEnter(): void {
@@ -208,10 +152,9 @@ export class Car implements ICar {
 
     name?: string = "Car";
     displayName?: string = "Car";
+
     private trackBoundary?: ITrackBoundary;
     private startingGrid?: IStartingGrid;
-    private carImage?: HTMLImageElement;
-    private spriteLoaded: boolean = false;
 
     get velocity(): number {
         return this.stateContext.velocity;
