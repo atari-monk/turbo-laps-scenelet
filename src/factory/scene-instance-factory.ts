@@ -18,6 +18,7 @@ import { loadCarConfigurations } from "../car/load-car-config";
 import { MovementSystem } from "../car/movement-system";
 import { CarSoundManager } from "../car/car-sound-manager";
 import { preloadCarSounds } from "../car/preload-car-sounds";
+import { CarStateContext } from "../car/car-state-context";
 
 export class SceneInstanceFactory {
     constructor(
@@ -34,23 +35,29 @@ export class SceneInstanceFactory {
     }
 
     public async createCar(inputEnabled: boolean = false): Promise<Car> {
-        const config = await loadCarConfigurations();
-        config.carConfig.inputEnabled = inputEnabled;
+        const { carConfig, soundConfig } = await loadCarConfigurations();
+        carConfig.inputEnabled = inputEnabled;
         const audioService = new WebAudioService();
-        const movementSystem = new MovementSystem(this.gameEngine.input);
-        const carSoundManager = new CarSoundManager(audioService);
-        movementSystem.carConfig = config.carConfig;
-        carSoundManager.soundConfig = config.soundConfig;
+        const carStateContext = new CarStateContext();
+        const movementSystem = new MovementSystem(
+            this.gameEngine.input,
+            carStateContext,
+            carConfig
+        );
+        const carSoundManager = new CarSoundManager(
+            audioService,
+            carStateContext,
+            soundConfig
+        );
         const car = new Car(
             this.canvas,
             this.gameEngine.input,
-            config.carConfig,
+            carConfig,
+            carStateContext,
             movementSystem,
             carSoundManager
         );
-        movementSystem.carState = car.carState;
-        carSoundManager.carState = car.carState;
-        await preloadCarSounds(config.soundConfig, audioService);
+        await preloadCarSounds(soundConfig, audioService);
         return car;
     }
 

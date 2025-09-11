@@ -8,39 +8,25 @@ import { MovementSystem } from "../car/movement-system";
 import { CarSoundManager } from "../car/car-sound-manager";
 import { INPUT_MAPPING } from "../car/type/input-mapping";
 import type { InputSystem } from "zippy-game-engine";
+import { CarStateContext } from "../car/car-state-context";
 
 export class Car implements ICar {
     constructor(
         private readonly canvas: HTMLCanvasElement,
         private readonly input: InputSystem,
         private readonly carConfig: CarConfig,
+        private readonly stateContext: CarStateContext,
         private readonly movementSystem: MovementSystem,
         private readonly soundManager: CarSoundManager
     ) {
-        this.state = this.createInitialState();
         this.setInputEnabled(this.carConfig.inputEnabled);
         this.loadSprite();
     }
 
-    private createInitialState(): CarState {
-        return {
-            position: { x: 0, y: 0 },
-            rotation: 0,
-            velocity: 0,
-            isEnginePlaying: false,
-            isSkidding: false,
-            lastVelocity: 0,
-            wasOnTrack: true,
-            lastRotation: 0,
-            inputEnabled: true,
-            keysEnabled: true,
-        };
-    }
-
     setInputEnabled(enabled: boolean): void {
-        this.state.inputEnabled = enabled;
+        this.stateContext.updateInputEnabled(enabled);
         if (!enabled) {
-            this.state.velocity = 0;
+            this.stateContext.updateVelocity(0);
         }
     }
 
@@ -58,11 +44,11 @@ export class Car implements ICar {
         y: number;
         angle: number;
     }): void {
-        this.state.position = { x: position.x, y: position.y };
-        this.state.rotation = position.angle * (180 / Math.PI);
-        this.state.lastRotation = this.state.rotation;
-        this.state.velocity = 0;
-        this.state.wasOnTrack = true;
+        this.stateContext.updatePosition({ x: position.x, y: position.y });
+        this.stateContext.updateRotation(position.angle * (180 / Math.PI));
+        this.stateContext.updateLastRotation(this.stateContext.rotation);
+        this.stateContext.updateVelocity(0);
+        this.stateContext.updateWasOnTrack(true);
         this.soundManager?.stopSkid();
     }
 
@@ -98,12 +84,12 @@ export class Car implements ICar {
     }
 
     private handleTrackStateChange(isOnTrack: boolean): void {
-        if (!this.state.wasOnTrack && isOnTrack) {
-            this.state.wasOnTrack = true;
-            this.state.keysEnabled = true;
-        } else if (this.state.wasOnTrack && !isOnTrack) {
-            this.state.wasOnTrack = false;
-            this.state.keysEnabled = false;
+        if (!this.stateContext.wasOnTrack && isOnTrack) {
+            this.stateContext.updateWasOnTrack(true);
+            this.stateContext.updateKeysEnabled(true);
+        } else if (this.stateContext.wasOnTrack && !isOnTrack) {
+            this.stateContext.updateWasOnTrack(false);
+            this.stateContext.updateKeysEnabled(false);
             this.soundManager?.playCrash();
             this.soundManager?.stopSkid();
         }
@@ -111,41 +97,51 @@ export class Car implements ICar {
 
     private handleSoundEffects(deltaTime: number): void {
         this.soundManager?.handleEngine(
-            this.state.velocity,
+            this.stateContext.velocity,
             this.carConfig.moveSpeed
         );
         this.soundManager?.handleHorn(this.isKeyPressed(INPUT_MAPPING.HORN));
         this.soundManager?.handleSkid(
             deltaTime,
             { moveSpeed: this.carConfig.moveSpeed },
-            this.state.rotation,
-            this.state.lastRotation
+            this.stateContext.rotation,
+            this.stateContext.lastRotation
         );
     }
 
     private isKeyPressed(key: string): boolean {
-        return this.input.keyboard.isKeyDown(key) && this.state.keysEnabled;
+        return (
+            this.input.keyboard.isKeyDown(key) && this.stateContext.keysEnabled
+        );
     }
 
     private keepInBounds(): void {
         const halfWidth = this.carConfig.carWidth / 2;
         const halfHeight = this.carConfig.carHeight / 2;
+        const position = this.stateContext.position;
 
-        this.state.position.x = Math.max(
+        const newX = Math.max(
             halfWidth,
-            Math.min(this.canvas.width - halfWidth, this.state.position.x)
+            Math.min(this.canvas.width - halfWidth, position.x)
         );
-        this.state.position.y = Math.max(
+        const newY = Math.max(
             halfHeight,
-            Math.min(this.canvas.height - halfHeight, this.state.position.y)
+            Math.min(this.canvas.height - halfHeight, position.y)
         );
+
+        if (position.x !== newX || position.y !== newY) {
+            this.stateContext.updatePosition({ x: newX, y: newY });
+        }
     }
 
     render(context: FrameContext): void {
         const ctx = context.ctx;
         ctx.save();
-        ctx.translate(this.state.position.x, this.state.position.y);
-        ctx.rotate((this.state.rotation * Math.PI) / 180);
+        ctx.translate(
+            this.stateContext.position.x,
+            this.stateContext.position.y
+        );
+        ctx.rotate((this.stateContext.rotation * Math.PI) / 180);
 
         if (this.carConfig.useSprite && this.spriteLoaded && this.carImage) {
             this.renderSprite(ctx);
@@ -187,15 +183,15 @@ export class Car implements ICar {
     }
 
     onEnter(): void {
-        this.state.position = {
+        this.stateContext.updatePosition({
             x: this.canvas.width / 2,
             y: this.canvas.height / 2,
-        };
-        this.state.rotation = 0;
-        this.state.lastRotation = 0;
-        this.state.velocity = 0;
-        this.state.wasOnTrack = true;
-        this.state.inputEnabled = true;
+        });
+        this.stateContext.updateRotation(0);
+        this.stateContext.updateLastRotation(0);
+        this.stateContext.updateVelocity(0);
+        this.stateContext.updateWasOnTrack(true);
+        this.stateContext.updateInputEnabled(true);
         this.soundManager?.stopSkid();
     }
 
@@ -216,25 +212,24 @@ export class Car implements ICar {
     private startingGrid?: IStartingGrid;
     private carImage?: HTMLImageElement;
     private spriteLoaded: boolean = false;
-    private state: CarState;
 
     get velocity(): number {
-        return this.state.velocity;
+        return this.stateContext.velocity;
     }
 
     set velocity(value: number) {
-        this.state.velocity = value;
+        this.stateContext.updateVelocity(value);
     }
 
     get position(): { x: number; y: number } {
-        return { ...this.state.position };
+        return this.stateContext.position;
     }
 
     get rotation(): number {
-        return this.state.rotation;
+        return this.stateContext.rotation;
     }
 
     get carState(): CarState {
-        return this.state;
+        return this.stateContext.getState();
     }
 }

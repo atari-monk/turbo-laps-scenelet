@@ -54,9 +54,7 @@ export class GameBuilder implements IBuilder {
         }
         this.car = await this.factory.createCar();
         this.car.setStartingGrid(this.startingGrid!);
-        this.car.setStartingPosition(
-            this.startingGrid.getStartingPosition()
-        );
+        this.car.setStartingPosition(this.startingGrid.getStartingPosition());
         this.car.setTrackBoundary(this.trackBoundary);
         this.scenes.push(this.car);
         return this;

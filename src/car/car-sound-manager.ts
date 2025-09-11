@@ -1,24 +1,28 @@
 import type { AudioService } from "../type/audio-service";
 import type { CarSoundConfig } from "../car/type/car-sound-config";
-import type { CarState } from "../car/type/car-state";
+import type { CarStateContext } from "./car-state-context";
 
 export class CarSoundManager {
-    constructor(private readonly audioService: AudioService) {}
+    constructor(
+        private readonly audioService: AudioService,
+        private readonly stateContext: CarStateContext,
+        private soundConfig: CarSoundConfig
+    ) {}
 
     handleEngine(velocity: number, moveSpeed: number): void {
         const isMoving = velocity !== 0;
-        const shouldPlayEngine = isMoving && this.state.inputEnabled;
+        const shouldPlayEngine = isMoving && this.stateContext.inputEnabled;
 
-        if (shouldPlayEngine && !this.state.isEnginePlaying) {
+        if (shouldPlayEngine && !this.stateContext.isEnginePlaying) {
             this.playEngine();
-        } else if (!shouldPlayEngine && this.state.isEnginePlaying) {
+        } else if (!shouldPlayEngine && this.stateContext.isEnginePlaying) {
             this.stopEngine();
         }
 
-        if (this.state.isEnginePlaying) {
+        if (this.stateContext.isEnginePlaying) {
             const pitch = 0.5 + Math.abs(velocity) / moveSpeed;
             this.audioService.setSoundPitch(
-                this._soundConfig.engineSoundKey,
+                this.soundConfig.engineSoundKey,
                 pitch
             );
         }
@@ -26,7 +30,7 @@ export class CarSoundManager {
 
     handleHorn(isHornKeyPressed: boolean): void {
         if (isHornKeyPressed) {
-            this.audioService.playSound(this._soundConfig.hornSoundKey, {
+            this.audioService.playSound(this.soundConfig.hornSoundKey, {
                 volume: 1.0,
                 interrupt: true,
             });
@@ -39,7 +43,7 @@ export class CarSoundManager {
         rotation: number,
         lastRotation: number
     ): void {
-        if (!this.state.inputEnabled) {
+        if (!this.stateContext.inputEnabled) {
             this.stopSkid();
             return;
         }
@@ -48,42 +52,43 @@ export class CarSoundManager {
         const rotationDelta = Math.abs(rotation - lastRotation);
         const rotationThreshold = 30 * deltaTime;
 
-        const isHighSpeed = Math.abs(this.state.velocity) > speedThreshold;
+        const isHighSpeed =
+            Math.abs(this.stateContext.velocity) > speedThreshold;
         const isTurning = rotationDelta > rotationThreshold;
         const isSkidding =
-            isHighSpeed && isTurning && this.state.velocity !== 0;
+            isHighSpeed && isTurning && this.stateContext.velocity !== 0;
 
-        if (isSkidding && !this.state.isSkidding) {
-            this.audioService.playSound(this._soundConfig.skidSoundKey, {
+        if (isSkidding && !this.stateContext.isSkidding) {
+            this.audioService.playSound(this.soundConfig.skidSoundKey, {
                 volume: 0.6,
                 loop: true,
             });
-            this.state.isSkidding = true;
-        } else if (!isSkidding && this.state.isSkidding) {
+            this.stateContext.updateIsSkidding(true);
+        } else if (!isSkidding && this.stateContext.isSkidding) {
             this.stopSkid();
         }
     }
 
     playEngine(): void {
-        this.audioService.playSound(this._soundConfig.engineSoundKey, {
+        this.audioService.playSound(this.soundConfig.engineSoundKey, {
             volume: 0.5,
             loop: true,
         });
-        this.state.isEnginePlaying = true;
+        this.stateContext.updateIsEnginePlaying(true);
     }
 
     stopEngine(): void {
-        this.audioService.stopSound(this._soundConfig.engineSoundKey);
-        this.state.isEnginePlaying = false;
+        this.audioService.stopSound(this.soundConfig.engineSoundKey);
+        this.stateContext.updateIsEnginePlaying(false);
     }
 
     stopSkid(): void {
-        this.audioService.stopSound(this._soundConfig.skidSoundKey);
-        this.state.isSkidding = false;
+        this.audioService.stopSound(this.soundConfig.skidSoundKey);
+        this.stateContext.updateIsSkidding(false);
     }
 
     playCrash(): void {
-        this.audioService.playSound(this._soundConfig.crashSoundKey, {
+        this.audioService.playSound(this.soundConfig.crashSoundKey, {
             volume: 0.8,
             interrupt: true,
         });
@@ -92,17 +97,6 @@ export class CarSoundManager {
     stopAll(): void {
         this.stopEngine();
         this.stopSkid();
-        this.audioService.stopSound(this._soundConfig.hornSoundKey);
+        this.audioService.stopSound(this.soundConfig.hornSoundKey);
     }
-
-    set soundConfig(value: CarSoundConfig) {
-        this._soundConfig = value;
-    }
-
-    set carState(value: CarState) {
-        this.state = value;
-    }
-
-    private _soundConfig!: CarSoundConfig;
-    private state!: CarState;
 }
