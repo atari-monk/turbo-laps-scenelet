@@ -21,7 +21,8 @@ export class SingleSceneTestFactory {
             return this.factory.createElipseTrack();
         if (sceneType === SceneType.RECTANGLE_TRACK)
             return this.factory.createRectangleTrack();
-        if (sceneType === SceneType.CAR) return await this.factory.createCar(true);
+        if (sceneType === SceneType.CAR)
+            return await this.factory.createCar(true);
 
         if (
             [
@@ -102,6 +103,12 @@ export class SingleSceneTestFactory {
                 new WebAudioService(),
                 this.gameEngine.input
             );
+        }
+        if (sceneType === SceneType.VIRTUAL_JOYSTICK) {
+            return this.factory.createVirtualJoystick();
+        }
+        if (sceneType === SceneType.TEST_CAR) {
+            return this.factory.createTestCar();
         }
         throw new Error(`Unknown scene type: ${sceneType}`);
     }

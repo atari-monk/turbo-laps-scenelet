@@ -17,3 +17,9 @@ Prompts have details
 - Add a task to fix drink counting app
 Do app about testing game math
 Do app about testing libs
+
+Plan architecture ahead so that SOLID is uphold and after new features refactoring is not needed
+
+Game that learns people how to drive safely
+Building game
+Garden game

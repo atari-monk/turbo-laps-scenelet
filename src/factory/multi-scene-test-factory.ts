@@ -9,10 +9,14 @@ export class MultiSceneTestFactory {
         private readonly factory: SceneInstanceFactory
     ) {}
 
-    public async createMultiSceneTest(sceneType: MultiSceneType): Promise<Scene[]> {
+    public async createMultiSceneTest(
+        sceneType: MultiSceneType
+    ): Promise<Scene[]> {
         switch (sceneType) {
             case MultiSceneType.TRACK_CURSOR:
                 return this.createTrackCursorTest();
+            case MultiSceneType.JOYSTICK_TEST:
+                return this.createJoystickTest();
             case MultiSceneType.START_RACE:
                 return await this.createStartRaceTest();
             case MultiSceneType.CAR_OUT_OF_TRACK:
@@ -31,6 +35,15 @@ export class MultiSceneTestFactory {
             this.factory.createRectangleTrack(),
             this.factory.createMouseCursor(),
         ];
+    }
+
+    private createJoystickTest(): Scene[] {
+        const joystick = this.factory.createVirtualJoystick({
+            relativePosition: { x: 0.5, y: 0.8 },
+        });
+        const testCar = this.factory.createTestCar();
+        joystick.setSteeringControl(testCar);
+        return [joystick, testCar];
     }
 
     private async createStartRaceTest(): Promise<Scene[]> {

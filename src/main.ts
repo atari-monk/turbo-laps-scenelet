@@ -8,7 +8,7 @@ import {
     getCanvasSizeById,
     isMultiSceneType,
     isSceneType,
-    logSelection,
+    logSceneSelection,
     logTestUrls,
     setupEngine,
 } from "./tools";
@@ -81,7 +81,7 @@ window.addEventListener("load", async () => {
         }
 
         logTestUrls();
-        logSelection(SCENE_MODE, currentScene, multiScene);
+        logSceneSelection(SCENE_MODE, currentScene, multiScene);
     } catch (error) {
         console.error("Failed to initialize game:", error);
     }

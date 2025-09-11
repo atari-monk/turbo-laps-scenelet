@@ -1,6 +1,8 @@
 import { GameEngineFactory } from "zippy-game-engine";
 import { SceneType } from "./type/scene-type";
 import { MultiSceneType } from "./type/multi-scene-type";
+import { MultiSceneTypeDescriptions } from "./type/multi-scene-type-descriptions";
+import { SceneTypeDescriptions } from "./type/scene-type-descriptions";
 
 export function getCanvasSizeById(canvasId: string): {
     canvas: HTMLCanvasElement;
@@ -52,16 +54,21 @@ export function isMultiSceneType(value: any): value is MultiSceneType {
     return Object.values(MultiSceneType).includes(value);
 }
 
-export function logSelection(
+export function logSceneSelection(
     mode: "all" | "current",
     currentScene: SceneType | null,
     multiScene: MultiSceneType | null
 ) {
     console.log(`Scene mode: ${mode}`);
+
     if (mode === "all" && multiScene) {
-        console.log(`Testing multi-scene: ${multiScene}`);
+        console.log(
+            `Testing multi-scene: ${multiScene} - ${MultiSceneTypeDescriptions[multiScene]}`
+        );
     } else if (mode === "current" && currentScene) {
-        console.log(`Testing single scene: ${currentScene}`);
+        console.log(
+            `Testing single scene: ${currentScene} - ${SceneTypeDescriptions[currentScene]}`
+        );
     }
 }
 

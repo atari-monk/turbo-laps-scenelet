@@ -21,6 +21,11 @@ import { preloadCarSounds } from "../car/preload-car-sounds";
 import { CarStateContext } from "../car/car-state-context";
 import { CarRenderer } from "../car/car-renderer";
 import { CarInputHandler } from "../car/car-input-handler";
+import {
+    VirtualJoystick,
+    type VirtualJoystickConfig,
+} from "../scene/virtual-joystick";
+import { TestCar } from "../scene/test-car";
 
 export class SceneInstanceFactory {
     constructor(
@@ -110,5 +115,15 @@ export class SceneInstanceFactory {
 
     public createGameScore(): GameScore {
         return new GameScore();
+    }
+
+    public createVirtualJoystick(
+        config: VirtualJoystickConfig = {}
+    ): VirtualJoystick {
+        return new VirtualJoystick(this.canvas, config);
+    }
+
+    public createTestCar(): TestCar {
+        return new TestCar(this.canvas);
     }
 }

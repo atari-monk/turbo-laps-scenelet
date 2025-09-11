@@ -1,8 +1,8 @@
 import type { FrameContext } from "zippy-shared-lib";
 import type { Scene } from "zippy-game-engine";
-import type { IPlayer } from "./IPlayer";
 import { TrackConfigService } from "../service/track-config.service";
 import type { IStartingGrid } from "./starting-grid";
+import type { ICar } from "../car/type/i-car";
 
 interface TrackBoundaryConfig {
     outerBoundaryOffset: number;
@@ -17,7 +17,7 @@ interface TrackBoundaryConfig {
 
 export interface ITrackBoundary extends Scene {
     checkCarOnTrack(
-        player: IPlayer,
+        car: ICar,
         startingGrid: IStartingGrid,
         deltaTime: number
     ): boolean;
@@ -131,22 +131,22 @@ export class TrackBoundary implements ITrackBoundary {
     resize(): void {}
 
     checkCarOnTrack(
-        player: IPlayer,
+        car: ICar,
         startingGrid: IStartingGrid,
         deltaTime: number
     ): boolean {
         const wasOnTrack = this.isOnTrack;
-        this.isOnTrack = this.isCarOnTrack(player);
+        this.isOnTrack = this.isCarOnTrack(car);
 
         if (!this.isOnTrack) {
             this.offTrackTimer += deltaTime * 1000;
 
             if (this.offTrackTimer >= this.config.maxOffTrackTime) {
-                this.resetCar(player, startingGrid);
+                this.resetCar(car, startingGrid);
                 return false;
             }
 
-            player.velocity *= this.config.offTrackSlowdown;
+            car.velocity *= this.config.offTrackSlowdown;
         } else {
             this.offTrackTimer = 0;
         }
@@ -158,14 +158,14 @@ export class TrackBoundary implements ITrackBoundary {
         return this.isOnTrack;
     }
 
-    private resetCar(player: IPlayer, startingGrid: IStartingGrid): void {
+    private resetCar(car: ICar, startingGrid: IStartingGrid): void {
         this.offTrackTimer = 0;
         this.isOnTrack = true;
-        player.setStartingPosition(startingGrid.getStartingPosition());
-        player.velocity = 0;
+        car.setStartingPosition(startingGrid.getStartingPosition());
+        car.velocity = 0;
     }
 
-    isCarOnTrack(player: IPlayer): boolean {
+    isCarOnTrack(car: ICar): boolean {
         const trackConfig = this.configService.getConfig();
         const trackState = this.configService.getState();
 
@@ -174,22 +174,22 @@ export class TrackBoundary implements ITrackBoundary {
 
         const points = [
             {
-                x: player.position.x - carWidth / 2,
-                y: player.position.y - carHeight / 2,
+                x: car.position.x - carWidth / 2,
+                y: car.position.y - carHeight / 2,
             },
             {
-                x: player.position.x + carWidth / 2,
-                y: player.position.y + carHeight / 2,
+                x: car.position.x + carWidth / 2,
+                y: car.position.y + carHeight / 2,
             },
             {
-                x: player.position.x - carWidth / 2,
-                y: player.position.y + carHeight / 2,
+                x: car.position.x - carWidth / 2,
+                y: car.position.y + carHeight / 2,
             },
             {
-                x: player.position.x + carWidth / 2,
-                y: player.position.y + carHeight / 2,
+                x: car.position.x + carWidth / 2,
+                y: car.position.y + carHeight / 2,
             },
-            { x: player.position.x, y: player.position.y },
+            { x: car.position.x, y: car.position.y },
         ];
 
         const halfLength = trackConfig.trackWidth / 2;
