@@ -51,12 +51,10 @@ export class VirtualJoystick implements Scene {
 
     enable(): void {
         this.showJoystick = true;
-        this.state.isActive = true;
     }
 
     disable(): void {
         this.showJoystick = false;
-        this.state.isActive = false;
         this.resetJoystick();
     }
 
@@ -143,7 +141,7 @@ export class VirtualJoystick implements Scene {
 
         const touch = this.findTouchById(event.changedTouches, this.touchId);
         if (touch) {
-            this.resetJoystick();
+            this.resetInputState();
         }
     };
 
@@ -175,6 +173,16 @@ export class VirtualJoystick implements Scene {
         this.state.direction = { x: normalizedX, y: normalizedY };
         this.state.magnitude = magnitude > this.deadZone ? magnitude : 0;
 
+        this.dispatchInputEvents();
+        this.updateSteeringControl();
+    }
+
+    private resetInputState(): void {
+        this.touchId = null;
+        this.state.direction = { x: 0, y: 0 };
+        this.state.magnitude = 0;
+        this.state.stickX = this.state.centerX;
+        this.state.stickY = this.state.centerY;
         this.dispatchInputEvents();
         this.updateSteeringControl();
     }
@@ -213,7 +221,7 @@ export class VirtualJoystick implements Scene {
 
     init(): void {
         this.calculatePosition();
-        this.resetJoystick();
+        this.resetInputState();
         this.setupEventListeners();
         this.enable();
     }
@@ -223,7 +231,7 @@ export class VirtualJoystick implements Scene {
     render(context: FrameContext): void {
         const ctx = context.ctx;
 
-        if (this.state.isActive && this.showJoystick) {
+        if (this.showJoystick) {
             this.drawBaseCircle(
                 ctx,
                 this.state.centerX,
@@ -309,6 +317,6 @@ export class VirtualJoystick implements Scene {
 
     resize(): void {
         this.calculatePosition();
-        this.resetJoystick();
+        this.resetInputState();
     }
 }
