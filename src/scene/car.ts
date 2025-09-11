@@ -7,17 +7,17 @@ import type { CarState } from "../car/type/car-state";
 import { MovementSystem } from "../car/movement-system";
 import { CarSoundManager } from "../car/car-sound-manager";
 import { INPUT_MAPPING } from "../car/type/input-mapping";
-import type { InputSystem } from "zippy-game-engine";
 import { CarStateContext } from "../car/car-state-context";
 import type { CarRenderer } from "../car/car-renderer";
+import type { CarInputHandler } from "../car/car-input-handler";
 
 export class Car implements ICar {
     constructor(
         private readonly canvas: HTMLCanvasElement,
-        private readonly input: InputSystem,
         private readonly carConfig: CarConfig,
         private readonly stateContext: CarStateContext,
         private readonly renderer: CarRenderer,
+        private readonly inputHandler: CarInputHandler,
         private readonly movementSystem: MovementSystem,
         private readonly soundManager: CarSoundManager
     ) {
@@ -56,6 +56,7 @@ export class Car implements ICar {
     init(): void {}
 
     update(context: FrameContext): void {
+        this.inputHandler.processInput(context.deltaTime);
         this.movementSystem.update(context.deltaTime);
         this.handleSoundEffects(context.deltaTime);
 
@@ -98,9 +99,7 @@ export class Car implements ICar {
     }
 
     private isKeyPressed(key: string): boolean {
-        return (
-            this.input.keyboard.isKeyDown(key) && this.stateContext.keysEnabled
-        );
+        return this.inputHandler.isKeyPressed(key);
     }
 
     private keepInBounds(): void {

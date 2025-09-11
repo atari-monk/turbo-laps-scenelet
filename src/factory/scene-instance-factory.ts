@@ -20,6 +20,7 @@ import { CarSoundManager } from "../car/car-sound-manager";
 import { preloadCarSounds } from "../car/preload-car-sounds";
 import { CarStateContext } from "../car/car-state-context";
 import { CarRenderer } from "../car/car-renderer";
+import { CarInputHandler } from "../car/car-input-handler";
 
 export class SceneInstanceFactory {
     constructor(
@@ -41,11 +42,12 @@ export class SceneInstanceFactory {
         const audioService = new WebAudioService();
         const carStateContext = new CarStateContext();
         const renderer = new CarRenderer(carConfig, carStateContext);
-        const movementSystem = new MovementSystem(
+        const inputHandler = new CarInputHandler(
             this.gameEngine.input,
             carStateContext,
             carConfig
         );
+        const movementSystem = new MovementSystem(carStateContext);
         const carSoundManager = new CarSoundManager(
             audioService,
             carStateContext,
@@ -53,10 +55,10 @@ export class SceneInstanceFactory {
         );
         const car = new Car(
             this.canvas,
-            this.gameEngine.input,
             carConfig,
             carStateContext,
             renderer,
+            inputHandler,
             movementSystem,
             carSoundManager
         );
