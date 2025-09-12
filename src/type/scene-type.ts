@@ -3,6 +3,7 @@ export enum SceneType {
     RECTANGLE_TRACK = "Rectangle-Track",
     CAR = "Car",
     TEST_CAR = "Test-Car",
+    STEERABLE_RECT = "Steerable-Rect",
     TRACK_BOUNDARY = "Track-Boundary",
     STARTING_GRID = "Starting-Grid",
     ROAD_MARKINGS = "Road-Markings",

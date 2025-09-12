@@ -110,6 +110,9 @@ export class SingleSceneTestFactory {
         if (sceneType === SceneType.TEST_CAR) {
             return this.factory.createTestCar();
         }
+        if (sceneType === SceneType.STEERABLE_RECT) {
+            return this.factory.createSteerableRect();
+        }
         throw new Error(`Unknown scene type: ${sceneType}`);
     }
 }

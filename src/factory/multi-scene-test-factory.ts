@@ -25,6 +25,8 @@ export class MultiSceneTestFactory {
                 return await this.createLapMeasurementTest();
             case MultiSceneType.RACE_RESTART:
                 return await this.createRaceRestartTest();
+            case MultiSceneType.XY_JOYSTICK_TEST:
+                return this.createXYJoystickTest();
             default:
                 throw new Error(`Unknown multi-scene type: ${sceneType}`);
         }
@@ -44,6 +46,15 @@ export class MultiSceneTestFactory {
         const testCar = this.factory.createTestCar();
         joystick.setSteeringControl(testCar);
         return [joystick, testCar];
+    }
+
+    private createXYJoystickTest(): Scene[] {
+        const joystick = this.factory.createVirtualJoystick({
+            relativePosition: { x: 0.5, y: 0.8 },
+        });
+        const steerableRect = this.factory.createSteerableRect();
+        joystick.setSteeringControl(steerableRect);
+        return [joystick, steerableRect];
     }
 
     private async createStartRaceTest(): Promise<Scene[]> {

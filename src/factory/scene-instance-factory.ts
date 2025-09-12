@@ -26,6 +26,7 @@ import {
     type VirtualJoystickConfig,
 } from "../scene/virtual-joystick";
 import { TestCar } from "../scene/test-car";
+import { SteerableRect } from "../scene/steerable-rect";
 
 export class SceneInstanceFactory {
     constructor(
@@ -125,5 +126,9 @@ export class SceneInstanceFactory {
 
     public createTestCar(): TestCar {
         return new TestCar(this.canvas);
+    }
+
+    public createSteerableRect(): SteerableRect {
+        return new SteerableRect(this.canvas);
     }
 }
