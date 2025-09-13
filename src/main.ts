@@ -6,6 +6,7 @@ import { SceneType } from "./type/scene-type";
 import { MultiSceneType } from "./type/multi-scene-type";
 import {
     getCanvasSizeById,
+    isGameType,
     isMultiSceneType,
     isSceneType,
     logSceneSelection,
@@ -16,32 +17,36 @@ import { MultiSceneTestFactory } from "./factory/multi-scene-test-factory";
 import { SingleSceneTestFactory } from "./factory/single-scene-test-factory";
 import { SceneInstanceFactory } from "./factory/scene-instance-factory";
 import { buildMenu } from "./builder/menu-builder";
+import type { GameType } from "./type/game-type";
 
 const urlParams = new URLSearchParams(window.location.search);
-const SCENE_MODE = (urlParams.get("mode") as "all" | "current") || "current";
-const SCENE_NAME =
-    urlParams.get("scene") ||
-    (SCENE_MODE === "all" ? MultiSceneType.GAME : SceneType.GAME);
+const SCENE_MODE =
+    (urlParams.get("mode") as "current" | "all" | "game") || "current";
+const SCENE_NAME = urlParams.get("scene") || SceneType.ELIPSE_TRACK;
 
 let gameEngine: GameEngine;
 
 let currentScene: SceneType | null = null;
 let multiScene: MultiSceneType | null = null;
+let gameType: GameType | null = null;
 
-if (SCENE_MODE == "current" && isSceneType(SCENE_NAME)) {
+if (urlParams.size > 0 && SCENE_MODE == "current" && isSceneType(SCENE_NAME)) {
     currentScene = SCENE_NAME;
 } else if (
+    urlParams.size > 0 &&
     SCENE_MODE == "all" &&
     isMultiSceneType(SCENE_NAME as MultiSceneType)
 ) {
     multiScene = SCENE_NAME as MultiSceneType;
+} else if (
+    urlParams.size > 0 &&
+    SCENE_MODE === "all" &&
+    isGameType(SCENE_NAME as GameType)
+) {
+    gameType = SCENE_NAME as GameType;
 } else {
-    console.warn(`Unknown scene: ${SCENE_NAME}. Using default.`);
-    if (SCENE_MODE === "all") {
-        multiScene = MultiSceneType.GAME;
-    } else {
-        currentScene = SceneType.GAME;
-    }
+    console.warn(`No params, using default scene: ${SCENE_NAME}.`);
+    currentScene = SceneType.ELIPSE_TRACK;
 }
 
 window.addEventListener("load", async () => {
@@ -52,15 +57,12 @@ window.addEventListener("load", async () => {
         const { canvas } = getCanvasSizeById("game-canvas");
 
         gameEngine.input.setupCanvasEvents(canvas);
-        gameEngine.setSceneMode(SCENE_MODE);
+        gameEngine.setSceneMode(SCENE_MODE as any);
 
         const instanceFactory = new SceneInstanceFactory(gameEngine, canvas);
 
-        if (
-            currentScene === SceneType.GAME ||
-            multiScene === MultiSceneType.GAME
-        ) {
-            const menu = buildMenu(instanceFactory, gameEngine);
+        if (gameType) {
+            const menu = buildMenu(instanceFactory, gameEngine, gameType);
             gameEngine.registerScene(menu.name!, menu);
             gameEngine.transitionToScene(menu.name!);
         } else if (currentScene) {
@@ -81,8 +83,8 @@ window.addEventListener("load", async () => {
         }
 
         logTestUrls();
-        logSceneSelection(SCENE_MODE, currentScene, multiScene);
+        logSceneSelection(SCENE_MODE, currentScene, multiScene, gameType);
     } catch (error) {
-        console.error("Failed to initialize game:", error);
+        console.error("Failed to initialize:", error);
     }
 });

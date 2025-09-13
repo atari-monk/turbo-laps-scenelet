@@ -3,6 +3,8 @@ import { SceneType } from "./type/scene-type";
 import { MultiSceneType } from "./type/multi-scene-type";
 import { MultiSceneTypeDescriptions } from "./type/multi-scene-type-descriptions";
 import { SceneTypeDescriptions } from "./type/scene-type-descriptions";
+import { GameType } from "./type/game-type";
+import { GameTypeDescriptions } from "./type/game-type-descriptions";
 
 export function getCanvasSizeById(canvasId: string): {
     canvas: HTMLCanvasElement;
@@ -44,6 +46,10 @@ export function logTestUrls() {
     Object.values(MultiSceneType).forEach((scene) => {
         console.log(`Multi: ?mode=all&scene=${encodeURIComponent(scene)}`);
     });
+
+    Object.values(GameType).forEach((scene) => {
+        console.log(`Game: ?mode=all&scene=${encodeURIComponent(scene)}`);
+    });
 }
 
 export function isSceneType(value: any): value is SceneType {
@@ -54,10 +60,15 @@ export function isMultiSceneType(value: any): value is MultiSceneType {
     return Object.values(MultiSceneType).includes(value);
 }
 
+export function isGameType(value: any): value is GameType {
+    return Object.values(GameType).includes(value);
+}
+
 export function logSceneSelection(
-    mode: "all" | "current",
+    mode: "all" | "current" | "game",
     currentScene: SceneType | null,
-    multiScene: MultiSceneType | null
+    multiScene: MultiSceneType | null,
+    gameType: GameType | null
 ) {
     console.log(`Scene mode: ${mode}`);
 
@@ -68,6 +79,10 @@ export function logSceneSelection(
     } else if (mode === "current" && currentScene) {
         console.log(
             `Testing single scene: ${currentScene} - ${SceneTypeDescriptions[currentScene]}`
+        );
+    } else if (mode === "game" && gameType) {
+        console.log(
+            `Playing game: ${gameType} - ${GameTypeDescriptions[gameType]}`
         );
     }
 }
