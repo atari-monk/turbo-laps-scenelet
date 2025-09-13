@@ -8,6 +8,7 @@ import type { IContinue } from "../scene/continue";
 import type { IGameScore } from "../scene/game-score";
 import type { IBuilder } from "../type/i-builder";
 import type { ICar } from "../car/type/i-car";
+import { JoystickAxisMode } from "../scene/virtual-joystick";
 
 export class GameBuilder implements IBuilder {
     private scenes: Scene[] = [];
@@ -129,6 +130,29 @@ export class GameBuilder implements IBuilder {
         return this;
     }
 
+    async withCarJoystick(): Promise<GameBuilder> {
+        if (!this.car) {
+            throw new Error("Car must be set before adding CarJoystick");
+        }
+
+        const accelerationJoystick = this.factory.createVirtualJoystick({
+            relativePosition: { x: 0.2, y: 0.8 },
+            axisMode: JoystickAxisMode.YOnly,
+            identifier: "acceleration",
+        });
+
+        const steeringJoystick = this.factory.createVirtualJoystick({
+            relativePosition: { x: 0.8, y: 0.8 },
+            axisMode: JoystickAxisMode.XOnly,
+            identifier: "steering",
+        });
+        accelerationJoystick.setAccelerationControl(this.car!);
+        steeringJoystick.setSteeringControl(this.car!);
+        this.scenes.push(accelerationJoystick);
+        this.scenes.push(steeringJoystick);
+        return this;
+    }
+
     build(): Scene[] {
         if (this.scenes.length === 0) {
             throw new Error("No scenes configured");
@@ -184,6 +208,7 @@ export async function buildGameForMobile(
         .then((b) => b.withLapTracker())
         .then((b) => b.withCountdown())
         .then((b) => b.withContinueBtn())
+        .then((b) => b.withCarJoystick())
         .then((b) => b.build());
     return scenes;
 }

@@ -11,10 +11,8 @@ import { CarStateContext } from "../car/car-state-context";
 import type { CarRenderer } from "../car/car-renderer";
 import type { CarInputHandler } from "../car/car-input-handler";
 import type { JoystickInput } from "../type/joystick-input";
-import type { SteeringControl } from "../type/steering-control";
-import type { AccelerationControl } from "../type/acceleration-control";
 
-export class Car implements ICar, SteeringControl, AccelerationControl {
+export class Car implements ICar {
     constructor(
         private readonly canvas: HTMLCanvasElement,
         private readonly carConfig: CarConfig,
