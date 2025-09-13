@@ -10,8 +10,11 @@ import { INPUT_MAPPING } from "../car/type/input-mapping";
 import { CarStateContext } from "../car/car-state-context";
 import type { CarRenderer } from "../car/car-renderer";
 import type { CarInputHandler } from "../car/car-input-handler";
+import type { JoystickInput } from "../type/joystick-input";
+import type { SteeringControl } from "../type/steering-control";
+import type { AccelerationControl } from "../type/acceleration-control";
 
-export class Car implements ICar {
+export class Car implements ICar, SteeringControl, AccelerationControl {
     constructor(
         private readonly canvas: HTMLCanvasElement,
         private readonly carConfig: CarConfig,
@@ -22,6 +25,14 @@ export class Car implements ICar {
         private readonly soundManager: CarSoundManager
     ) {
         this.setInputEnabled(this.carConfig.inputEnabled);
+    }
+
+    updateSteering(input: JoystickInput): void {
+        this.inputHandler.setSteeringInput(input);
+    }
+
+    updateAcceleration(input: JoystickInput): void {
+        this.inputHandler.setAccelerationInput(input);
     }
 
     setInputEnabled(enabled: boolean): void {

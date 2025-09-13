@@ -16,6 +16,6 @@ export const SceneTypeDescriptions: Record<SceneType, string> = {
     [SceneType.CONTINUE]: "Game continuation prompts",
     [SceneType.MOUSE_CURSOR]: "Mouse pointer interaction system",
     [SceneType.SOUND_DEMO]: "Audio effects demonstration",
-    [SceneType.GAME]: "Main game runtime environment",
     [SceneType.VIRTUAL_JOYSTICK]: "Touch-based control interface (mobile)",
+    [SceneType.STEERABLE_RECT]: "bla",
 };

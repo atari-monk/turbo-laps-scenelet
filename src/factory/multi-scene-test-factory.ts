@@ -16,8 +16,6 @@ export class MultiSceneTestFactory {
         switch (sceneType) {
             case MultiSceneType.TRACK_CURSOR:
                 return this.createTrackCursorTest();
-            case MultiSceneType.JOYSTICK_TEST:
-                return this.createJoystickTest();
             case MultiSceneType.START_RACE:
                 return await this.createStartRaceTest();
             case MultiSceneType.CAR_OUT_OF_TRACK:
@@ -26,8 +24,12 @@ export class MultiSceneTestFactory {
                 return await this.createLapMeasurementTest();
             case MultiSceneType.RACE_RESTART:
                 return await this.createRaceRestartTest();
+            case MultiSceneType.JOYSTICK_TEST:
+                return this.createJoystickTest();
             case MultiSceneType.XY_JOYSTICK_TEST:
                 return this.createXYJoystickTest();
+            case MultiSceneType.JOYSTICK_FOR_CAR:
+                return this.createJoystickForCar();
             default:
                 throw new Error(`Unknown multi-scene type: ${sceneType}`);
         }
@@ -38,36 +40,6 @@ export class MultiSceneTestFactory {
             this.factory.createRectangleTrack(),
             this.factory.createMouseCursor(),
         ];
-    }
-
-    private createJoystickTest(): Scene[] {
-        const accelerationJoystick = this.factory.createVirtualJoystick({
-            relativePosition: { x: 0.2, y: 0.8 },
-            axisMode: JoystickAxisMode.YOnly,
-            identifier: "acceleration",
-        });
-
-        const steeringJoystick = this.factory.createVirtualJoystick({
-            relativePosition: { x: 0.8, y: 0.8 },
-            axisMode: JoystickAxisMode.XOnly,
-            identifier: "steering",
-        });
-
-        const testCar = this.factory.createTestCar();
-
-        accelerationJoystick.setAccelerationControl(testCar);
-        steeringJoystick.setSteeringControl(testCar);
-
-        return [accelerationJoystick, steeringJoystick, testCar];
-    }
-
-    private createXYJoystickTest(): Scene[] {
-        const joystick = this.factory.createVirtualJoystick({
-            relativePosition: { x: 0.5, y: 0.8 },
-        });
-        const steerableRect = this.factory.createSteerableRect();
-        joystick.setSteeringControl(steerableRect);
-        return [joystick, steerableRect];
     }
 
     private async createStartRaceTest(): Promise<Scene[]> {
@@ -163,5 +135,56 @@ export class MultiSceneTestFactory {
             continueBtn,
             gameSore,
         ];
+    }
+
+    private createJoystickTest(): Scene[] {
+        const accelerationJoystick = this.factory.createVirtualJoystick({
+            relativePosition: { x: 0.2, y: 0.8 },
+            axisMode: JoystickAxisMode.YOnly,
+            identifier: "acceleration",
+        });
+
+        const steeringJoystick = this.factory.createVirtualJoystick({
+            relativePosition: { x: 0.8, y: 0.8 },
+            axisMode: JoystickAxisMode.XOnly,
+            identifier: "steering",
+        });
+
+        const testCar = this.factory.createTestCar();
+
+        accelerationJoystick.setAccelerationControl(testCar);
+        steeringJoystick.setSteeringControl(testCar);
+
+        return [accelerationJoystick, steeringJoystick, testCar];
+    }
+
+    private createXYJoystickTest(): Scene[] {
+        const joystick = this.factory.createVirtualJoystick({
+            relativePosition: { x: 0.5, y: 0.8 },
+        });
+        const steerableRect = this.factory.createSteerableRect();
+        joystick.setSteeringControl(steerableRect);
+        return [joystick, steerableRect];
+    }
+
+    async createJoystickForCar(): Promise<Scene[] | PromiseLike<Scene[]>> {
+        const accelerationJoystick = this.factory.createVirtualJoystick({
+            relativePosition: { x: 0.2, y: 0.8 },
+            axisMode: JoystickAxisMode.YOnly,
+            identifier: "acceleration",
+        });
+
+        const steeringJoystick = this.factory.createVirtualJoystick({
+            relativePosition: { x: 0.8, y: 0.8 },
+            axisMode: JoystickAxisMode.XOnly,
+            identifier: "steering",
+        });
+
+        const car = await this.factory.createCar(true);
+
+        accelerationJoystick.setAccelerationControl(car);
+        steeringJoystick.setSteeringControl(car);
+
+        return [accelerationJoystick, steeringJoystick, car];
     }
 }
