@@ -6,6 +6,13 @@ import type { SteeringControl } from "../type/steering-control";
 export interface VirtualJoystickConfig {
     position?: { x: number; y: number };
     relativePosition?: { x: number; y: number };
+    axisMode?: JoystickAxisMode;
+}
+
+export enum JoystickAxisMode {
+    Both = "both",
+    XOnly = "x-only",
+    YOnly = "y-only",
 }
 
 export class VirtualJoystick implements Scene {
@@ -18,6 +25,7 @@ export class VirtualJoystick implements Scene {
     private steeringControl: SteeringControl | null;
     private showJoystick: boolean;
     private readonly config: VirtualJoystickConfig;
+    private axisMode: JoystickAxisMode;
 
     name = "Virtual-Joystick";
     displayName = "Virtual Joystick";
@@ -43,6 +51,12 @@ export class VirtualJoystick implements Scene {
         this.steeringControl = null;
         this.showJoystick = true;
         this.config = config;
+        this.axisMode = config.axisMode || JoystickAxisMode.Both;
+    }
+
+    setAxisMode(mode: JoystickAxisMode): void {
+        this.axisMode = mode;
+        this.resetJoystick();
     }
 
     setSteeringControl(control: SteeringControl): void {
@@ -157,20 +171,36 @@ export class VirtualJoystick implements Scene {
     private updateStickPosition(touchX: number, touchY: number): void {
         const deltaX = touchX - this.state.centerX;
         const deltaY = touchY - this.state.centerY;
+
+        let constrainedDeltaX = deltaX;
+        let constrainedDeltaY = deltaY;
+
+        if (this.axisMode === JoystickAxisMode.XOnly) {
+            constrainedDeltaY = 0;
+        } else if (this.axisMode === JoystickAxisMode.YOnly) {
+            constrainedDeltaX = 0;
+        }
+
         const distance = Math.min(
-            Math.sqrt(deltaX * deltaX + deltaY * deltaY),
+            Math.sqrt(
+                constrainedDeltaX * constrainedDeltaX +
+                    constrainedDeltaY * constrainedDeltaY
+            ),
             this.maxStickMovement
         );
 
-        const angle = Math.atan2(deltaY, deltaX);
+        const angle = Math.atan2(constrainedDeltaY, constrainedDeltaX);
         this.state.stickX = this.state.centerX + Math.cos(angle) * distance;
         this.state.stickY = this.state.centerY + Math.sin(angle) * distance;
 
-        const normalizedX = distance > 0 ? deltaX / distance : 0;
-        const normalizedY = distance > 0 ? deltaY / distance : 0;
+        const normalizedX = distance > 0 ? constrainedDeltaX / distance : 0;
+        const normalizedY = distance > 0 ? constrainedDeltaY / distance : 0;
         const magnitude = distance / this.maxStickMovement;
 
-        this.state.direction = { x: normalizedX, y: normalizedY };
+        this.state.direction = {
+            x: this.axisMode === JoystickAxisMode.YOnly ? 0 : normalizedX,
+            y: this.axisMode === JoystickAxisMode.XOnly ? 0 : normalizedY,
+        };
         this.state.magnitude = magnitude > this.deadZone ? magnitude : 0;
 
         this.dispatchInputEvents();
@@ -204,6 +234,7 @@ export class VirtualJoystick implements Scene {
                 isActive: this.state.isActive,
                 direction: { ...this.state.direction },
                 magnitude: this.state.magnitude,
+                axisMode: this.axisMode,
             },
         });
         window.dispatchEvent(event);
@@ -215,6 +246,7 @@ export class VirtualJoystick implements Scene {
                 isActive: this.state.isActive,
                 direction: { ...this.state.direction },
                 magnitude: this.state.magnitude,
+                axisMode: this.axisMode,
             });
         }
     }
