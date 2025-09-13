@@ -2,6 +2,7 @@ import { MultiSceneType } from "../type/multi-scene-type";
 import type { Scene } from "zippy-game-engine";
 import type { SceneInstanceFactory } from "./scene-instance-factory";
 import { TrackConfigService } from "../service/track-config.service";
+import { JoystickAxisMode } from "../scene/virtual-joystick";
 
 export class MultiSceneTestFactory {
     constructor(
@@ -40,12 +41,24 @@ export class MultiSceneTestFactory {
     }
 
     private createJoystickTest(): Scene[] {
-        const joystick = this.factory.createVirtualJoystick({
-            relativePosition: { x: 0.5, y: 0.8 },
+        const accelerationJoystick = this.factory.createVirtualJoystick({
+            relativePosition: { x: 0.2, y: 0.8 },
+            axisMode: JoystickAxisMode.YOnly,
+            identifier: "acceleration",
         });
+
+        const steeringJoystick = this.factory.createVirtualJoystick({
+            relativePosition: { x: 0.8, y: 0.8 },
+            axisMode: JoystickAxisMode.XOnly,
+            identifier: "steering",
+        });
+
         const testCar = this.factory.createTestCar();
-        joystick.setSteeringControl(testCar);
-        return [joystick, testCar];
+
+        accelerationJoystick.setAccelerationControl(testCar);
+        steeringJoystick.setSteeringControl(testCar);
+
+        return [accelerationJoystick, steeringJoystick, testCar];
     }
 
     private createXYJoystickTest(): Scene[] {

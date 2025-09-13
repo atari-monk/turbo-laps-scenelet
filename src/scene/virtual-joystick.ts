@@ -2,11 +2,13 @@ import type { Scene } from "zippy-game-engine";
 import type { FrameContext } from "zippy-shared-lib";
 import type { JoystickState } from "../type/joystick-state";
 import type { SteeringControl } from "../type/steering-control";
+import type { AccelerationControl } from "../type/acceleration-control";
 
 export interface VirtualJoystickConfig {
     position?: { x: number; y: number };
     relativePosition?: { x: number; y: number };
     axisMode?: JoystickAxisMode;
+    identifier?: string;
 }
 
 export enum JoystickAxisMode {
@@ -23,12 +25,20 @@ export class VirtualJoystick implements Scene {
     private readonly stickRadius: number;
     private touchId: number | null;
     private steeringControl: SteeringControl | null;
+    private accelerationControl: AccelerationControl | null;
     private showJoystick: boolean;
     private readonly config: VirtualJoystickConfig;
     private axisMode: JoystickAxisMode;
+    private readonly identifier: string;
+    private centerX: number;
+    private centerY: number;
+    private isInitialized: boolean;
+    private readonly touchStartHandler: (event: TouchEvent) => void;
+    private readonly touchMoveHandler: (event: TouchEvent) => void;
+    private readonly touchEndHandler: (event: TouchEvent) => void;
 
-    name = "Virtual-Joystick";
-    displayName = "Virtual Joystick";
+    name: string;
+    displayName: string;
 
     constructor(
         private readonly canvas: HTMLCanvasElement,
@@ -49,9 +59,21 @@ export class VirtualJoystick implements Scene {
         this.stickRadius = 30;
         this.touchId = null;
         this.steeringControl = null;
+        this.accelerationControl = null;
         this.showJoystick = true;
         this.config = config;
         this.axisMode = config.axisMode || JoystickAxisMode.Both;
+        this.identifier = config.identifier || "default";
+        this.centerX = 0;
+        this.centerY = 0;
+        this.isInitialized = false;
+
+        this.touchStartHandler = this.handleTouchStart.bind(this);
+        this.touchMoveHandler = this.handleTouchMove.bind(this);
+        this.touchEndHandler = this.handleTouchEnd.bind(this);
+
+        this.name = `Virtual-Joystick-${this.identifier}`;
+        this.displayName = `Virtual Joystick ${this.identifier}`;
     }
 
     setAxisMode(mode: JoystickAxisMode): void {
@@ -61,6 +83,10 @@ export class VirtualJoystick implements Scene {
 
     setSteeringControl(control: SteeringControl): void {
         this.steeringControl = control;
+    }
+
+    setAccelerationControl(control: AccelerationControl): void {
+        this.accelerationControl = control;
     }
 
     enable(): void {
@@ -76,67 +102,64 @@ export class VirtualJoystick implements Scene {
         const passiveOptions = { passive: false };
         this.canvas.addEventListener(
             "touchstart",
-            this.handleTouchStart,
+            this.touchStartHandler,
             passiveOptions
         );
         this.canvas.addEventListener(
             "touchmove",
-            this.handleTouchMove,
+            this.touchMoveHandler,
             passiveOptions
         );
         this.canvas.addEventListener(
             "touchend",
-            this.handleTouchEnd,
+            this.touchEndHandler,
             passiveOptions
         );
         this.canvas.addEventListener(
             "touchcancel",
-            this.handleTouchEnd,
+            this.touchEndHandler,
             passiveOptions
         );
     }
 
     private removeEventListeners(): void {
-        this.canvas.removeEventListener("touchstart", this.handleTouchStart);
-        this.canvas.removeEventListener("touchmove", this.handleTouchMove);
-        this.canvas.removeEventListener("touchend", this.handleTouchEnd);
-        this.canvas.removeEventListener("touchcancel", this.handleTouchEnd);
+        this.canvas.removeEventListener("touchstart", this.touchStartHandler);
+        this.canvas.removeEventListener("touchmove", this.touchMoveHandler);
+        this.canvas.removeEventListener("touchend", this.touchEndHandler);
+        this.canvas.removeEventListener("touchcancel", this.touchEndHandler);
     }
 
-    private handleTouchStart = (event: TouchEvent): void => {
-        if (
-            event.touches.length === 0 ||
-            this.touchId !== null ||
-            !this.showJoystick
-        )
-            return;
+    private handleTouchStart(event: TouchEvent): void {
+        if (!this.showJoystick || this.touchId !== null) return;
 
-        const touch = event.touches[0];
-        this.touchId = touch.identifier;
+        const rect = this.canvas.getBoundingClientRect();
+        const scaleX = this.canvas.width / rect.width;
+        const scaleY = this.canvas.height / rect.height;
 
-        const rect = this.canvas!.getBoundingClientRect();
-        const scaleX = this.canvas!.width / rect.width;
-        const scaleY = this.canvas!.height / rect.height;
+        for (let i = 0; i < event.touches.length; i++) {
+            const touch = event.touches[i];
+            const canvasX = (touch.clientX - rect.left) * scaleX;
+            const canvasY = (touch.clientY - rect.top) * scaleY;
 
-        const canvasX = (touch.clientX - rect.left) * scaleX;
-        const canvasY = (touch.clientY - rect.top) * scaleY;
+            const distanceToCenter = Math.sqrt(
+                Math.pow(canvasX - this.centerX, 2) +
+                    Math.pow(canvasY - this.centerY, 2)
+            );
 
-        const distanceToCenter = Math.sqrt(
-            Math.pow(canvasX - this.state.centerX, 2) +
-                Math.pow(canvasY - this.state.centerY, 2)
-        );
-
-        if (distanceToCenter <= this.baseRadius * 2) {
-            this.state.isActive = true;
-            this.updateStickPosition(canvasX, canvasY);
-            event.preventDefault();
+            if (distanceToCenter <= this.baseRadius * 2) {
+                this.touchId = touch.identifier;
+                this.state.isActive = true;
+                this.updateStickPosition(canvasX, canvasY);
+                event.preventDefault();
+                break;
+            }
         }
-    };
+    }
 
-    private handleTouchMove = (event: TouchEvent): void => {
-        if (this.touchId === null || !this.canvas || !this.showJoystick) return;
+    private handleTouchMove(event: TouchEvent): void {
+        if (this.touchId === null || !this.showJoystick) return;
 
-        const touch = this.findTouchById(event.changedTouches, this.touchId);
+        const touch = this.findTouchById(event.touches, this.touchId);
         if (!touch) return;
 
         const rect = this.canvas.getBoundingClientRect();
@@ -148,16 +171,16 @@ export class VirtualJoystick implements Scene {
 
         this.updateStickPosition(canvasX, canvasY);
         event.preventDefault();
-    };
+    }
 
-    private handleTouchEnd = (event: TouchEvent): void => {
+    private handleTouchEnd(event: TouchEvent): void {
         if (this.touchId === null || !this.showJoystick) return;
 
         const touch = this.findTouchById(event.changedTouches, this.touchId);
         if (touch) {
             this.resetInputState();
         }
-    };
+    }
 
     private findTouchById(touchList: TouchList, id: number): Touch | null {
         for (let i = 0; i < touchList.length; i++) {
@@ -169,8 +192,8 @@ export class VirtualJoystick implements Scene {
     }
 
     private updateStickPosition(touchX: number, touchY: number): void {
-        const deltaX = touchX - this.state.centerX;
-        const deltaY = touchY - this.state.centerY;
+        const deltaX = touchX - this.centerX;
+        const deltaY = touchY - this.centerY;
 
         let constrainedDeltaX = deltaX;
         let constrainedDeltaY = deltaY;
@@ -190,8 +213,8 @@ export class VirtualJoystick implements Scene {
         );
 
         const angle = Math.atan2(constrainedDeltaY, constrainedDeltaX);
-        this.state.stickX = this.state.centerX + Math.cos(angle) * distance;
-        this.state.stickY = this.state.centerY + Math.sin(angle) * distance;
+        this.state.stickX = this.centerX + Math.cos(angle) * distance;
+        this.state.stickY = this.centerY + Math.sin(angle) * distance;
 
         const normalizedX = distance > 0 ? constrainedDeltaX / distance : 0;
         const normalizedY = distance > 0 ? constrainedDeltaY / distance : 0;
@@ -204,17 +227,18 @@ export class VirtualJoystick implements Scene {
         this.state.magnitude = magnitude > this.deadZone ? magnitude : 0;
 
         this.dispatchInputEvents();
-        this.updateSteeringControl();
+        this.updateControls();
     }
 
     private resetInputState(): void {
         this.touchId = null;
+        this.state.isActive = false;
         this.state.direction = { x: 0, y: 0 };
         this.state.magnitude = 0;
-        this.state.stickX = this.state.centerX;
-        this.state.stickY = this.state.centerY;
+        this.state.stickX = this.centerX;
+        this.state.stickY = this.centerY;
         this.dispatchInputEvents();
-        this.updateSteeringControl();
+        this.updateControls();
     }
 
     private resetJoystick(): void {
@@ -222,10 +246,10 @@ export class VirtualJoystick implements Scene {
         this.state.isActive = false;
         this.state.direction = { x: 0, y: 0 };
         this.state.magnitude = 0;
-        this.state.stickX = this.state.centerX;
-        this.state.stickY = this.state.centerY;
+        this.state.stickX = this.centerX;
+        this.state.stickY = this.centerY;
         this.dispatchInputEvents();
-        this.updateSteeringControl();
+        this.updateControls();
     }
 
     private dispatchInputEvents(): void {
@@ -235,48 +259,54 @@ export class VirtualJoystick implements Scene {
                 direction: { ...this.state.direction },
                 magnitude: this.state.magnitude,
                 axisMode: this.axisMode,
+                identifier: this.identifier,
             },
         });
         window.dispatchEvent(event);
     }
 
-    private updateSteeringControl(): void {
-        if (this.steeringControl) {
-            this.steeringControl.updateSteering({
-                isActive: this.state.isActive,
-                direction: { ...this.state.direction },
-                magnitude: this.state.magnitude,
-                axisMode: this.axisMode,
-            });
+    private updateControls(): void {
+        const input = {
+            isActive: this.state.isActive,
+            direction: { ...this.state.direction },
+            magnitude: this.state.magnitude,
+            axisMode: this.axisMode,
+            identifier: this.identifier,
+        };
+
+        if (this.steeringControl && this.identifier.includes("steering")) {
+            this.steeringControl.updateSteering(input);
+        } else if (
+            this.accelerationControl &&
+            this.identifier.includes("acceleration")
+        ) {
+            this.accelerationControl.updateAcceleration(input);
         }
     }
 
     init(): void {
-        this.calculatePosition();
-        this.resetInputState();
-        this.setupEventListeners();
-        this.enable();
+        if (!this.isInitialized) {
+            this.calculatePosition();
+            this.resetInputState();
+            this.setupEventListeners();
+            this.enable();
+            this.isInitialized = true;
+        }
     }
 
     update(_context: FrameContext): void {}
 
     render(context: FrameContext): void {
-        const ctx = context.ctx;
+        if (!this.showJoystick) return;
 
-        if (this.showJoystick) {
-            this.drawBaseCircle(
-                ctx,
-                this.state.centerX,
-                this.state.centerY,
-                this.baseRadius
-            );
-            this.drawStickCircle(
-                ctx,
-                this.state.stickX,
-                this.state.stickY,
-                this.stickRadius
-            );
-        }
+        const ctx = context.ctx;
+        this.drawBaseCircle(ctx, this.centerX, this.centerY, this.baseRadius);
+        this.drawStickCircle(
+            ctx,
+            this.state.stickX,
+            this.state.stickY,
+            this.stickRadius
+        );
     }
 
     private drawBaseCircle(
@@ -287,7 +317,9 @@ export class VirtualJoystick implements Scene {
     ): void {
         ctx.save();
         ctx.globalAlpha = 0.4;
-        ctx.fillStyle = "#2c3e50";
+        ctx.fillStyle = this.identifier.includes("acceleration")
+            ? "#3498db"
+            : "#2c3e50";
         ctx.beginPath();
         ctx.arc(x, y, radius, 0, Math.PI * 2);
         ctx.fill();
@@ -307,7 +339,9 @@ export class VirtualJoystick implements Scene {
     ): void {
         ctx.save();
         ctx.globalAlpha = 0.9;
-        ctx.fillStyle = "#e74c3c";
+        ctx.fillStyle = this.identifier.includes("acceleration")
+            ? "#2980b9"
+            : "#e74c3c";
         ctx.beginPath();
         ctx.arc(x, y, radius, 0, Math.PI * 2);
         ctx.fill();
@@ -321,25 +355,33 @@ export class VirtualJoystick implements Scene {
 
     private calculatePosition(): void {
         if (this.config.position) {
-            this.state.centerX = this.config.position.x;
-            this.state.centerY = this.config.position.y;
+            this.centerX = this.config.position.x;
+            this.centerY = this.config.position.y;
         } else if (this.config.relativePosition) {
-            this.state.centerX =
-                this.canvas.width * this.config.relativePosition.x;
-            this.state.centerY =
-                this.canvas.height * this.config.relativePosition.y;
+            this.centerX = this.canvas.width * this.config.relativePosition.x;
+            this.centerY = this.canvas.height * this.config.relativePosition.y;
         } else {
-            this.state.centerX = this.canvas.width * 0.2;
-            this.state.centerY = this.canvas.height * 0.8;
+            if (this.identifier.includes("acceleration")) {
+                this.centerX = this.canvas.width * 0.2;
+                this.centerY = this.canvas.height * 0.8;
+            } else {
+                this.centerX = this.canvas.width * 0.8;
+                this.centerY = this.canvas.height * 0.8;
+            }
         }
 
-        this.state.stickX = this.state.centerX;
-        this.state.stickY = this.state.centerY;
+        this.state.centerX = this.centerX;
+        this.state.centerY = this.centerY;
+        this.state.stickX = this.centerX;
+        this.state.stickY = this.centerY;
     }
 
     onEnter(): void {
-        this.setupEventListeners();
-        this.calculatePosition();
+        if (!this.isInitialized) {
+            this.setupEventListeners();
+            this.calculatePosition();
+            this.isInitialized = true;
+        }
     }
 
     onExit(): void {
@@ -350,5 +392,13 @@ export class VirtualJoystick implements Scene {
     resize(): void {
         this.calculatePosition();
         this.resetInputState();
+    }
+
+    getPosition(): { x: number; y: number } {
+        return { x: this.centerX, y: this.centerY };
+    }
+
+    getIdentifier(): string {
+        return this.identifier;
     }
 }
