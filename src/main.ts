@@ -1,10 +1,12 @@
 import "./style.css";
 import "fullscreen-canvas-vanilla";
-import { EngineSetupHandler } from "./tester/EngineSetupHandler";
-import { UrlParamsHandler } from "./tester/UrlParamsHandler";
+import { UrlParamsHandler } from "./tester/url-params-handler";
+import { EngineSetupHandler } from "./tester/engine-setup-handler";
+import { GameEngineFactory } from "zippy-game-engine";
 
 window.addEventListener("load", async () => {
-    const urlParamsHandler = new UrlParamsHandler();
-    const engineSetupHandler = new EngineSetupHandler(urlParamsHandler);
-    await engineSetupHandler.initialize();
+    await new EngineSetupHandler(
+        new UrlParamsHandler(),
+        new GameEngineFactory().getGameEngine()
+    ).initialize();
 });

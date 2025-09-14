@@ -1,9 +1,11 @@
-import { GameId } from "./enum/game-id";
-import { GameTypeDescriptions } from "../type/game-type-descriptions";
-import { MultiSceneId } from "./enum/multi-scene-id";
-import { SceneId } from "./enum/scene-id";
-import { MultiSceneDescriptions } from "./const/multi-scene-descriptions";
-import { SceneDescriptions } from "./const/scene-descriptions";
+import {
+    SceneId,
+    MultiSceneId,
+    GameId,
+    SceneDescription,
+    MultiSceneDescription,
+    GameDescription,
+} from "./const";
 
 export class UrlParamsHandler {
     private readonly urlParams: URLSearchParams;
@@ -11,9 +13,9 @@ export class UrlParamsHandler {
     readonly sceneMode: "current" | "all";
     readonly sceneName: string;
 
-    readonly currentScene: SceneId | null;
+    readonly singleScene: SceneId | null;
     readonly multiScene: MultiSceneId | null;
-    readonly gameType: GameId | null;
+    readonly game: GameId | null;
 
     constructor() {
         this.urlParams = new URLSearchParams(window.location.search);
@@ -22,23 +24,23 @@ export class UrlParamsHandler {
             (this.urlParams.get("mode") as "current" | "all") || "current";
         this.sceneName = this.urlParams.get("scene") || SceneId.ELIPSE_TRACK;
 
-        this.currentScene = this.determineCurrentScene();
+        this.singleScene = this.determineSingleScene();
         this.multiScene = this.determineMultiScene();
-        this.gameType = this.determineGameType();
+        this.game = this.determineGame();
     }
 
-    private determineCurrentScene(): SceneId | null {
+    private determineSingleScene(): SceneId | null {
         if (
             this.urlParams.size > 0 &&
             this.sceneMode === "current" &&
-            this.isSceneType(this.sceneName)
+            this.isScene(this.sceneName)
         ) {
             return this.sceneName;
         }
         return null;
     }
 
-    private isSceneType(value: any): value is SceneId {
+    private isScene(value: any): value is SceneId {
         return Object.values(SceneId).includes(value);
     }
 
@@ -46,69 +48,85 @@ export class UrlParamsHandler {
         if (
             this.urlParams.size > 0 &&
             this.sceneMode === "all" &&
-            this.isMultiSceneType(this.sceneName as MultiSceneId)
+            this.isMultiScene(this.sceneName as MultiSceneId)
         ) {
             return this.sceneName as MultiSceneId;
         }
         return null;
     }
 
-    private isMultiSceneType(value: any): value is MultiSceneId {
+    private isMultiScene(value: any): value is MultiSceneId {
         return Object.values(MultiSceneId).includes(value);
     }
 
-    private determineGameType(): GameId | null {
+    private determineGame(): GameId | null {
         if (
             this.urlParams.size > 0 &&
             this.sceneMode === "all" &&
-            this.isGameType(this.sceneName as GameId)
+            this.isGame(this.sceneName as GameId)
         ) {
             return this.sceneName as GameId;
         }
         return null;
     }
 
-    private isGameType(value: any): value is GameId {
+    private isGame(value: any): value is GameId {
         return Object.values(GameId).includes(value);
     }
 
-    hasSceneSelection(): boolean {
-        return (
-            this.currentScene !== null ||
-            this.multiScene !== null ||
-            this.gameType !== null
-        );
+    logOptions() {
+        console.log("=== Test URL Options ===");
+
+        Object.values(SceneId).forEach((scene) => {
+            console.log(
+                `Single Scene: ?mode=current&scene=${encodeURIComponent(scene)}`
+            );
+        });
+
+        Object.values(MultiSceneId).forEach((scene) => {
+            console.log(
+                `Multi Scene: ?mode=all&scene=${encodeURIComponent(scene)}`
+            );
+        });
+
+        Object.values(GameId).forEach((scene) => {
+            console.log(`Game: ?mode=all&scene=${encodeURIComponent(scene)}`);
+        });
     }
 
     logSelection(): void {
-        this.logSceneSelection(
-            this.sceneMode,
-            this.currentScene,
-            this.multiScene,
-            this.gameType
+        console.log(`Scene mode: ${this.sceneMode}`);
+
+        this.logSingleScene();
+        this.logMultiScene();
+        this.logGame();
+    }
+
+    private logSingleScene(): void {
+        if (!(this.sceneMode === "current" && this.singleScene)) return;
+
+        console.log(
+            `Testing single scene: ${this.singleScene} - ${
+                SceneDescription[this.singleScene]
+            }`
         );
     }
 
-    private logSceneSelection(
-        mode: "all" | "current" | "game",
-        currentScene: SceneId | null,
-        multiScene: MultiSceneId | null,
-        gameType: GameId | null
-    ) {
-        console.log(`Scene mode: ${mode}`);
+    private logMultiScene(): void {
+        if (!(this.sceneMode === "all" && this.multiScene)) return;
 
-        if (mode === "all" && multiScene) {
-            console.log(
-                `Testing multi-scene: ${multiScene} - ${MultiSceneDescriptions[multiScene]}`
-            );
-        } else if (mode === "current" && currentScene) {
-            console.log(
-                `Testing single scene: ${currentScene} - ${SceneDescriptions[currentScene]}`
-            );
-        } else if (mode === "game" && gameType) {
-            console.log(
-                `Playing game: ${gameType} - ${GameTypeDescriptions[gameType]}`
-            );
-        }
+        console.log(
+            `Testing multi-scene: ${this.multiScene} - ${
+                MultiSceneDescription[this.multiScene]
+            }`
+        );
+    }
+
+    private logGame(): void {
+        if (!(this.sceneMode === "all" && this.game)) return;
+
+        console.log(
+            `Testing game: ${this.game} - ${GameDescription[this.game]}`
+        );
     }
 }

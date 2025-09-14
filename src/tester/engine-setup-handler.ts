@@ -1,27 +1,24 @@
 import { createGameCanvas } from "fullscreen-canvas-vanilla";
-import type { GameEngine } from "zippy-game-engine";
+import { type GameEngine } from "zippy-game-engine";
 import { buildMenu } from "../builder/menu-builder";
 import { MultiSceneTestFactory } from "../factory/multi-scene-test-factory";
 import { SceneInstanceFactory } from "../factory/scene-instance-factory";
 import { SingleSceneTestFactory } from "../factory/single-scene-test-factory";
-import { setupEngine, getCanvasSizeById, logTestUrls } from "../tools";
-import { SceneId } from "./enum/scene-id";
 import type { UrlParamsHandler } from "./url-params-handler";
+import { SceneId } from "./const";
 
 export class EngineSetupHandler {
-    private readonly urlParamsHandler: UrlParamsHandler;
-    private gameEngine: GameEngine | null = null;
-
-    constructor(urlParamsHandler: UrlParamsHandler) {
-        this.urlParamsHandler = urlParamsHandler;
-    }
+    constructor(
+        private readonly urlParamsHandler: UrlParamsHandler,
+        private readonly gameEngine: GameEngine
+    ) {}
 
     async initialize(): Promise<void> {
         try {
-            this.gameEngine = setupEngine();
             this.setupCanvas();
+            this.urlParamsHandler.logOptions();
             await this.setupScenes();
-            this.logConfiguration();
+            this.urlParamsHandler.logSelection();
         } catch (error) {
             console.error("Failed to initialize:", error);
         }
@@ -29,21 +26,45 @@ export class EngineSetupHandler {
 
     private setupCanvas(): void {
         createGameCanvas("canvas-container", "game-canvas", this.gameEngine!);
-        const { canvas } = getCanvasSizeById("game-canvas");
+        const { canvas } = this.getCanvasSizeById("game-canvas");
         this.gameEngine!.input.setupCanvasEvents(canvas);
         this.gameEngine!.setSceneMode(this.urlParamsHandler.sceneMode as any);
     }
 
+    private getCanvasSizeById(canvasId: string): {
+        canvas: HTMLCanvasElement;
+        width: number;
+        height: number;
+    } {
+        const canvas = document.getElementById(canvasId);
+
+        if (!canvas) {
+            throw new Error(`Canvas element with ID '${canvasId}' not found`);
+        }
+
+        if (!(canvas instanceof HTMLCanvasElement)) {
+            throw new Error(
+                `Element with ID '${canvasId}' is not a canvas element`
+            );
+        }
+
+        return {
+            canvas,
+            width: canvas.width,
+            height: canvas.height,
+        };
+    }
+
     private async setupScenes(): Promise<void> {
-        const { canvas } = getCanvasSizeById("game-canvas");
+        const { canvas } = this.getCanvasSizeById("game-canvas");
         const instanceFactory = new SceneInstanceFactory(
             this.gameEngine!,
             canvas
         );
 
-        if (this.urlParamsHandler.gameType) {
+        if (this.urlParamsHandler.game) {
             await this.setupGameTypeScene(instanceFactory);
-        } else if (this.urlParamsHandler.currentScene) {
+        } else if (this.urlParamsHandler.singleScene) {
             await this.setupSingleScene(instanceFactory, canvas);
         } else if (this.urlParamsHandler.multiScene) {
             await this.setupMultiScene(instanceFactory, canvas);
@@ -58,7 +79,7 @@ export class EngineSetupHandler {
         const menu = buildMenu(
             instanceFactory,
             this.gameEngine!,
-            this.urlParamsHandler.gameType!
+            this.urlParamsHandler.game!
         );
         this.gameEngine!.registerScene(menu.name!, menu);
         this.gameEngine!.transitionToScene(menu.name!);
@@ -74,7 +95,7 @@ export class EngineSetupHandler {
             instanceFactory
         );
         const scene = await factory.createSingleSceneTest(
-            this.urlParamsHandler.currentScene!
+            this.urlParamsHandler.singleScene!
         );
         this.gameEngine!.registerScene(scene.name!, scene);
         this.gameEngine!.transitionToScene(scene.name!);
@@ -108,10 +129,5 @@ export class EngineSetupHandler {
         const scene = await factory.createSingleSceneTest(SceneId.ELIPSE_TRACK);
         this.gameEngine!.registerScene(scene.name!, scene);
         this.gameEngine!.transitionToScene(scene.name!);
-    }
-
-    private logConfiguration(): void {
-        logTestUrls();
-        this.urlParamsHandler.logSelection();
     }
 }
