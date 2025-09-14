@@ -76,21 +76,24 @@ export class UrlParamsHandler {
 
     logOptions() {
         console.log("=== Test URL Options ===");
-
+        console.log("Single Scene:");
+        const baseUrl = "http://localhost:5173/";
         Object.values(SceneId).forEach((scene) => {
             console.log(
-                `Single Scene: ?mode=current&scene=${encodeURIComponent(scene)}`
+                `${baseUrl}/?mode=current&scene=${encodeURIComponent(scene)}`
             );
         });
-
+        console.log("Multi Scene:");
         Object.values(MultiSceneId).forEach((scene) => {
             console.log(
-                `Multi Scene: ?mode=all&scene=${encodeURIComponent(scene)}`
+                `${baseUrl}/?mode=all&scene=${encodeURIComponent(scene)}`
             );
         });
-
+        console.log("Game:");
         Object.values(GameId).forEach((scene) => {
-            console.log(`Game: ?mode=all&scene=${encodeURIComponent(scene)}`);
+            console.log(
+                `${baseUrl}/?mode=all&scene=${encodeURIComponent(scene)}`
+            );
         });
     }
 

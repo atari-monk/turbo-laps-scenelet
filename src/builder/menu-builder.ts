@@ -2,7 +2,7 @@ import type { Scene, GameEngine } from "zippy-game-engine";
 import type { SceneInstanceFactory } from "../factory/scene-instance-factory";
 import { buildGameForMobile, buildGameForPc } from "./game-builder";
 import type { IBuilder } from "../type/i-builder";
-import { GameId } from "../tester/enum/game-id";
+import { GameId } from "../tester/const";
 
 export class MenuBuilder implements IBuilder {
     private scene: Scene = {};

@@ -1,13 +1,12 @@
 import type { GameEngine, Scene } from "zippy-game-engine";
-import { SceneId } from "../tester/enum/scene-id";
 import type { SceneInstanceFactory } from "./scene-instance-factory";
 import { MultiSceneTestFactory } from "./multi-scene-test-factory";
-import { MultiSceneId } from "../tester/enum/multi-scene-id";
 import { MockLapTracker } from "../mock/mock-lap-tracker";
 import { TrackConfigService } from "../service/track-config.service";
 import { SoundSceneFactory } from "./sound-scene-factory";
 import { WebAudioService } from "../service/web-audio-service";
 import type { SoundConfig } from "../type/sound-config";
+import { MultiSceneId, SceneId } from "../tester/const";
 
 export class SingleSceneTestFactory {
     constructor(

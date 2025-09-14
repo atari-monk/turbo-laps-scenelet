@@ -1,8 +1,8 @@
-import { MultiSceneId } from "../tester/enum/multi-scene-id";
 import type { Scene } from "zippy-game-engine";
 import type { SceneInstanceFactory } from "./scene-instance-factory";
 import { TrackConfigService } from "../service/track-config.service";
 import { JoystickAxisMode } from "../scene/virtual-joystick";
+import { MultiSceneId } from "../tester/const";
 
 export class MultiSceneTestFactory {
     constructor(
