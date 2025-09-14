@@ -1,4 +1,4 @@
-import type { CarConfig } from "./type/car-config";
+import type { CarConfig } from "../type/car-config";
 
 export const DEFAULT_CAR_CONFIG: CarConfig = {
     carWidth: 50,

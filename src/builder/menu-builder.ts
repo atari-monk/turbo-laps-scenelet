@@ -1,8 +1,7 @@
 import type { Scene, GameEngine } from "zippy-game-engine";
 import type { SceneInstanceFactory } from "../factory/scene-instance-factory";
 import type { IBuilder } from "../type/i-builder";
-import { GameId } from "../tester/const";
-import type { IGameBuilder } from "./IGameBuilder";
+import type { IGameBuilder } from "./type/i-game-builder";
 
 export class MenuBuilder implements IBuilder {
     private scene: Scene = {};

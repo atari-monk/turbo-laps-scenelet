@@ -1,5 +1,5 @@
 import type { InputSystem } from "zippy-game-engine";
-import { INPUT_MAPPING } from "./type/input-mapping";
+import { INPUT_MAPPING } from "./const/input-mapping";
 import type { CarStateContext } from "./car-state-context";
 import type { CarConfig } from "./type/car-config";
 import type { JoystickInput } from "../type/joystick-input";

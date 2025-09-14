@@ -1,5 +1,5 @@
 import type { GameEngine } from "zippy-game-engine";
-import { Car } from "../scene/car";
+import { Car } from "../car/car";
 import { WebAudioService } from "../service/web-audio-service";
 import { loadCarConfigurations } from "../car/load-car-config";
 import { MovementSystem } from "../car/movement-system";
@@ -8,10 +8,7 @@ import { preloadCarSounds } from "../car/preload-car-sounds";
 import { CarStateContext } from "../car/car-state-context";
 import { CarRenderer } from "../car/car-renderer";
 import { CarInputHandler } from "../car/car-input-handler";
-
-export interface ICarFactory {
-    createCar(inputEnabled: boolean): Promise<Car>;
-}
+import type { ICarFactory } from "./type/i-car-factory";
 
 export class CarFactory implements ICarFactory {
     constructor(

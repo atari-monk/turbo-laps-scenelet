@@ -3,7 +3,7 @@ import type { SceneInstanceFactory } from "./scene-instance-factory";
 import { TrackConfigService } from "../service/track-config.service";
 import { JoystickAxisMode } from "../scene/virtual-joystick";
 import { MultiSceneId } from "../tester/const";
-import type { ICarFactory } from "./car-factory";
+import type { ICarFactory } from "../car/type/i-car-factory";
 
 export class MultiSceneTestFactory {
     constructor(

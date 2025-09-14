@@ -1,15 +1,15 @@
 import type { FrameContext } from "zippy-shared-lib";
-import type { ITrackBoundary } from "./track-boundary";
-import type { IStartingGrid } from "./starting-grid";
-import type { ICar } from "../car/type/i-car";
-import type { CarConfig } from "../car/type/car-config";
-import type { CarState } from "../car/type/car-state";
-import { MovementSystem } from "../car/movement-system";
-import { CarSoundManager } from "../car/car-sound-manager";
-import { INPUT_MAPPING } from "../car/type/input-mapping";
-import { CarStateContext } from "../car/car-state-context";
-import type { CarRenderer } from "../car/car-renderer";
-import type { CarInputHandler } from "../car/car-input-handler";
+import type { ITrackBoundary } from "../scene/track-boundary";
+import type { IStartingGrid } from "../scene/starting-grid";
+import type { ICar } from "./type/i-car";
+import type { CarConfig } from "./type/car-config";
+import type { CarState } from "./type/car-state";
+import { MovementSystem } from "./movement-system";
+import { CarSoundManager } from "./car-sound-manager";
+import { INPUT_MAPPING } from "./const/input-mapping";
+import { CarStateContext } from "./car-state-context";
+import type { CarRenderer } from "./car-renderer";
+import type { CarInputHandler } from "./car-input-handler";
 import type { JoystickInput } from "../type/joystick-input";
 
 export class Car implements ICar {

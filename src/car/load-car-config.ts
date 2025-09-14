@@ -1,6 +1,6 @@
 import { ConfigService } from "../service/config-service";
-import { DEFAULT_CAR_CONFIG } from "./default-car-config";
-import { DEFAULT_SOUND_CONFIG } from "./default-sound-config";
+import { DEFAULT_CAR_CONFIG } from "./const/default-car-config";
+import { DEFAULT_SOUND_CONFIG } from "./const/default-sound-config";
 import type { CarConfig } from "./type/car-config";
 import type { CarSoundConfig } from "./type/car-sound-config";
 

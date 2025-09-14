@@ -12,7 +12,7 @@ import { PCGameBuilder } from "../builder/pc-game-builder";
 import { GameBuilder } from "../builder/game-builder";
 import { GameId } from "./const";
 import { MobileGameBuilder } from "../builder/mobile-game-builder";
-import { CarFactory } from "../factory/car-factory";
+import { CarFactory } from "../car/car-factory";
 
 export async function testerFactory(): Promise<void> {
     const gameEngineFactory = new GameEngineFactory();
