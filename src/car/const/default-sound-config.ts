@@ -1,4 +1,4 @@
-import type { CarSoundConfig } from "./type/car-sound-config";
+import type { CarSoundConfig } from "../type/car-sound-config";
 
 export const DEFAULT_SOUND_CONFIG: CarSoundConfig = {
     engineSoundKey: "car-engine",
