@@ -1,9 +1,19 @@
-import { EngineSetupHandler } from "./engine-setup-handler";
 import { GameEngineFactory } from "zippy-game-engine";
 import { CanvasSetup } from "./canvas-setup";
 import { UrlParamsHandler } from "./url-params-handler";
+import { SingleSceneTestFactory } from "../factory/single-scene-test-factory";
+import { SceneInstanceFactory } from "../factory/scene-instance-factory";
+import { SingleSceneSetup } from "./single-scene-setup";
+import { MultiSceneSetup } from "./multi-scene-setup";
+import { MultiSceneTestFactory } from "../factory/multi-scene-test-factory";
+import { GameSetup } from "./game-setup";
+import { MenuBuilder } from "../builder/menu-builder";
+import { PCGameBuilder } from "../builder/pc-game-builder";
+import { GameBuilder } from "../builder/game-builder";
+import { GameId } from "./const";
+import { MobileGameBuilder } from "../builder/mobile-game-builder";
 
-export function testerFactory(): EngineSetupHandler {
+export async function testerFactory(): Promise<void> {
     const gameEngineFactory = new GameEngineFactory();
     const gameEngine = gameEngineFactory.getGameEngine();
 
@@ -13,11 +23,56 @@ export function testerFactory(): EngineSetupHandler {
         "game-canvas"
     );
 
-    const engineSetupHandler = new EngineSetupHandler(
+    const urlParamsHandler = new UrlParamsHandler();
+    urlParamsHandler.logOptions();
+
+    gameEngine.setSceneMode(urlParamsHandler.sceneMode);
+
+    const sceneInstanceFactory = new SceneInstanceFactory(gameEngine, canvas);
+
+    const singleSceneSetup = new SingleSceneSetup(
         gameEngine,
-        canvas,
-        new UrlParamsHandler()
+        new SingleSceneTestFactory(canvas, gameEngine, sceneInstanceFactory)
     );
 
-    return engineSetupHandler;
+    if (urlParamsHandler.singleScene)
+        singleSceneSetup.setup(urlParamsHandler.singleScene);
+
+    const multiSceneTestFactory = new MultiSceneTestFactory(
+        canvas,
+        sceneInstanceFactory
+    );
+
+    const multiSceneSetup = new MultiSceneSetup(
+        gameEngine,
+        multiSceneTestFactory
+    );
+
+    if (urlParamsHandler.multiScene)
+        multiSceneSetup.setup(urlParamsHandler.multiScene);
+
+    const gameBuilder = new GameBuilder(sceneInstanceFactory);
+    const pcGameSetup = new GameSetup(
+        gameEngine,
+        new MenuBuilder(
+            sceneInstanceFactory,
+            gameEngine,
+            new PCGameBuilder(gameBuilder)
+        )
+    );
+    const mobileGameSetup = new GameSetup(
+        gameEngine,
+        new MenuBuilder(
+            sceneInstanceFactory,
+            gameEngine,
+            new MobileGameBuilder(gameBuilder)
+        )
+    );
+
+    if (urlParamsHandler.game === GameId.TURBO_LAPS_PC)
+        await pcGameSetup.setup();
+    if (urlParamsHandler.game === GameId.TURBO_LAPS_MOBILE)
+        await mobileGameSetup.setup();
+
+    urlParamsHandler.logSelection();
 }

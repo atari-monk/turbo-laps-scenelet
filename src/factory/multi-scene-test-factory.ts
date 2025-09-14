@@ -167,7 +167,7 @@ export class MultiSceneTestFactory {
         return [joystick, steerableRect];
     }
 
-    async createJoystickForCar(): Promise<Scene[] | PromiseLike<Scene[]>> {
+    private async createJoystickForCar(): Promise<Scene[]> {
         const accelerationJoystick = this.factory.createVirtualJoystick({
             relativePosition: { x: 0.2, y: 0.8 },
             axisMode: JoystickAxisMode.YOnly,

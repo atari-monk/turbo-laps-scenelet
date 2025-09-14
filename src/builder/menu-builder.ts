@@ -1,25 +1,22 @@
 import type { Scene, GameEngine } from "zippy-game-engine";
 import type { SceneInstanceFactory } from "../factory/scene-instance-factory";
-import { buildGameForMobile, buildGameForPc } from "./game-builder";
 import type { IBuilder } from "../type/i-builder";
 import { GameId } from "../tester/const";
+import type { IGameBuilder } from "./IGameBuilder";
 
 export class MenuBuilder implements IBuilder {
     private scene: Scene = {};
 
     constructor(
         private readonly factory: SceneInstanceFactory,
-        private readonly gameEngine: GameEngine
+        private readonly gameEngine: GameEngine,
+        private readonly gameBuilder: IGameBuilder
     ) {}
 
-    withStartMenu(gameType: GameId): MenuBuilder {
+    withStartMenu(): MenuBuilder {
         const menu = this.factory.createMenu();
         menu.setOnStartGame(async () => {
-            let scenes: Scene[] = [];
-            if (gameType === GameId.TURBO_LAPS_PC)
-                scenes = await buildGameForPc(this.factory);
-            if (gameType === GameId.TURBO_LAPS_MOBILE)
-                scenes = await buildGameForMobile(this.factory);
+            const scenes: Scene[] = await this.gameBuilder.buildGame();
             scenes.forEach((scene) => {
                 this.gameEngine.registerScene(scene.name!, scene);
             });
@@ -33,15 +30,4 @@ export class MenuBuilder implements IBuilder {
     build(): Scene {
         return this.scene;
     }
-}
-
-export function buildMenu(
-    factory: SceneInstanceFactory,
-    gameEngine: GameEngine,
-    gameType: GameId
-): Scene {
-    const scene = new MenuBuilder(factory, gameEngine)
-        .withStartMenu(gameType)
-        .build();
-    return scene;
 }
