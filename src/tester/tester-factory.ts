@@ -12,6 +12,7 @@ import { PCGameBuilder } from "../builder/pc-game-builder";
 import { GameBuilder } from "../builder/game-builder";
 import { GameId } from "./const";
 import { MobileGameBuilder } from "../builder/mobile-game-builder";
+import { CarFactory } from "../factory/car-factory";
 
 export async function testerFactory(): Promise<void> {
     const gameEngineFactory = new GameEngineFactory();
@@ -38,9 +39,12 @@ export async function testerFactory(): Promise<void> {
     if (urlParamsHandler.singleScene)
         singleSceneSetup.setup(urlParamsHandler.singleScene);
 
+    const carFactory = new CarFactory(gameEngine, canvas);
+
     const multiSceneTestFactory = new MultiSceneTestFactory(
         canvas,
-        sceneInstanceFactory
+        sceneInstanceFactory,
+        carFactory
     );
 
     const multiSceneSetup = new MultiSceneSetup(
@@ -51,7 +55,7 @@ export async function testerFactory(): Promise<void> {
     if (urlParamsHandler.multiScene)
         multiSceneSetup.setup(urlParamsHandler.multiScene);
 
-    const gameBuilder = new GameBuilder(sceneInstanceFactory);
+    const gameBuilder = new GameBuilder(sceneInstanceFactory, carFactory);
     const pcGameSetup = new GameSetup(
         gameEngine,
         new MenuBuilder(

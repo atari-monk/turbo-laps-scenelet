@@ -1,6 +1,6 @@
 import type { Scene } from "zippy-game-engine";
 import { GameBuilder } from "./game-builder";
-import type { IGameBuilder } from "./IGameBuilder";
+import type { IGameBuilder } from "./i-game-builder";
 
 export class PCGameBuilder implements IGameBuilder {
     constructor(private readonly gameBuilder: GameBuilder) {}

@@ -3,11 +3,13 @@ import type { SceneInstanceFactory } from "./scene-instance-factory";
 import { TrackConfigService } from "../service/track-config.service";
 import { JoystickAxisMode } from "../scene/virtual-joystick";
 import { MultiSceneId } from "../tester/const";
+import type { ICarFactory } from "./car-factory";
 
 export class MultiSceneTestFactory {
     constructor(
         private readonly canvas: HTMLCanvasElement,
-        private readonly factory: SceneInstanceFactory
+        private readonly factory: SceneInstanceFactory,
+        private readonly carFactory: ICarFactory
     ) {}
 
     public async createMultiSceneTest(
@@ -45,7 +47,7 @@ export class MultiSceneTestFactory {
     private async createStartRaceTest(): Promise<Scene[]> {
         const track = this.factory.createRectangleTrack();
         const startingGrid = this.factory.createStartingGrid();
-        const player = await this.factory.createCar();
+        const player = await this.carFactory.createCar(false);
         const countdown = this.factory.createCountdown(
             () => player.setInputEnabled(true),
             () => console.log("Countdown done")
@@ -60,7 +62,7 @@ export class MultiSceneTestFactory {
         TrackConfigService.getInstance().calculateTrackState(this.canvas);
         const trackBoundary = this.factory.createTrackBoundary();
         const startingGrid = this.factory.createStartingGrid();
-        const player = await this.factory.createCar(true);
+        const player = await this.carFactory.createCar(true);
 
         player.setTrackBoundary(trackBoundary);
         player.setStartingPosition(startingGrid.getStartingPosition());
@@ -71,7 +73,7 @@ export class MultiSceneTestFactory {
     private async createLapMeasurementTest(): Promise<Scene[]> {
         const track = this.factory.createRectangleTrack();
         const startingGrid = this.factory.createStartingGrid();
-        const player = await this.factory.createCar();
+        const player = await this.carFactory.createCar(true);
         const lapTracker = this.factory.createLapTracker(player);
         const countdown = this.factory.createCountdown(
             () => {
@@ -97,7 +99,7 @@ export class MultiSceneTestFactory {
         const track = this.factory.createRectangleTrack();
         const trackBoundary = this.factory.createTrackBoundary();
         const startingGrid = this.factory.createStartingGrid();
-        const player = await this.factory.createCar();
+        const player = await this.carFactory.createCar(false);
         const lapTracker = this.factory.createLapTracker(player);
         const countdown = this.factory.createCountdown(
             () => {
@@ -180,7 +182,7 @@ export class MultiSceneTestFactory {
             identifier: "steering",
         });
 
-        const car = await this.factory.createCar(true);
+        const car = await this.carFactory.createCar(true);
 
         accelerationJoystick.setAccelerationControl(car);
         steeringJoystick.setSteeringControl(car);
