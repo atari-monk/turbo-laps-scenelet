@@ -1,9 +1,15 @@
-export enum SceneType {
+export enum SceneId {
+    //Test
     ELIPSE_TRACK = "Elipse-Track",
+    STEERABLE_RECT = "Steerable-Rect",
+    TEST_CAR = "Test-Car",
+    SOUND_DEMO = "Sound-Demo",
+    VIRTUAL_JOYSTICK = "Virtual-Joystick",
+    //Tool
+    MOUSE_CURSOR = "Mouse-Cursor",
+    //PC Game
     RECTANGLE_TRACK = "Rectangle-Track",
     CAR = "Car",
-    TEST_CAR = "Test-Car",
-    STEERABLE_RECT = "Steerable-Rect",
     TRACK_BOUNDARY = "Track-Boundary",
     STARTING_GRID = "Starting-Grid",
     ROAD_MARKINGS = "Road-Markings",
@@ -13,7 +19,4 @@ export enum SceneType {
     MENU = "Menu",
     COUNTDOWN = "Countdown",
     CONTINUE = "Continue",
-    MOUSE_CURSOR = "Mouse-Cursor",
-    SOUND_DEMO = "Sound-Demo",
-    VIRTUAL_JOYSTICK = "Virtual-Joystick",
 }

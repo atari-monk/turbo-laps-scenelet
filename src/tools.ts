@@ -1,10 +1,7 @@
 import { GameEngineFactory } from "zippy-game-engine";
-import { SceneType } from "./type/scene-type";
-import { MultiSceneType } from "./type/multi-scene-type";
-import { MultiSceneTypeDescriptions } from "./type/multi-scene-type-descriptions";
-import { SceneTypeDescriptions } from "./type/scene-type-descriptions";
-import { GameType } from "./type/game-type";
-import { GameTypeDescriptions } from "./type/game-type-descriptions";
+import { SceneId } from "./tester/enum/scene-id";
+import { MultiSceneId } from "./tester/enum/multi-scene-id";
+import { GameId } from "./tester/enum/game-id";
 
 export function getCanvasSizeById(canvasId: string): {
     canvas: HTMLCanvasElement;
@@ -39,52 +36,17 @@ export function setupEngine() {
 export function logTestUrls() {
     console.log("=== Test URLs ===");
 
-    Object.values(SceneType).forEach((scene) => {
+    Object.values(SceneId).forEach((scene) => {
         console.log(`Single: ?mode=current&scene=${encodeURIComponent(scene)}`);
     });
 
-    Object.values(MultiSceneType).forEach((scene) => {
+    Object.values(MultiSceneId).forEach((scene) => {
         console.log(`Multi: ?mode=all&scene=${encodeURIComponent(scene)}`);
     });
 
-    Object.values(GameType).forEach((scene) => {
+    Object.values(GameId).forEach((scene) => {
         console.log(`Game: ?mode=all&scene=${encodeURIComponent(scene)}`);
     });
-}
-
-export function isSceneType(value: any): value is SceneType {
-    return Object.values(SceneType).includes(value);
-}
-
-export function isMultiSceneType(value: any): value is MultiSceneType {
-    return Object.values(MultiSceneType).includes(value);
-}
-
-export function isGameType(value: any): value is GameType {
-    return Object.values(GameType).includes(value);
-}
-
-export function logSceneSelection(
-    mode: "all" | "current" | "game",
-    currentScene: SceneType | null,
-    multiScene: MultiSceneType | null,
-    gameType: GameType | null
-) {
-    console.log(`Scene mode: ${mode}`);
-
-    if (mode === "all" && multiScene) {
-        console.log(
-            `Testing multi-scene: ${multiScene} - ${MultiSceneTypeDescriptions[multiScene]}`
-        );
-    } else if (mode === "current" && currentScene) {
-        console.log(
-            `Testing single scene: ${currentScene} - ${SceneTypeDescriptions[currentScene]}`
-        );
-    } else if (mode === "game" && gameType) {
-        console.log(
-            `Playing game: ${gameType} - ${GameTypeDescriptions[gameType]}`
-        );
-    }
 }
 
 export function delay(ms: number): Promise<void> {

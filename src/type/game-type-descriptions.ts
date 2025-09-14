@@ -1,8 +1,8 @@
-import { GameType } from "./game-type";
+import { GameId } from "../tester/enum/game-id";
 
-export const GameTypeDescriptions: Record<GameType, string> = {
-    [GameType.TURBO_LAPS_PC]:
+export const GameTypeDescriptions: Record<GameId, string> = {
+    [GameId.TURBO_LAPS_PC]:
         "Complete Turbo Laps game for PC with keyboard controls",
-    [GameType.TURBO_LAPS_MOBILE]:
+    [GameId.TURBO_LAPS_MOBILE]:
         "Complete Turbo Laps game for mobile with touch controls",
 };

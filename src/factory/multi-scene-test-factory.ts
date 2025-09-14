@@ -1,4 +1,4 @@
-import { MultiSceneType } from "../type/multi-scene-type";
+import { MultiSceneId } from "../tester/enum/multi-scene-id";
 import type { Scene } from "zippy-game-engine";
 import type { SceneInstanceFactory } from "./scene-instance-factory";
 import { TrackConfigService } from "../service/track-config.service";
@@ -11,24 +11,24 @@ export class MultiSceneTestFactory {
     ) {}
 
     public async createMultiSceneTest(
-        sceneType: MultiSceneType
+        sceneType: MultiSceneId
     ): Promise<Scene[]> {
         switch (sceneType) {
-            case MultiSceneType.TRACK_CURSOR:
+            case MultiSceneId.TRACK_CURSOR:
                 return this.createTrackCursorTest();
-            case MultiSceneType.START_RACE:
+            case MultiSceneId.START_RACE:
                 return await this.createStartRaceTest();
-            case MultiSceneType.CAR_OUT_OF_TRACK:
+            case MultiSceneId.CAR_OUT_OF_TRACK:
                 return await this.createCarOutOfTrackTest();
-            case MultiSceneType.LAP_MEASUREMENT:
+            case MultiSceneId.LAP_MEASUREMENT:
                 return await this.createLapMeasurementTest();
-            case MultiSceneType.RACE_RESTART:
+            case MultiSceneId.RACE_RESTART:
                 return await this.createRaceRestartTest();
-            case MultiSceneType.JOYSTICK_TEST:
+            case MultiSceneId.JOYSTICK_TEST:
                 return this.createJoystickTest();
-            case MultiSceneType.XY_JOYSTICK_TEST:
+            case MultiSceneId.XY_JOYSTICK_TEST:
                 return this.createXYJoystickTest();
-            case MultiSceneType.JOYSTICK_FOR_CAR:
+            case MultiSceneId.JOYSTICK_FOR_CAR:
                 return this.createJoystickForCar();
             default:
                 throw new Error(`Unknown multi-scene type: ${sceneType}`);
