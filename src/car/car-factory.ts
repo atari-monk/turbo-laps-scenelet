@@ -32,6 +32,7 @@ export class CarFactory implements ICarFactory {
         const carSoundManager = new CarSoundManager(
             audioService,
             carStateContext,
+            carConfig,
             soundConfig
         );
 

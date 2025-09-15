@@ -1,6 +1,6 @@
 import type { TrackState } from "./type/track-state";
 import type { TrackConfig } from "./type/track-config";
-import type { LapConfig } from "./type/LapConfig";
+import type { LapConfig } from "./type/lap-config";
 
 export class TrackConfigService {
     private static instance: TrackConfigService;

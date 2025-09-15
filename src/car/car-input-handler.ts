@@ -49,13 +49,15 @@ export class CarInputHandler {
 
     private handleKeyboardAcceleration(): void {
         if (this.isKeyPressed(INPUT_MAPPING.ACCELERATE)) {
-            this.stateContext.updateVelocity(this.config.moveSpeed);
+            this.stateContext.updateVelocity(this.config.maxSpeed);
         } else if (this.isKeyPressed(INPUT_MAPPING.BRAKE)) {
-            this.stateContext.updateVelocity(-this.config.moveSpeed * 0.3);
+            this.stateContext.updateVelocity(-this.config.maxSpeed * 0.3);
         } else if (this.isKeyPressed(INPUT_MAPPING.HANDBRAKE)) {
             this.stateContext.updateVelocity(this.stateContext.velocity * 0.95);
         } else if (this.stateContext.velocity !== 0) {
             this.stateContext.updateVelocity(this.stateContext.velocity * 0.98);
+            if (this.stateContext.velocity < 60)
+                this.stateContext.updateVelocity(0.0);
         }
     }
 
@@ -81,14 +83,16 @@ export class CarInputHandler {
     private handleJoystickAcceleration(): void {
         if (this.joystickAcceleration > 0) {
             this.stateContext.updateVelocity(
-                this.config.moveSpeed * this.joystickAcceleration
+                this.config.maxSpeed * this.joystickAcceleration
             );
         } else if (this.joystickAcceleration < 0) {
             this.stateContext.updateVelocity(
-                this.config.moveSpeed * this.joystickAcceleration
+                this.config.maxSpeed * this.joystickAcceleration
             );
-        } else if (this.stateContext.velocity !== 0) {
+        } else if (this.stateContext.velocity > 0) {
             this.stateContext.updateVelocity(this.stateContext.velocity * 0.98);
+            if (this.stateContext.velocity < 20)
+                this.stateContext.updateVelocity(0.0);
         }
     }
 

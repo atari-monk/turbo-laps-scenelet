@@ -1,9 +1,9 @@
 import type { FrameContext } from "zippy-shared-lib";
 import type { Scene } from "zippy-game-engine";
-import type { CarState } from "./type/CarState";
 import type { SteeringControl } from "../virtual-joystick/steering-control";
 import type { AccelerationControl } from "../virtual-joystick/acceleration-control";
 import type { JoystickInput } from "../virtual-joystick/joystick-input";
+import type { CarState } from "./type/car-state";
 
 export class TestCar implements Scene, AccelerationControl, SteeringControl {
     private state: CarState;

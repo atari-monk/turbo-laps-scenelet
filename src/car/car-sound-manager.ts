@@ -1,26 +1,33 @@
 import type { AudioService } from "../audio-service/type/audio-service";
 import type { CarSoundConfig } from "../car/type/car-sound-config";
 import type { CarStateContext } from "./car-state-context";
+import type { CarConfig } from "./type/car-config";
 
 export class CarSoundManager {
     constructor(
         private readonly audioService: AudioService,
         private readonly stateContext: CarStateContext,
+        private readonly carConfig: CarConfig,
         private soundConfig: CarSoundConfig
     ) {}
 
-    handleEngine(velocity: number, moveSpeed: number): void {
-        const isMoving = velocity !== 0;
+    handleEngine(): void {
+        console.log(this.stateContext.velocity);
+        const isMoving = this.stateContext.velocity !== 0;
         const shouldPlayEngine = isMoving && this.stateContext.inputEnabled;
 
-        if (shouldPlayEngine && !this.stateContext.isEnginePlaying) {
-            this.playEngine();
-        } else if (!shouldPlayEngine && this.stateContext.isEnginePlaying) {
-            this.stopEngine();
-        }
+        const startEngineSound =
+            shouldPlayEngine && !this.stateContext.isEnginePlaying;
+        const stopEngineSound =
+            !shouldPlayEngine && this.stateContext.isEnginePlaying;
+
+        if (startEngineSound) this.playEngine();
+        else if (stopEngineSound) this.stopEngine();
 
         if (this.stateContext.isEnginePlaying) {
-            const pitch = 0.5 + Math.abs(velocity) / moveSpeed;
+            const pitch =
+                0.5 +
+                Math.abs(this.stateContext.velocity) / this.carConfig.maxSpeed;
             this.audioService.setSoundPitch(
                 this.soundConfig.engineSoundKey,
                 pitch

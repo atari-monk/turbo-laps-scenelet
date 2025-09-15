@@ -94,14 +94,11 @@ export class Car implements ICar {
     }
 
     private handleSoundEffects(deltaTime: number): void {
-        this.soundManager?.handleEngine(
-            this.stateContext.velocity,
-            this.carConfig.moveSpeed
-        );
+        this.soundManager?.handleEngine();
         this.soundManager?.handleHorn(this.isKeyPressed(INPUT_MAPPING.HORN));
         this.soundManager?.handleSkid(
             deltaTime,
-            { moveSpeed: this.carConfig.moveSpeed },
+            { moveSpeed: this.carConfig.maxSpeed },
             this.stateContext.rotation,
             this.stateContext.lastRotation
         );
@@ -112,8 +109,8 @@ export class Car implements ICar {
     }
 
     private keepInBounds(): void {
-        const halfWidth = this.carConfig.carWidth / 2;
-        const halfHeight = this.carConfig.carHeight / 2;
+        const halfWidth = this.carConfig.width / 2;
+        const halfHeight = this.carConfig.height / 2;
         const position = this.stateContext.position;
 
         const newX = Math.max(

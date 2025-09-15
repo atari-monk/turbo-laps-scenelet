@@ -1,8 +1,8 @@
 export interface CarConfig {
-    carWidth: number;
-    carHeight: number;
-    carColor: string;
-    moveSpeed: number;
+    width: number;
+    height: number;
+    color: string;
+    maxSpeed: number;
     turnSpeed: number;
     useSprite: boolean;
     spriteUrl?: string;

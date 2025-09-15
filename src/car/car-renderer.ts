@@ -45,20 +45,20 @@ export class CarRenderer {
     }
 
     private renderGeometricCar(ctx: CanvasRenderingContext2D): void {
-        ctx.fillStyle = this.carConfig.carColor;
+        ctx.fillStyle = this.carConfig.color;
         ctx.fillRect(
-            -this.carConfig.carWidth / 2,
-            -this.carConfig.carHeight / 2,
-            this.carConfig.carWidth,
-            this.carConfig.carHeight
+            -this.carConfig.width / 2,
+            -this.carConfig.height / 2,
+            this.carConfig.width,
+            this.carConfig.height
         );
 
         ctx.fillStyle = "#333";
         ctx.fillRect(
-            -this.carConfig.carWidth / 2 + 5,
-            -this.carConfig.carHeight / 2 + 5,
-            this.carConfig.carWidth - 10,
-            this.carConfig.carHeight / 3
+            -this.carConfig.width / 2 + 5,
+            -this.carConfig.height / 2 + 5,
+            this.carConfig.width - 10,
+            this.carConfig.height / 3
         );
     }
 
@@ -67,10 +67,10 @@ export class CarRenderer {
 
         ctx.drawImage(
             this.carImage,
-            -this.carConfig.carWidth / 2,
-            -this.carConfig.carHeight / 2,
-            this.carConfig.carWidth,
-            this.carConfig.carHeight
+            -this.carConfig.width / 2,
+            -this.carConfig.height / 2,
+            this.carConfig.width,
+            this.carConfig.height
         );
     }
 }
