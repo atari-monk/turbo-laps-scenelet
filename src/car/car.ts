@@ -59,7 +59,7 @@ export class Car implements ICar {
         this.stateContext.updateLastRotation(this.stateContext.rotation);
         this.stateContext.updateVelocity(0);
         this.stateContext.updateWasOnTrack(true);
-        this.soundManager?.stopSkid();
+        //this.soundManager?.stopAll();
     }
 
     init(): void {}
@@ -89,7 +89,7 @@ export class Car implements ICar {
             this.stateContext.updateWasOnTrack(false);
             this.stateContext.updateKeysEnabled(false);
             this.soundManager?.playCrash();
-            this.soundManager?.stopSkid();
+            //this.soundManager?.stopAll();
         }
     }
 
@@ -144,12 +144,12 @@ export class Car implements ICar {
         this.stateContext.updateVelocity(0);
         this.stateContext.updateWasOnTrack(true);
         this.stateContext.updateInputEnabled(true);
-        this.soundManager?.stopSkid();
+        //this.soundManager?.stopAll();
     }
 
     onExit(): void {
         this.cleanup();
-        this.soundManager?.stopAll();
+        //this.soundManager?.stopAll();
     }
 
     resize(): void {

@@ -43,10 +43,10 @@ export class CarSoundManager {
         rotation: number,
         lastRotation: number
     ): void {
-        if (!this.stateContext.inputEnabled) {
-            this.stopSkid();
-            return;
-        }
+        // if (!this.stateContext.inputEnabled) {
+        //     this.stopSkid();
+        //     return;
+        // }
 
         const speedThreshold = config.moveSpeed * 0.6;
         const rotationDelta = Math.abs(rotation - lastRotation);
@@ -60,13 +60,14 @@ export class CarSoundManager {
 
         if (isSkidding && !this.stateContext.isSkidding) {
             this.audioService.playSound(this.soundConfig.skidSoundKey, {
-                volume: 0.6,
-                loop: true,
+                volume: 0.3,
+                loop: false,
             });
-            this.stateContext.updateIsSkidding(true);
-        } else if (!isSkidding && this.stateContext.isSkidding) {
-            this.stopSkid();
+            this.stateContext.updateIsSkidding(false);
         }
+        // else if (!isSkidding && this.stateContext.isSkidding) {
+        //     this.stopSkid();
+        // }
     }
 
     playEngine(): void {
