@@ -8,7 +8,7 @@ import type { IContinue } from "../scene/continue";
 import type { IGameScore } from "../scene/game-score";
 import type { IBuilder } from "../type/i-builder";
 import type { ICar } from "../car/type/i-car";
-import { JoystickAxisMode } from "../scene/virtual-joystick";
+import { JoystickAxisMode } from "../virtual-joystick/JoystickAxisMode";
 import type { ICarFactory } from "../car/type/i-car-factory";
 
 export class GameBuilder implements IBuilder {

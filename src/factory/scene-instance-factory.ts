@@ -12,10 +12,8 @@ import { Continue } from "../scene/continue";
 import { Menu } from "../scene/menu";
 import type { PositionProvider } from "../type/position-provider";
 import { GameScore } from "../scene/game-score";
-import {
-    VirtualJoystick,
-    type VirtualJoystickConfig,
-} from "../scene/virtual-joystick";
+import { VirtualJoystick } from "../virtual-joystick/virtual-joystick";
+import { type VirtualJoystickConfig } from "../virtual-joystick/VirtualJoystickConfig";
 import { TestCar } from "../scene/test-car";
 import { SteerableRect } from "../scene/steerable-rect";
 

@@ -1,7 +1,7 @@
 import type { Scene } from "zippy-game-engine";
 import type { SceneInstanceFactory } from "./scene-instance-factory";
 import { TrackConfigService } from "../service/track-config.service";
-import { JoystickAxisMode } from "../scene/virtual-joystick";
+import { JoystickAxisMode } from "../virtual-joystick/JoystickAxisMode";
 import { MultiSceneId } from "../tester/const";
 import type { ICarFactory } from "../car/type/i-car-factory";
 
