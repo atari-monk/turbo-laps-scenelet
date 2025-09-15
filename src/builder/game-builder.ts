@@ -6,10 +6,10 @@ import type { ILapTracker } from "../scene/lap-tracker";
 import type { ICountdown } from "../scene/countdown";
 import type { IContinue } from "../scene/continue";
 import type { IGameScore } from "../scene/game-score";
-import type { IBuilder } from "../type/i-builder";
+import type { IBuilder } from "./type/i-builder";
 import type { ICar } from "../car/type/i-car";
-import { JoystickAxisMode } from "../virtual-joystick/JoystickAxisMode";
 import type { ICarFactory } from "../car/type/i-car-factory";
+import { JoystickAxisMode } from "../virtual-joystick/joystick-axis-mode";
 
 export class GameBuilder implements IBuilder {
     private scenes: Scene[] = [];

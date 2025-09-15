@@ -12,8 +12,8 @@ importers:
         specifier: ^0.0.10
         version: 0.0.10
       zippy-game-engine:
-        specifier: ^1.0.12
-        version: 1.0.12
+        specifier: ^1.0.14
+        version: 1.0.14
       zippy-shared-lib:
         specifier: ^0.2.0
         version: 0.2.0
@@ -382,8 +382,8 @@ packages:
       yaml:
         optional: true
 
-  zippy-game-engine@1.0.12:
-    resolution: {integrity: sha512-L3e9huzeXXvxdzpYRiXSE9ZyajBkqMSW2ko/49EZudNqEYZDAkAYcv8p0P7k6ztlssJErzqjQYv6G6F5GRfrKQ==}
+  zippy-game-engine@1.0.14:
+    resolution: {integrity: sha512-qEir165fMN4NqhmW8ld4fwtUQg/c51/AdQYg16fwYo5H0JJZanib3miHyu8wEhjFqR3QeNp5R59AfaKheQcjRg==}
 
   zippy-shared-lib@0.1.9:
     resolution: {integrity: sha512-x3IhqrLRw3Csfq6Y+r5z812lhu8jxyM3NSW9ABmqXCBoNM7j0yYgF5HSEMXfjQq1zKQcdTg25OB2JBs+Q+0X7w==}
@@ -631,7 +631,7 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.3
 
-  zippy-game-engine@1.0.12:
+  zippy-game-engine@1.0.14:
     dependencies:
       zippy-shared-lib: 0.1.9
 

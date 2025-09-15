@@ -1,17 +1,15 @@
-import type { Scene } from "zippy-game-engine";
+import type { Scene, TouchEventSystem } from "zippy-game-engine";
 import type { FrameContext } from "zippy-shared-lib";
-import type { JoystickState } from "../type/joystick-state";
-import type { SteeringControl } from "../type/steering-control";
-import type { AccelerationControl } from "../type/acceleration-control";
-import type { TouchEventSystem } from "./TouchEventSystem";
-import type { JoystickInput } from "./JoystickInput";
-import type { JoystickRenderer } from "./JoystickRenderer";
-import type { PositionCalculator } from "./PositionCalculator";
-import { JoystickAxisMode } from "./JoystickAxisMode";
-import type { VirtualJoystickConfig } from "./VirtualJoystickConfig";
-import { DefaultTouchEventSystem } from "./DefaultTouchEventSystem";
-import { DefaultJoystickRenderer } from "./DefaultJoystickRenderer";
-import { DefaultPositionCalculator } from "./DefaultPositionCalculator";
+import type { JoystickState } from "./joystick-state";
+import type { SteeringControl } from "./steering-control";
+import type { AccelerationControl } from "./acceleration-control";
+import { DefaultJoystickRenderer } from "./default-joystick-renderer";
+import { DefaultPositionCalculator } from "./default-position-calculator";
+import { JoystickAxisMode } from "./joystick-axis-mode";
+import type { JoystickInput } from "./joystick-input";
+import type { JoystickRenderer } from "./joystick-renderer";
+import type { PositionCalculator } from "./position-calculator";
+import type { VirtualJoystickConfig } from "./virtual-joystick-config";
 
 export class VirtualJoystick implements Scene {
     private readonly state: JoystickState;
@@ -34,7 +32,7 @@ export class VirtualJoystick implements Scene {
     constructor(
         private readonly canvas: HTMLCanvasElement,
         private readonly config: VirtualJoystickConfig = {},
-        private readonly touchSystem: TouchEventSystem = new DefaultTouchEventSystem(),
+        private readonly touchSystem: TouchEventSystem,
         private readonly renderer: JoystickRenderer = new DefaultJoystickRenderer(),
         private readonly positionCalculator: PositionCalculator = new DefaultPositionCalculator()
     ) {

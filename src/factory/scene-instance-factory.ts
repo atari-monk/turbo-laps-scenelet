@@ -1,6 +1,6 @@
 import type { GameEngine } from "zippy-game-engine";
-import { ElipseTrack } from "../scene/elipse-track";
-import { RectangleTrack } from "../scene/rectangle-track";
+import { ElipseTrack } from "../track/elipse-track";
+import { RectangleTrack } from "../track/rectangle-track";
 import { TrackBoundary } from "../scene/track-boundary";
 import { StartingGrid } from "../scene/starting-grid";
 import { RoadMarkings } from "../scene/road-markings";
@@ -10,12 +10,12 @@ import { MouseCursor } from "../scene/mouse-cursor";
 import { Countdown } from "../scene/countdown";
 import { Continue } from "../scene/continue";
 import { Menu } from "../scene/menu";
-import type { PositionProvider } from "../type/position-provider";
+import type { PositionProvider } from "../car/type/position-provider";
 import { GameScore } from "../scene/game-score";
 import { VirtualJoystick } from "../virtual-joystick/virtual-joystick";
-import { type VirtualJoystickConfig } from "../virtual-joystick/VirtualJoystickConfig";
 import { TestCar } from "../scene/test-car";
 import { SteerableRect } from "../scene/steerable-rect";
+import type { VirtualJoystickConfig } from "../virtual-joystick/virtual-joystick-config";
 
 export class SceneInstanceFactory {
     constructor(
@@ -80,7 +80,11 @@ export class SceneInstanceFactory {
     public createVirtualJoystick(
         config: VirtualJoystickConfig = {}
     ): VirtualJoystick {
-        return new VirtualJoystick(this.canvas, config);
+        return new VirtualJoystick(
+            this.canvas,
+            config,
+            this.gameEngine.input.touches
+        );
     }
 
     public createTestCar(): TestCar {

@@ -1,4 +1,4 @@
-import type { JoystickRenderer } from "./JoystickRenderer";
+import type { JoystickRenderer } from "./joystick-renderer";
 
 export class DefaultJoystickRenderer implements JoystickRenderer {
     renderBase(

@@ -1,4 +1,4 @@
-import type { VirtualJoystickConfig } from "./VirtualJoystickConfig";
+import type { VirtualJoystickConfig } from "./virtual-joystick-config";
 
 export interface PositionCalculator {
     calculatePosition(

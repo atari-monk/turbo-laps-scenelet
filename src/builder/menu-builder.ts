@@ -1,6 +1,6 @@
 import type { Scene, GameEngine } from "zippy-game-engine";
 import type { SceneInstanceFactory } from "../factory/scene-instance-factory";
-import type { IBuilder } from "../type/i-builder";
+import type { IBuilder } from "./type/i-builder";
 import type { IGameBuilder } from "./type/i-game-builder";
 
 export class MenuBuilder implements IBuilder {

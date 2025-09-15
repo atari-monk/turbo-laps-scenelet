@@ -1,6 +1,6 @@
-import type { AudioService } from "../type/audio-service";
-import type { PlayOptions } from "../type/play-options";
-import type { SoundConfig } from "../type/sound-config";
+import type { AudioService } from "./type/audio-service";
+import type { PlayOptions } from "./type/play-options";
+import type { SoundConfig } from "./type/sound-config";
 
 export class WebAudioService implements AudioService {
     private sounds: Map<string, HTMLAudioElement> = new Map();

@@ -1,6 +1,6 @@
 import type { FrameContext } from "zippy-shared-lib";
 import type { Scene } from "zippy-game-engine";
-import type { PositionProvider } from "../type/position-provider";
+import type { PositionProvider } from "../car/type/position-provider";
 import { TrackConfigService } from "../service/track-config.service";
 
 export interface ILapTracker extends Scene {

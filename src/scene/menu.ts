@@ -1,7 +1,6 @@
-import type { InputSystem, Scene } from "zippy-game-engine";
+import type { InputSystem, Scene, TouchEventSystem } from "zippy-game-engine";
 import type { FrameContext } from "zippy-shared-lib";
 import { TrackConfigService } from "../service/track-config.service";
-import { DefaultTouchEventSystem } from "../virtual-joystick/DefaultTouchEventSystem";
 
 interface MenuButton {
     x: number;
@@ -25,11 +24,11 @@ export class Menu implements Scene {
     private wasMousePressed: boolean = false;
     private wasTouchPressed: boolean = false;
     private isTouchDevice: boolean = false;
-    private touchEventSystem: DefaultTouchEventSystem;
+    private touchEventSystem: TouchEventSystem;
     private touchPosition = { x: 0, y: 0 };
 
     constructor(private inputSystem: InputSystem) {
-        this.touchEventSystem = new DefaultTouchEventSystem();
+        this.touchEventSystem = inputSystem.touches;
         this.initializeButtons();
         this.detectTouchDevice();
         this.setupTouchEvents();

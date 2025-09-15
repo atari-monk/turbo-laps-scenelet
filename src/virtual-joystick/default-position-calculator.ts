@@ -1,5 +1,5 @@
-import type { PositionCalculator } from "./PositionCalculator";
-import type { VirtualJoystickConfig } from "./VirtualJoystickConfig";
+import type { PositionCalculator } from "./position-calculator";
+import type { VirtualJoystickConfig } from "./virtual-joystick-config";
 
 export class DefaultPositionCalculator implements PositionCalculator {
     calculatePosition(

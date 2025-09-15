@@ -10,7 +10,7 @@ import { INPUT_MAPPING } from "./const/input-mapping";
 import { CarStateContext } from "./car-state-context";
 import type { CarRenderer } from "./car-renderer";
 import type { CarInputHandler } from "./car-input-handler";
-import type { JoystickInput } from "../type/joystick-input";
+import type { JoystickInput } from "../virtual-joystick/joystick-input";
 
 export class Car implements ICar {
     constructor(

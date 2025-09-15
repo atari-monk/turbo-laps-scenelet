@@ -1,7 +1,7 @@
 import type { InputSystem, Scene } from "zippy-game-engine";
 import type { FrameContext } from "zippy-shared-lib";
-import type { AudioService } from "../type/audio-service";
-import type { SoundConfig } from "../type/sound-config";
+import type { AudioService } from "../service/type/audio-service";
+import type { SoundConfig } from "../service/type/sound-config";
 import { delay } from "../tool/time";
 
 export class SoundScene implements Scene {

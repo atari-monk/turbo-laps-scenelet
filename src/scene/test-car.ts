@@ -1,8 +1,8 @@
 import type { Scene } from "zippy-game-engine";
 import type { FrameContext } from "zippy-shared-lib";
-import type { SteeringControl } from "../type/steering-control";
-import type { JoystickInput } from "../type/joystick-input";
-import type { AccelerationControl } from "../type/acceleration-control";
+import type { SteeringControl } from "../virtual-joystick/steering-control";
+import type { AccelerationControl } from "../virtual-joystick/acceleration-control";
+import type { JoystickInput } from "../virtual-joystick/joystick-input";
 
 interface CarState {
     x: number;

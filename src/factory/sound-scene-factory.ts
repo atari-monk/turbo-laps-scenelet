@@ -1,6 +1,6 @@
 import type { InputSystem, Scene } from "zippy-game-engine";
-import type { AudioService } from "../type/audio-service";
-import type { SoundConfig } from "../type/sound-config";
+import type { AudioService } from "../service/type/audio-service";
+import type { SoundConfig } from "../service/type/sound-config";
 import { SoundScene } from "../scene/sound-scene";
 
 export class SoundSceneFactory {

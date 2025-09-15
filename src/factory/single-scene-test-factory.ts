@@ -5,7 +5,7 @@ import { MockLapTracker } from "../mock/mock-lap-tracker";
 import { TrackConfigService } from "../service/track-config.service";
 import { SoundSceneFactory } from "./sound-scene-factory";
 import { WebAudioService } from "../service/web-audio-service";
-import type { SoundConfig } from "../type/sound-config";
+import type { SoundConfig } from "../service/type/sound-config";
 import { MultiSceneId, SceneId } from "../tester/const";
 import type { CarFactory } from "../car/car-factory";
 

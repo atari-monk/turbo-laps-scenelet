@@ -1,5 +1,5 @@
-import type { TrackState } from "../type/track-state";
-import type { TrackConfig } from "../type/track-config";
+import type { TrackState } from "../track/type/track-state";
+import type { TrackConfig } from "../track/type/track-config";
 
 export interface LapConfig {
     maxLaps: number;

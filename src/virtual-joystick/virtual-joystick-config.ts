@@ -1,4 +1,4 @@
-import type { JoystickAxisMode } from "./JoystickAxisMode";
+import type { JoystickAxisMode } from "./joystick-axis-mode";
 
 export interface VirtualJoystickConfig {
     position?: { x: number; y: number };

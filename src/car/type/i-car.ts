@@ -1,10 +1,15 @@
 import type { Scene } from "zippy-game-engine";
+import type { PositionProvider } from "./position-provider";
 import type { ITrackBoundary } from "../../scene/track-boundary";
 import type { IStartingGrid } from "../../scene/starting-grid";
-import type { AccelerationControl } from "../../type/acceleration-control";
-import type { SteeringControl } from "../../type/steering-control";
+import type { AccelerationControl } from "../../virtual-joystick/acceleration-control";
+import type { SteeringControl } from "../../virtual-joystick/steering-control";
 
-export interface ICar extends Scene, AccelerationControl, SteeringControl {
+export interface ICar
+    extends Scene,
+        PositionProvider,
+        AccelerationControl,
+        SteeringControl {
     get velocity(): number;
     set velocity(value: number);
     get position(): { x: number; y: number };
