@@ -16,11 +16,17 @@ export async function testerFactory(): Promise<void> {
         game: gameId,
     } = urlParamsHandler;
 
-    if (sceneId) {
-        singleSceneFactory(gameEngine, canvas, sceneInstanceFactory, sceneId);
-    }
-
     const carFactory = new CarFactory(gameEngine, canvas);
+
+    if (sceneId) {
+        singleSceneFactory(
+            gameEngine,
+            canvas,
+            sceneInstanceFactory,
+            carFactory,
+            sceneId
+        );
+    }
 
     if (multiSceneId) {
         multiSceneFactory(

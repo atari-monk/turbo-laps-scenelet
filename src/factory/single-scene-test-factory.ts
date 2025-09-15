@@ -7,12 +7,14 @@ import { SoundSceneFactory } from "./sound-scene-factory";
 import { WebAudioService } from "../service/web-audio-service";
 import type { SoundConfig } from "../type/sound-config";
 import { MultiSceneId, SceneId } from "../tester/const";
+import type { CarFactory } from "../car/car-factory";
 
 export class SingleSceneTestFactory {
     constructor(
         private readonly canvas: HTMLCanvasElement,
         private readonly gameEngine: GameEngine,
-        private readonly factory: SceneInstanceFactory
+        private readonly factory: SceneInstanceFactory,
+        private readonly carFactory: CarFactory
     ) {}
 
     async createSingleSceneTest(sceneType: SceneId): Promise<Scene> {
@@ -21,7 +23,7 @@ export class SingleSceneTestFactory {
         if (sceneType === SceneId.RECTANGLE_TRACK)
             return this.factory.createRectangleTrack();
         if (sceneType === SceneId.CAR)
-            return await this.factory.createCar(true);
+            return await this.carFactory.createCar(true);
 
         if (
             [
@@ -70,7 +72,8 @@ export class SingleSceneTestFactory {
             menu.setOnStartGame(async () => {
                 const factory = new MultiSceneTestFactory(
                     this.canvas,
-                    this.factory
+                    this.factory,
+                    this.carFactory
                 );
                 const scenes = await factory.createMultiSceneTest(
                     MultiSceneId.RACE_RESTART

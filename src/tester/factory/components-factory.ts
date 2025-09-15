@@ -3,7 +3,7 @@ import { SceneInstanceFactory } from "../../factory/scene-instance-factory";
 import { CanvasSetup } from "../canvas-setup";
 import { UrlParamsHandler } from "../url-params-handler";
 
-export function componentsFactory() {
+export function componentsFactory(logOptions = false) {
     const gameEngineFactory = new GameEngineFactory();
     const gameEngine = gameEngineFactory.getGameEngine();
 
@@ -14,7 +14,7 @@ export function componentsFactory() {
     );
 
     const urlParamsHandler = new UrlParamsHandler();
-    urlParamsHandler.logOptions();
+    if (logOptions) urlParamsHandler.logOptions();
 
     gameEngine.setSceneMode(urlParamsHandler.sceneMode);
 
