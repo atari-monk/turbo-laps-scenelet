@@ -1,5 +1,5 @@
-import type { AudioService } from "../service/type/audio-service";
-import type { SoundConfig } from "../service/type/sound-config";
+import type { AudioService } from "../audio-service/type/audio-service";
+import type { SoundConfig } from "../audio-service/type/sound-config";
 import type { CarSoundConfig } from "./type/car-sound-config";
 
 export async function preloadCarSounds(

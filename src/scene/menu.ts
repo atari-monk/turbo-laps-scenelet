@@ -1,6 +1,6 @@
 import type { InputSystem, Scene, TouchEventSystem } from "zippy-game-engine";
 import type { FrameContext } from "zippy-shared-lib";
-import { TrackConfigService } from "../service/track-config.service";
+import { TrackConfigService } from "../track/track-config.service";
 
 interface MenuButton {
     x: number;

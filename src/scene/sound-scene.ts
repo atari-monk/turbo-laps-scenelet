@@ -1,7 +1,7 @@
-import type { InputSystem, Scene } from "zippy-game-engine";
 import type { FrameContext } from "zippy-shared-lib";
-import type { AudioService } from "../service/type/audio-service";
-import type { SoundConfig } from "../service/type/sound-config";
+import type { InputSystem, Scene } from "zippy-game-engine";
+import type { AudioService } from "../audio-service/type/audio-service";
+import type { SoundConfig } from "../audio-service/type/sound-config";
 import { delay } from "../tool/time";
 
 export class SoundScene implements Scene {
@@ -28,7 +28,7 @@ export class SoundScene implements Scene {
     }
 
     async onEnter(): Promise<void> {
-        await delay(2000);
+        await delay(1000);
         this.audioService.playSound("background-music", {
             volume: 1,
             loop: true,
@@ -61,14 +61,14 @@ export class SoundScene implements Scene {
 
         ctx.clearRect(0, 0, width, height);
         ctx.fillStyle = "white";
-        ctx.font = "18px Arial";
+        ctx.font = "38px Arial";
         ctx.fillText(
             "Sound Scene - Press SPACE for click sound, E for effect",
             50,
             50
         );
-        ctx.font = "16px Arial";
-        ctx.fillText("Background music is playing on loop", 50, 80);
+        ctx.font = "26px Arial";
+        ctx.fillText("Background music is playing on loop", 50, 100);
     }
 
     resize(): void {

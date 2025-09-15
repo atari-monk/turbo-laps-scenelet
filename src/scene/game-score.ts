@@ -1,7 +1,7 @@
 import type { Scene } from "zippy-game-engine";
 import type { FrameContext } from "zippy-shared-lib";
 import type { ILapTracker } from "./lap-tracker";
-import { TrackConfigService } from "../service/track-config.service";
+import { TrackConfigService } from "../track/track-config.service";
 
 interface GameScoreConfig {
     maxRecords?: number;

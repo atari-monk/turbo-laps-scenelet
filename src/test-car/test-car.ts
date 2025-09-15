@@ -1,19 +1,9 @@
-import type { Scene } from "zippy-game-engine";
 import type { FrameContext } from "zippy-shared-lib";
+import type { Scene } from "zippy-game-engine";
+import type { CarState } from "./type/CarState";
 import type { SteeringControl } from "../virtual-joystick/steering-control";
 import type { AccelerationControl } from "../virtual-joystick/acceleration-control";
 import type { JoystickInput } from "../virtual-joystick/joystick-input";
-
-interface CarState {
-    x: number;
-    y: number;
-    rotation: number;
-    speed: number;
-    maxSpeed: number;
-    acceleration: number;
-    steeringSpeed: number;
-    friction: number;
-}
 
 export class TestCar implements Scene, AccelerationControl, SteeringControl {
     private state: CarState;
@@ -86,9 +76,9 @@ export class TestCar implements Scene, AccelerationControl, SteeringControl {
 
         ctx.fillStyle = "#ff4444";
         ctx.beginPath();
-        ctx.moveTo(20, 0);
-        ctx.lineTo(-15, -10);
-        ctx.lineTo(-15, 10);
+        ctx.moveTo(20 * 4, 0);
+        ctx.lineTo(-15 * 4, -10 * 4);
+        ctx.lineTo(-15 * 4, 10 * 4);
         ctx.closePath();
         ctx.fill();
 
@@ -104,7 +94,7 @@ export class TestCar implements Scene, AccelerationControl, SteeringControl {
 
         ctx.save();
         ctx.fillStyle = "#ffffff";
-        ctx.font = "14px Arial";
+        ctx.font = "34px Arial";
         ctx.textAlign = "left";
         ctx.textBaseline = "top";
 
@@ -119,7 +109,7 @@ export class TestCar implements Scene, AccelerationControl, SteeringControl {
         ];
 
         info.forEach((text, index) => {
-            ctx.fillText(text, 10, 10 + index * 20);
+            ctx.fillText(text, 10, 10 + index * 60);
         });
 
         ctx.restore();

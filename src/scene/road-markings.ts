@@ -2,7 +2,7 @@ import type { FrameContext } from "zippy-shared-lib";
 import type { Scene } from "zippy-game-engine";
 import type { TrackConfig } from "../track/type/track-config";
 import type { TrackState } from "../track/type/track-state";
-import { TrackConfigService } from "../service/track-config.service";
+import { TrackConfigService } from "../track/track-config.service";
 
 interface RoadMarkingsConfig {
     lineWidth: number;

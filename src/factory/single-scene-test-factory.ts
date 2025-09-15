@@ -2,12 +2,13 @@ import type { GameEngine, Scene } from "zippy-game-engine";
 import type { SceneInstanceFactory } from "./scene-instance-factory";
 import { MultiSceneTestFactory } from "./multi-scene-test-factory";
 import { MockLapTracker } from "../mock/mock-lap-tracker";
-import { TrackConfigService } from "../service/track-config.service";
+import { TrackConfigService } from "../track/track-config.service";
 import { SoundSceneFactory } from "./sound-scene-factory";
-import { WebAudioService } from "../service/web-audio-service";
-import type { SoundConfig } from "../service/type/sound-config";
+import { WebAudioService } from "../audio-service/web-audio-service";
+import type { SoundConfig } from "../audio-service/type/sound-config";
 import { MultiSceneId, SceneId } from "../tester/const";
 import type { CarFactory } from "../car/car-factory";
+import { JoystickAxisMode } from "../virtual-joystick/joystick-axis-mode";
 
 export class SingleSceneTestFactory {
     constructor(
@@ -65,7 +66,7 @@ export class SingleSceneTestFactory {
             continueScene.show();
             return continueScene;
         }
-        if (sceneType === SceneId.MOUSE_CURSOR)
+        if (sceneType === SceneId.DRAW_A_POINT)
             return this.factory.createMouseCursor();
         if (sceneType === SceneId.MENU) {
             const menu = this.factory.createMenu();
@@ -106,15 +107,22 @@ export class SingleSceneTestFactory {
                 this.gameEngine.input
             );
         }
-        if (sceneType === SceneId.VIRTUAL_JOYSTICK) {
-            return this.factory.createVirtualJoystick();
+        if (sceneType === SceneId.VIRTUAL_JOYSTICK)
+            return this.virtualJoystick();
+        if (sceneType === SceneId.STEERABLE_RECT) {
+            return this.factory.createSteerableRect();
         }
         if (sceneType === SceneId.TEST_CAR) {
             return this.factory.createTestCar();
         }
-        if (sceneType === SceneId.STEERABLE_RECT) {
-            return this.factory.createSteerableRect();
-        }
         throw new Error(`Unknown scene type: ${sceneType}`);
+    }
+
+    private virtualJoystick(): Scene {
+        return this.factory.createVirtualJoystick({
+            relativePosition: { x: 0.5, y: 0.8 },
+            axisMode: JoystickAxisMode.Both,
+            identifier: "joystick-test",
+        });
     }
 }

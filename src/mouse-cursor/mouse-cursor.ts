@@ -1,15 +1,11 @@
-import type { InputSystem, Scene } from "zippy-game-engine";
 import type { FrameContext } from "zippy-shared-lib";
-
-interface ClickPoint {
-    x: number;
-    y: number;
-}
+import type { InputSystem, Scene } from "zippy-game-engine";
+import type { ClickPoint } from "./type/click-point";
 
 export class MouseCursor implements Scene {
-    private static readonly NAME = "Mouse-Cursor";
+    private static readonly NAME = "Draw-a-Point";
     private static readonly DISPLAY_NAME = "Mouse Cursor";
-    private static readonly RECT_SIZE = 10;
+    private static readonly RECT_SIZE = 5;
     private static readonly RECT_COLOR = "red";
 
     private previousButtonState = false;

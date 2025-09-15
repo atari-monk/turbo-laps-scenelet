@@ -6,15 +6,15 @@ import { StartingGrid } from "../scene/starting-grid";
 import { RoadMarkings } from "../scene/road-markings";
 import { TrackGrass } from "../scene/track-grass";
 import { LapTracker } from "../scene/lap-tracker";
-import { MouseCursor } from "../scene/mouse-cursor";
+import { MouseCursor } from "../mouse-cursor/mouse-cursor";
 import { Countdown } from "../scene/countdown";
 import { Continue } from "../scene/continue";
 import { Menu } from "../scene/menu";
 import type { PositionProvider } from "../car/type/position-provider";
 import { GameScore } from "../scene/game-score";
 import { VirtualJoystick } from "../virtual-joystick/virtual-joystick";
-import { TestCar } from "../scene/test-car";
-import { SteerableRect } from "../scene/steerable-rect";
+import { TestCar } from "../test-car/test-car";
+import { SteerableRect } from "../steerable-rect/steerable-rect";
 import type { VirtualJoystickConfig } from "../virtual-joystick/virtual-joystick-config";
 
 export class SceneInstanceFactory {

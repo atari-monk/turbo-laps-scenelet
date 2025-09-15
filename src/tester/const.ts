@@ -1,13 +1,15 @@
 export enum SceneId {
-    //Test
+    // Prototype
     ELIPSE_TRACK = "Elipse-Track",
+    // Joystick
+    VIRTUAL_JOYSTICK = "Virtual-Joystick",
     STEERABLE_RECT = "Steerable-Rect",
     TEST_CAR = "Test-Car",
+    // Mouse
+    DRAW_A_POINT = "Draw-a-Point",
+    // Sound
     SOUND_DEMO = "Sound-Demo",
-    VIRTUAL_JOYSTICK = "Virtual-Joystick",
-    //Tool
-    MOUSE_CURSOR = "Mouse-Cursor",
-    //PC Game
+    // PCGame
     RECTANGLE_TRACK = "Rectangle-Track",
     CAR = "Car",
     TRACK_BOUNDARY = "Track-Boundary",
@@ -22,13 +24,13 @@ export enum SceneId {
 }
 
 export enum MultiSceneId {
-    //Test
-    JOYSTICK_TEST = "Joystick-Test",
-    XY_JOYSTICK_TEST = "XY-Joystick-Test",
-    JOYSTICK_FOR_CAR = "Joystick-For-Car",
-    //Tool
+    // Joystick
+    JOYSTICK_FOR_TEST_CAR = "Joystick-Test",
+    XY_JOYSTICK = "XY-Joystick-Test",
+    JOYSTICK_FOR_GAME_CAR = "Joystick-For-Car",
+    // Tool
     TRACK_CURSOR = "Track-Cursor",
-    //PC Game Test
+    // PCGame
     START_RACE = "Start-Race",
     CAR_OUT_OF_TRACK = "Car-Out-Of-Track",
     LAP_MEASUREMENT = "Lap-Measurement",
@@ -41,17 +43,18 @@ export enum GameId {
 }
 
 export const SceneDescription: Record<SceneId, string> = {
-    //Test
+    // Prototype
     [SceneId.ELIPSE_TRACK]: "Oval racing track with smooth curves",
-    [SceneId.STEERABLE_RECT]: "bla",
-    [SceneId.TEST_CAR]: "Player-controlled racing vehicle",
+    // Joystick
+    [SceneId.VIRTUAL_JOYSTICK]: "Touch-based control interface",
+    [SceneId.STEERABLE_RECT]: "Player-controlled xy rect",
+    [SceneId.TEST_CAR]: "Player-controlled test vehicle",
     [SceneId.SOUND_DEMO]: "Audio effects demonstration",
-    [SceneId.VIRTUAL_JOYSTICK]: "Touch-based control interface (mobile)",
-    //Tool
-    [SceneId.MOUSE_CURSOR]: "Mouse pointer interaction system",
-    //PC Game
+    // Mouse
+    [SceneId.DRAW_A_POINT]: "Click a mouse to draw a point",
+    // PCGame
     [SceneId.RECTANGLE_TRACK]: "Rectangular track with sharp corners",
-    [SceneId.CAR]: "Player-controlled racing vehicle",
+    [SceneId.CAR]: "Player-controlled game vehicle",
     [SceneId.TRACK_BOUNDARY]: "Boundary walls and collision detection",
     [SceneId.STARTING_GRID]: "Initial race positioning area",
     [SceneId.ROAD_MARKINGS]: "Track surface markings and guidelines",
@@ -64,13 +67,13 @@ export const SceneDescription: Record<SceneId, string> = {
 };
 
 export const MultiSceneDescription: Record<MultiSceneId, string> = {
-    //Test
-    [MultiSceneId.JOYSTICK_TEST]: "Test of joystick controlling car",
-    [MultiSceneId.XY_JOYSTICK_TEST]: "bla",
-    [MultiSceneId.JOYSTICK_FOR_CAR]: "bla",
-    //Tool
+    // Joystick
+    [MultiSceneId.XY_JOYSTICK]: "XY Joystick controlling steerable rect",
+    [MultiSceneId.JOYSTICK_FOR_TEST_CAR]: "Joystick controlling test car",
+    [MultiSceneId.JOYSTICK_FOR_GAME_CAR]: "Joystick controlling game car",
+    // Tool
     [MultiSceneId.TRACK_CURSOR]: "Track selection and cursor interaction",
-    //PC Game Test
+    // PCGame
     [MultiSceneId.START_RACE]: "Race initialization and start sequence",
     [MultiSceneId.CAR_OUT_OF_TRACK]: "Off-track detection and handling",
     [MultiSceneId.LAP_MEASUREMENT]: "Lap timing and progress tracking",

@@ -1,6 +1,6 @@
 import type { Scene } from "zippy-game-engine";
 import type { SceneInstanceFactory } from "./scene-instance-factory";
-import { TrackConfigService } from "../service/track-config.service";
+import { TrackConfigService } from "../track/track-config.service";
 import { MultiSceneId } from "../tester/const";
 import type { ICarFactory } from "../car/type/i-car-factory";
 import { JoystickAxisMode } from "../virtual-joystick/joystick-axis-mode";
@@ -26,11 +26,11 @@ export class MultiSceneTestFactory {
                 return await this.createLapMeasurementTest();
             case MultiSceneId.RACE_RESTART:
                 return await this.createRaceRestartTest();
-            case MultiSceneId.JOYSTICK_TEST:
+            case MultiSceneId.JOYSTICK_FOR_TEST_CAR:
                 return this.createJoystickTest();
-            case MultiSceneId.XY_JOYSTICK_TEST:
+            case MultiSceneId.XY_JOYSTICK:
                 return this.createXYJoystickTest();
-            case MultiSceneId.JOYSTICK_FOR_CAR:
+            case MultiSceneId.JOYSTICK_FOR_GAME_CAR:
                 return this.createJoystickForCar();
             default:
                 throw new Error(`Unknown multi-scene type: ${sceneType}`);

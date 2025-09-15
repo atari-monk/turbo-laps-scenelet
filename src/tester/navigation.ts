@@ -4,7 +4,7 @@ const sceneStructure: SceneTree = {
     "Single Scene": {
         Prototype: ["Elipse-Track"],
         Joystick: ["Virtual-Joystick", "Steerable-Rect", "Test-Car"],
-        Mouse: ["Mouse-Cursor"],
+        Mouse: ["Draw-a-Point"],
         Sound: ["Sound-Demo"],
         PCGame: [
             "Rectangle-Track",
@@ -22,8 +22,8 @@ const sceneStructure: SceneTree = {
     },
     "Multi Scene": {
         Joystick: ["Joystick-Test", "XY-Joystick-Test", "Joystick-For-Car"],
+        Tool: ["Track-Cursor"],
         PCGame: [
-            "Track-Cursor",
             "Start-Race",
             "Car-Out-Of-Track",
             "Lap-Measurement",

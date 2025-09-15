@@ -2,7 +2,7 @@ import type { FrameContext } from "zippy-shared-lib";
 import type { Scene } from "zippy-game-engine";
 import type { TrackConfig } from "./type/track-config";
 import type { TrackState } from "./type/track-state";
-import { TrackConfigService } from "../service/track-config.service";
+import { TrackConfigService } from "./track-config.service";
 
 export class RectangleTrack implements Scene {
     name: string = "Rectangle-Track";

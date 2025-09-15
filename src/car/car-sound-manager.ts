@@ -1,4 +1,4 @@
-import type { AudioService } from "../service/type/audio-service";
+import type { AudioService } from "../audio-service/type/audio-service";
 import type { CarSoundConfig } from "../car/type/car-sound-config";
 import type { CarStateContext } from "./car-state-context";
 

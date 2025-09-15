@@ -1,6 +1,6 @@
 import type { GameEngine } from "zippy-game-engine";
 import { Car } from "../car/car";
-import { WebAudioService } from "../service/web-audio-service";
+import { WebAudioService } from "../audio-service/web-audio-service";
 import { loadCarConfigurations } from "../car/load-car-config";
 import { MovementSystem } from "../car/movement-system";
 import { CarSoundManager } from "../car/car-sound-manager";

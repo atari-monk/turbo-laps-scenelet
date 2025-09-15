@@ -1,19 +1,8 @@
-import type { Scene } from "zippy-game-engine";
 import type { FrameContext } from "zippy-shared-lib";
+import type { Scene } from "zippy-game-engine";
+import type { SteerableRectState } from "./type/steerable-rect-state";
 import type { SteeringControl } from "../virtual-joystick/steering-control";
 import type { JoystickInput } from "../virtual-joystick/joystick-input";
-
-interface SteerableRectState {
-    x: number;
-    y: number;
-    velocityX: number;
-    velocityY: number;
-    maxSpeed: number;
-    acceleration: number;
-    friction: number;
-    width: number;
-    height: number;
-}
 
 export class SteerableRect implements Scene, SteeringControl {
     private state: SteerableRectState;
@@ -31,8 +20,8 @@ export class SteerableRect implements Scene, SteeringControl {
             maxSpeed: 8,
             acceleration: 0.3,
             friction: 0.95,
-            width: 40,
-            height: 20,
+            width: 100,
+            height: 100,
         };
         this.showDebug = true;
     }
@@ -111,14 +100,6 @@ export class SteerableRect implements Scene, SteeringControl {
             this.state.height
         );
 
-        // ctx.fillStyle = "#e74c3c";
-        // ctx.beginPath();
-        // ctx.moveTo(this.state.width / 2, 0);
-        // ctx.lineTo(-this.state.width / 4, -this.state.height / 4);
-        // ctx.lineTo(-this.state.width / 4, this.state.height / 4);
-        // ctx.closePath();
-        // ctx.fill();
-
         ctx.restore();
     }
 
@@ -127,7 +108,7 @@ export class SteerableRect implements Scene, SteeringControl {
 
         ctx.save();
         ctx.fillStyle = "#ffffff";
-        ctx.font = "14px Arial";
+        ctx.font = "34px Arial";
         ctx.textAlign = "left";
         ctx.textBaseline = "top";
 
@@ -147,7 +128,7 @@ export class SteerableRect implements Scene, SteeringControl {
         ];
 
         info.forEach((text, index) => {
-            ctx.fillText(text, 10, 10 + index * 20);
+            ctx.fillText(text, 10, 10 + index * 60);
         });
 
         ctx.restore();
