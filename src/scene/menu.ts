@@ -1,6 +1,7 @@
 import type { InputSystem, Scene } from "zippy-game-engine";
 import type { FrameContext } from "zippy-shared-lib";
 import { TrackConfigService } from "../service/track-config.service";
+import { DefaultTouchEventSystem } from "../virtual-joystick/DefaultTouchEventSystem";
 
 interface MenuButton {
     x: number;
@@ -22,9 +23,56 @@ export class Menu implements Scene {
     private isActive = true;
     private readonly configService = TrackConfigService.getInstance();
     private wasMousePressed: boolean = false;
+    private wasTouchPressed: boolean = false;
+    private isTouchDevice: boolean = false;
+    private touchEventSystem: DefaultTouchEventSystem;
+    private touchPosition = { x: 0, y: 0 };
 
     constructor(private inputSystem: InputSystem) {
+        this.touchEventSystem = new DefaultTouchEventSystem();
         this.initializeButtons();
+        this.detectTouchDevice();
+        this.setupTouchEvents();
+    }
+
+    private detectTouchDevice() {
+        this.isTouchDevice =
+            "ontouchstart" in window || navigator.maxTouchPoints > 0;
+    }
+
+    private setupTouchEvents() {
+        if (!this.isTouchDevice) return;
+
+        this.touchEventSystem.onTouchStart((event) => {
+            event.preventDefault();
+            const canvas = event.target as HTMLCanvasElement;
+            const rect = canvas.getBoundingClientRect();
+
+            this.touchPosition.x =
+                (event.touches[0].clientX - rect.left) *
+                (canvas.width / rect.width);
+            this.touchPosition.y =
+                (event.touches[0].clientY - rect.top) *
+                (canvas.height / rect.height);
+            this.wasTouchPressed = true;
+        });
+
+        this.touchEventSystem.onTouchMove((event) => {
+            event.preventDefault();
+            const canvas = event.target as HTMLCanvasElement;
+            const rect = canvas.getBoundingClientRect();
+
+            this.touchPosition.x =
+                (event.touches[0].clientX - rect.left) *
+                (canvas.width / rect.width);
+            this.touchPosition.y =
+                (event.touches[0].clientY - rect.top) *
+                (canvas.height / rect.height);
+        });
+
+        this.touchEventSystem.onTouchEnd(() => {
+            this.wasTouchPressed = false;
+        });
     }
 
     private initializeButtons() {
@@ -90,7 +138,14 @@ export class Menu implements Scene {
         this.isActive = false;
     }
 
-    init() {}
+    init() {
+        if (this.isTouchDevice) {
+            const canvas = document.querySelector("canvas");
+            if (canvas) {
+                this.touchEventSystem.registerElement(canvas);
+            }
+        }
+    }
 
     update(context: FrameContext) {
         if (!this.isActive) return;
@@ -110,42 +165,55 @@ export class Menu implements Scene {
         this.lapButtons[1].x = lapControlsStartX + 60;
         this.lapButtons[1].y = centerY + 170;
 
-        const mousePos = this.inputSystem.mouse.getPosition();
-        const displayWidth = canvas.clientWidth || canvas.width;
-        const displayHeight = canvas.clientHeight || canvas.height;
-        const scaleX = canvas.width / displayWidth;
-        const scaleY = canvas.height / displayHeight;
+        let inputX = 0;
+        let inputY = 0;
+        let isPressed = false;
+        let wasPressedThisFrame = false;
 
-        const mouseX = mousePos.x * scaleX;
-        const mouseY = mousePos.y * scaleY;
-        const isMousePressed = this.inputSystem.mouse.isButtonDown(0);
+        if (this.isTouchDevice) {
+            inputX = this.touchPosition.x;
+            inputY = this.touchPosition.y;
+            isPressed = this.wasTouchPressed;
+            wasPressedThisFrame = this.wasTouchPressed;
+        } else {
+            const mousePos = this.inputSystem.mouse.getPosition();
+            const displayWidth = canvas.clientWidth || canvas.width;
+            const displayHeight = canvas.clientHeight || canvas.height;
+            const scaleX = canvas.width / displayWidth;
+            const scaleY = canvas.height / displayHeight;
+
+            inputX = mousePos.x * scaleX;
+            inputY = mousePos.y * scaleY;
+            isPressed = this.inputSystem.mouse.isButtonDown(0);
+            wasPressedThisFrame = isPressed && !this.wasMousePressed;
+        }
 
         const allButtons = [...this.buttons, ...this.lapButtons];
 
         allButtons.forEach((button) => {
             button.isHovered =
-                mouseX >= button.x &&
-                mouseX <= button.x + button.width &&
-                mouseY >= button.y &&
-                mouseY <= button.y + button.height;
+                inputX >= button.x &&
+                inputX <= button.x + button.width &&
+                inputY >= button.y &&
+                inputY <= button.y + button.height;
 
-            if (button.isHovered && isMousePressed && !this.wasMousePressed) {
+            if (button.isHovered && wasPressedThisFrame) {
                 button.wasPressed = true;
             }
 
-            if (button.isHovered && !isMousePressed && button.wasPressed) {
+            if (button.isHovered && !isPressed && button.wasPressed) {
                 if (button.action) {
                     button.action();
                 }
                 button.wasPressed = false;
             }
 
-            if (!isMousePressed) {
+            if (!isPressed) {
                 button.wasPressed = false;
             }
         });
 
-        this.wasMousePressed = isMousePressed;
+        this.wasMousePressed = isPressed;
     }
 
     render(context: FrameContext) {
@@ -223,7 +291,14 @@ export class Menu implements Scene {
 
     onEnter() {}
 
-    onExit() {}
+    onExit() {
+        if (this.isTouchDevice) {
+            const canvas = document.querySelector("canvas");
+            if (canvas) {
+                this.touchEventSystem.unregisterElement(canvas);
+            }
+        }
+    }
 
     resize() {}
 }
