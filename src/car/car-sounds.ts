@@ -1,9 +1,9 @@
 import type { AudioService } from "../audio-service/type/audio-service";
-import type { CarSoundConfig } from "../car/type/car-sound-config";
+import type { CarSoundConfig } from "./type/car-sound-config";
 import type { CarStateContext } from "./car-state-context";
 import type { CarConfig } from "./type/car-config";
 
-export class CarSoundManager {
+export class CarSounds {
     constructor(
         private readonly audioService: AudioService,
         private readonly stateContext: CarStateContext,

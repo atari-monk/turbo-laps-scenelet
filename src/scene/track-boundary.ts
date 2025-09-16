@@ -161,7 +161,7 @@ export class TrackBoundary implements ITrackBoundary {
     private resetCar(car: ICar, startingGrid: IStartingGrid): void {
         this.offTrackTimer = 0;
         this.isOnTrack = true;
-        car.setStartingPosition(startingGrid.getStartingPosition());
+        car.setStartingPosition(startingGrid);
         car.velocity = 0;
     }
 

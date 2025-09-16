@@ -57,10 +57,10 @@ export class GameBuilder implements IBuilder {
         if (!this.trackBoundary) {
             throw new Error("Track Boundary must be set before adding player");
         }
-        this.car = await this.carFactory.createCar(false);
-        this.car.setStartingGrid(this.startingGrid!);
-        this.car.setStartingPosition(this.startingGrid.getStartingPosition());
-        this.car.setTrackBoundary(this.trackBoundary);
+        this.carFactory.withTrackBoundary(this.trackBoundary);
+        this.carFactory.withStartingGrid(this.startingGrid);
+        this.car = await this.carFactory.build(false);
+        this.car.setStartingPosition(this.startingGrid!);
         this.scenes.push(this.car);
         return this;
     }
@@ -106,9 +106,7 @@ export class GameBuilder implements IBuilder {
             this.gameScore!.onRaceComplete(this.lapTracker!);
             this.lapTracker!.reset();
             this.car!.setInputEnabled(false);
-            this.car!.setStartingPosition(
-                this.startingGrid!.getStartingPosition()
-            );
+            this.car!.setStartingPosition(this.startingGrid!);
             this.continueBtn!.show();
         });
         this.scenes.push(this.lapTracker);

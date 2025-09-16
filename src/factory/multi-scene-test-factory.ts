@@ -47,14 +47,12 @@ export class MultiSceneTestFactory {
     private async createStartRaceTest(): Promise<Scene[]> {
         const track = this.factory.createRectangleTrack();
         const startingGrid = this.factory.createStartingGrid();
-        const player = await this.carFactory.createCar(false);
+        const player = await this.carFactory.build(false);
         const countdown = this.factory.createCountdown(
             () => player.setInputEnabled(true),
             () => console.log("Countdown done")
         );
-
-        player.setStartingPosition(startingGrid.getStartingPosition());
-
+        player.setStartingPosition(startingGrid);
         return [track, startingGrid, player, countdown];
     }
 
@@ -62,18 +60,16 @@ export class MultiSceneTestFactory {
         TrackConfigService.getInstance().calculateTrackState(this.canvas);
         const trackBoundary = this.factory.createTrackBoundary();
         const startingGrid = this.factory.createStartingGrid();
-        const player = await this.carFactory.createCar(true);
-
-        player.setTrackBoundary(trackBoundary);
-        player.setStartingPosition(startingGrid.getStartingPosition());
-
-        return [trackBoundary, startingGrid, player];
+        this.carFactory.withTrackBoundary(trackBoundary);
+        const car = await this.carFactory.build(true);
+        car.setStartingPosition(startingGrid);
+        return [trackBoundary, startingGrid, car];
     }
 
     private async createLapMeasurementTest(): Promise<Scene[]> {
         const track = this.factory.createRectangleTrack();
         const startingGrid = this.factory.createStartingGrid();
-        const player = await this.carFactory.createCar(true);
+        const player = await this.carFactory.build(true);
         const lapTracker = this.factory.createLapTracker(player);
         const countdown = this.factory.createCountdown(
             () => {
@@ -84,12 +80,12 @@ export class MultiSceneTestFactory {
         );
 
         player.setInputEnabled(false);
-        player.setStartingPosition(startingGrid.getStartingPosition());
+        player.setStartingPosition(startingGrid);
 
         lapTracker.setRaceCompleteCallback(() => {
             lapTracker.reset();
             player.setInputEnabled(false);
-            player.setStartingPosition(startingGrid.getStartingPosition());
+            player.setStartingPosition(startingGrid);
         });
 
         return [track, startingGrid, player, lapTracker, countdown];
@@ -99,11 +95,12 @@ export class MultiSceneTestFactory {
         const track = this.factory.createRectangleTrack();
         const trackBoundary = this.factory.createTrackBoundary();
         const startingGrid = this.factory.createStartingGrid();
-        const player = await this.carFactory.createCar(false);
-        const lapTracker = this.factory.createLapTracker(player);
+        this.carFactory.withTrackBoundary(trackBoundary);
+        const car = await this.carFactory.build(false);
+        const lapTracker = this.factory.createLapTracker(car);
         const countdown = this.factory.createCountdown(
             () => {
-                player.setInputEnabled(true);
+                car.setInputEnabled(true);
                 lapTracker.start();
             },
             () => {}
@@ -111,14 +108,13 @@ export class MultiSceneTestFactory {
         const continueBtn = this.factory.createContinue();
         const gameSore = this.factory.createGameScore();
 
-        player.setTrackBoundary(trackBoundary);
-        player.setStartingPosition(startingGrid.getStartingPosition());
+        car.setStartingPosition(startingGrid);
 
         lapTracker.setRaceCompleteCallback(() => {
             gameSore.onRaceComplete(lapTracker);
             lapTracker.reset();
-            player.setInputEnabled(false);
-            player.setStartingPosition(startingGrid.getStartingPosition());
+            car.setInputEnabled(false);
+            car.setStartingPosition(startingGrid);
             continueBtn.show();
         });
 
@@ -131,7 +127,7 @@ export class MultiSceneTestFactory {
             track,
             trackBoundary,
             startingGrid,
-            player,
+            car,
             lapTracker,
             countdown,
             continueBtn,
@@ -182,7 +178,7 @@ export class MultiSceneTestFactory {
             identifier: "steering",
         });
 
-        const car = await this.carFactory.createCar(true);
+        const car = await this.carFactory.build(true);
 
         accelerationJoystick.setAccelerationControl(car);
         steeringJoystick.setSteeringControl(car);

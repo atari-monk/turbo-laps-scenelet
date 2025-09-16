@@ -4,7 +4,7 @@ export class CarStateContext {
     private state: CarState;
 
     constructor() {
-        this.state = this.createInitialState();
+        this.state = this.getInitialState();
     }
 
     getState(): CarState {
@@ -91,7 +91,7 @@ export class CarStateContext {
         return this.state.isSkidding;
     }
 
-    private createInitialState(): CarState {
+    private getInitialState(): CarState {
         return {
             position: { x: 0, y: 0 },
             rotation: 0,
@@ -104,5 +104,35 @@ export class CarStateContext {
             inputEnabled: true,
             keysEnabled: true,
         };
+    }
+
+    setOnEnterState(width: number, height: number): void {
+        this.state = this.getInitialState();
+        this.updatePosition({
+            x: width / 2,
+            y: height / 2,
+        });
+    }
+
+    setStartingPosition(position: {
+        x: number;
+        y: number;
+        angle: number;
+    }): void {
+        this.updatePosition({ x: position.x, y: position.y });
+        this.updateRotation(position.angle * (180 / Math.PI));
+        this.updateLastRotation(this.rotation);
+        this.updateVelocity(0);
+        this.updateWasOnTrack(true);
+    }
+
+    handleTrackStateChange(isOnTrack: boolean): void {
+        if (!this.wasOnTrack && isOnTrack) {
+            this.updateWasOnTrack(true);
+            this.updateKeysEnabled(true);
+        } else if (this.wasOnTrack && !isOnTrack) {
+            this.updateWasOnTrack(false);
+            this.updateKeysEnabled(false);
+        }
     }
 }

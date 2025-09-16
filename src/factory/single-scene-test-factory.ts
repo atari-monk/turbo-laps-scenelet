@@ -24,7 +24,7 @@ export class SingleSceneTestFactory {
         if (sceneType === SceneId.RECTANGLE_TRACK)
             return this.factory.createRectangleTrack();
         if (sceneType === SceneId.CAR)
-            return await this.carFactory.createCar(true);
+            return await this.carFactory.build(true);
 
         if (
             [

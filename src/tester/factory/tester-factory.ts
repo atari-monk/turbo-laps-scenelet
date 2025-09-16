@@ -16,7 +16,7 @@ export async function testerFactory(): Promise<void> {
         game: gameId,
     } = urlParamsHandler;
 
-    const carFactory = new CarFactory(gameEngine, canvas);
+    const carFactory = new CarFactory(canvas, gameEngine);
 
     if (sceneId) {
         singleSceneFactory(
