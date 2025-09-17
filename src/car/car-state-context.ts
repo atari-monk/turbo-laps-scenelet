@@ -19,16 +19,20 @@ export class CarStateContext {
         this.state.rotation = rotation;
     }
 
+    updateLastRotation(lastRotation: number): void {
+        this.state.lastRotation = lastRotation;
+    }
+
+    updateRotationVelocity(rotationVelocity: number): void {
+        this.state.rotationVelocity = rotationVelocity;
+    }
+
     updateVelocity(velocity: number): void {
         this.state.velocity = velocity;
     }
 
     updateLastVelocity(lastVelocity: number): void {
         this.state.lastVelocity = lastVelocity;
-    }
-
-    updateLastRotation(lastRotation: number): void {
-        this.state.lastRotation = lastRotation;
     }
 
     updateInputEnabled(inputEnabled: boolean): void {
@@ -43,14 +47,6 @@ export class CarStateContext {
         this.state.isOnTrack = isOnTrack;
     }
 
-    updateIsEnginePlaying(isEnginePlaying: boolean): void {
-        this.state.isEnginePlaying = isEnginePlaying;
-    }
-
-    updateIsSkidding(isSkidding: boolean): void {
-        this.state.isSkidding = isSkidding;
-    }
-
     get position(): { x: number; y: number } {
         return { ...this.state.position };
     }
@@ -59,16 +55,20 @@ export class CarStateContext {
         return this.state.rotation;
     }
 
+    get lastRotation(): number {
+        return this.state.lastRotation;
+    }
+
+    get rotationVelocity(): number {
+        return this.state.rotationVelocity;
+    }
+
     get velocity(): number {
         return this.state.velocity;
     }
 
     get lastVelocity(): number {
         return this.state.lastVelocity;
-    }
-
-    get lastRotation(): number {
-        return this.state.lastRotation;
     }
 
     get inputEnabled(): boolean {
@@ -83,26 +83,17 @@ export class CarStateContext {
         return this.state.isOnTrack;
     }
 
-    get isEnginePlaying(): boolean {
-        return this.state.isEnginePlaying;
-    }
-
-    get isSkidding(): boolean {
-        return this.state.isSkidding;
-    }
-
     private getInitialState(): CarState {
         return {
             position: { x: 0, y: 0 },
             rotation: 0,
-            velocity: 0,
-            isEnginePlaying: false,
-            isSkidding: false,
-            lastVelocity: 0,
-            isOnTrack: true,
             lastRotation: 0,
+            rotationVelocity: 0,
+            velocity: 0,
+            lastVelocity: 0,
             inputEnabled: true,
             keysEnabled: true,
+            isOnTrack: true,
         };
     }
 
@@ -123,6 +114,7 @@ export class CarStateContext {
         this.updateRotation(position.angle * (180 / Math.PI));
         this.updateLastRotation(this.rotation);
         this.updateVelocity(0);
+        this.updateRotationVelocity(0);
         this.updateIsOnTrack(true);
     }
 
