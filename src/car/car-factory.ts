@@ -3,7 +3,6 @@ import { Car } from "../car/car";
 import { WebAudioService } from "../audio-service/web-audio-service";
 import { loadCarConfigurations } from "../car/load-car-config";
 import { MovementSystem } from "../car/movement-system";
-import { CarSounds } from "./car-sounds";
 import { preloadCarSounds } from "../car/preload-car-sounds";
 import { CarStateContext } from "../car/car-state-context";
 import { CarRenderer } from "../car/car-renderer";
@@ -18,6 +17,8 @@ import { CarTrackConstraint } from "./car-track-constraint";
 import type { ITrackBoundary } from "../scene/track-boundary";
 import type { IStartingGrid } from "../scene/starting-grid";
 import { CarBounds } from "./car-bounds";
+import { CarSounds } from "./car-sounds";
+import { EngineSound } from "./sound/engine-sound";
 
 export class CarFactory implements ICarFactory {
     private trackBoundary?: ITrackBoundary;
@@ -39,29 +40,20 @@ export class CarFactory implements ICarFactory {
     }
 
     public async build(inputEnabled: boolean = false): Promise<Car> {
-        // if (!this.trackBoundary || !this.startingGrid) {
-        //     throw new Error(
-        //         "Required trackBoundary and startingGrid dependency."
-        //     );
-        // }
         const { carConfig, soundConfig } = await loadCarConfigurations();
         carConfig.inputEnabled = inputEnabled;
 
         const audioService = new WebAudioService();
         const carStateContext = new CarStateContext();
-        const carModel = new CarModel(carConfig, carStateContext);
+        const carModel = new CarModel(carConfig, soundConfig, carStateContext);
         const inputHandler = new CarInputHandler(
             this.gameEngine.input,
             carStateContext,
             carConfig
         );
         const movementSystem = new MovementSystem(carStateContext);
-        const carSoundManager = new CarSounds(
-            audioService,
-            carStateContext,
-            carConfig,
-            soundConfig
-        );
+        const engineSound = new EngineSound(carModel, audioService);
+        const carSounds = new CarSounds(engineSound);
         const renderer = new CarRenderer(carConfig, carStateContext);
         const carGraphics = new CarGraphics(this.canvas, renderer);
 
@@ -80,11 +72,7 @@ export class CarFactory implements ICarFactory {
             movementSystem,
             carConstraints
         );
-        const carSystems = new CarSystems(
-            carGraphics,
-            carMovement,
-            carSoundManager
-        );
+        const carSystems = new CarSystems(carGraphics, carMovement, carSounds);
 
         const car = new Car(carModel, carSystems);
 

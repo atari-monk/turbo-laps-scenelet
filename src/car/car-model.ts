@@ -1,19 +1,13 @@
 import type { CarStateContext } from "./car-state-context";
 import type { CarConfig } from "./type/car-config";
+import type { CarSoundConfig } from "./type/car-sound-config";
 
 export class CarModel {
-    get carConfig(): CarConfig {
-        return this._carConfig;
-    }
-
-    get stateContext(): CarStateContext {
-        return this._stateContext;
-    }
-
     constructor(
-        private readonly _carConfig: CarConfig,
-        private readonly _stateContext: CarStateContext
+        public readonly carConfig: CarConfig,
+        public readonly carSoundConfig: CarSoundConfig,
+        public readonly stateContext: CarStateContext
     ) {
-        this.stateContext.updateInputEnabled(this._carConfig.inputEnabled);
+        this.stateContext.updateInputEnabled(this.carConfig.inputEnabled);
     }
 }

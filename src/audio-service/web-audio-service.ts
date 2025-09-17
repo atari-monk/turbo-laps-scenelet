@@ -6,7 +6,7 @@ export class WebAudioService implements AudioService {
     private sounds: Map<string, HTMLAudioElement> = new Map();
     private activeSounds: Map<string, HTMLAudioElement> = new Map();
 
-    async loadSound(key: string, path: string): Promise<void> {
+    async load(key: string, path: string): Promise<void> {
         if (this.sounds.has(key)) {
             return;
         }
@@ -27,14 +27,14 @@ export class WebAudioService implements AudioService {
         });
     }
 
-    async preloadSounds(sounds: SoundConfig[]): Promise<void> {
+    async preload(sounds: SoundConfig[]): Promise<void> {
         const loadPromises = sounds.map((sound) =>
-            this.loadSound(sound.key, sound.path)
+            this.load(sound.key, sound.path)
         );
         await Promise.all(loadPromises);
     }
 
-    playSound(key: string, options?: PlayOptions): void {
+    play(key: string, options?: PlayOptions): void {
         const sound = this.sounds.get(key);
         if (!sound) {
             console.warn(`Sound not found: ${key}`);
@@ -42,7 +42,7 @@ export class WebAudioService implements AudioService {
         }
 
         if (options?.interrupt && this.activeSounds.has(key)) {
-            this.stopSound(key);
+            this.stop(key);
         }
 
         const audio = sound.cloneNode() as HTMLAudioElement;
@@ -61,7 +61,7 @@ export class WebAudioService implements AudioService {
         this.activeSounds.set(key, audio);
     }
 
-    stopSound(key: string): void {
+    stop(key: string): void {
         const sound = this.activeSounds.get(key);
         if (sound) {
             sound.pause();
@@ -70,14 +70,14 @@ export class WebAudioService implements AudioService {
         }
     }
 
-    pauseSound(key: string): void {
+    pause(key: string): void {
         const sound = this.activeSounds.get(key);
         if (sound) {
             sound.pause();
         }
     }
 
-    resumeSound(key: string): void {
+    resume(key: string): void {
         const sound = this.activeSounds.get(key);
         if (sound) {
             sound.play().catch((error) => {

@@ -25,7 +25,7 @@ export async function preloadCarSounds(
         },
     ];
 
-    await audioService.preloadSounds(soundConfigs).catch(() => {
+    await audioService.preload(soundConfigs).catch(() => {
         console.warn("Failed to preload some car sounds");
     });
 }

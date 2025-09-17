@@ -7,9 +7,9 @@ import type { CarSystems } from "./car-systems";
 import type { CarInputHandler } from "./car-input-handler";
 import type { MovementSystem } from "./movement-system";
 import type { CarRenderer } from "./car-renderer";
-import type { CarSounds } from "./car-sounds";
 import type { CarStateContext } from "./car-state-context";
 import type { CarConstraints } from "./car-constraints";
+import type { CarSounds } from "./car-sounds";
 
 export class Car implements ICar {
     private readonly stateContext: CarStateContext;
@@ -69,6 +69,7 @@ export class Car implements ICar {
         this.movementSystem.update(context.deltaTime);
         this.carConstraints.carTrackConstraint?.update(context, this);
         this.carConstraints.carBounds.keepInBounds();
+        this.carSounds.engineSound.update();
         // this.handleSoundEffects(context.deltaTime);
     }
 
@@ -96,14 +97,9 @@ export class Car implements ICar {
             this.canvas.width,
             this.canvas.height
         );
-        this.carSounds.stopAll();
-    }
-
-    onExit(): void {
-        this.carSounds.stopAll();
     }
 
     resize(): void {
-        this.carBounds.keepInBounds();
+        this.carConstraints.carBounds.keepInBounds();
     }
 }

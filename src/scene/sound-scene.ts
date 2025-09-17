@@ -20,7 +20,7 @@ export class SoundScene implements Scene {
 
     async init(): Promise<void> {
         try {
-            await this.audioService.preloadSounds(this.soundConfigs);
+            await this.audioService.preload(this.soundConfigs);
             console.log("All sounds preloaded successfully");
         } catch (error) {
             console.error("Failed to preload sounds:", error);
@@ -29,28 +29,28 @@ export class SoundScene implements Scene {
 
     async onEnter(): Promise<void> {
         await delay(1000);
-        this.audioService.playSound("background-music", {
+        this.audioService.play("background-music", {
             volume: 1,
             loop: true,
         });
     }
 
     onExit(): void {
-        this.audioService.stopSound("background-music");
-        this.audioService.stopSound("click-sound");
-        this.audioService.stopSound("effect-sound");
+        this.audioService.stop("background-music");
+        this.audioService.stop("click-sound");
+        this.audioService.stop("effect-sound");
     }
 
     update(_context: FrameContext): void {
         if (this.input.keyboard.isKeyDown(" ")) {
-            this.audioService.playSound("click-sound", {
+            this.audioService.play("click-sound", {
                 volume: 0.5,
                 onEnd: () => console.log("Click sound finished playing"),
             });
         }
 
         if (this.input.keyboard.isKeyDown("e")) {
-            this.audioService.playSound("effect-sound", {
+            this.audioService.play("effect-sound", {
                 volume: 0.5,
             });
         }
