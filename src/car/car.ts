@@ -69,7 +69,7 @@ export class Car implements ICar {
         this.movementSystem.update(context.deltaTime);
         this.carConstraints.carTrackConstraint?.update(context, this);
         this.carConstraints.carBounds.keepInBounds();
-        this.carSounds.engineSound.update();
+        this.carSounds.update();
         // this.handleSoundEffects(context.deltaTime);
     }
 

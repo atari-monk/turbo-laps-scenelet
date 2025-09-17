@@ -19,6 +19,7 @@ import type { IStartingGrid } from "../scene/starting-grid";
 import { CarBounds } from "./car-bounds";
 import { CarSounds } from "./car-sounds";
 import { EngineSound } from "./sound/engine-sound";
+import { CrashSound } from "./sound/crash-sound";
 
 export class CarFactory implements ICarFactory {
     private trackBoundary?: ITrackBoundary;
@@ -53,7 +54,8 @@ export class CarFactory implements ICarFactory {
         );
         const movementSystem = new MovementSystem(carStateContext);
         const engineSound = new EngineSound(carModel, audioService);
-        const carSounds = new CarSounds(engineSound);
+        const crashSound = new CrashSound(carModel, audioService);
+        const carSounds = new CarSounds(engineSound, crashSound);
         const renderer = new CarRenderer(carConfig, carStateContext);
         const carGraphics = new CarGraphics(this.canvas, renderer);
 

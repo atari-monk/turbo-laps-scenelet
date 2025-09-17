@@ -39,8 +39,8 @@ export class CarStateContext {
         this.state.keysEnabled = keysEnabled;
     }
 
-    updateWasOnTrack(wasOnTrack: boolean): void {
-        this.state.wasOnTrack = wasOnTrack;
+    updateIsOnTrack(isOnTrack: boolean): void {
+        this.state.isOnTrack = isOnTrack;
     }
 
     updateIsEnginePlaying(isEnginePlaying: boolean): void {
@@ -79,8 +79,8 @@ export class CarStateContext {
         return this.state.keysEnabled;
     }
 
-    get wasOnTrack(): boolean {
-        return this.state.wasOnTrack;
+    get isOnTrack(): boolean {
+        return this.state.isOnTrack;
     }
 
     get isEnginePlaying(): boolean {
@@ -99,7 +99,7 @@ export class CarStateContext {
             isEnginePlaying: false,
             isSkidding: false,
             lastVelocity: 0,
-            wasOnTrack: true,
+            isOnTrack: true,
             lastRotation: 0,
             inputEnabled: true,
             keysEnabled: true,
@@ -123,16 +123,11 @@ export class CarStateContext {
         this.updateRotation(position.angle * (180 / Math.PI));
         this.updateLastRotation(this.rotation);
         this.updateVelocity(0);
-        this.updateWasOnTrack(true);
+        this.updateIsOnTrack(true);
     }
 
     handleTrackStateChange(isOnTrack: boolean): void {
-        if (!this.wasOnTrack && isOnTrack) {
-            this.updateWasOnTrack(true);
-            this.updateKeysEnabled(true);
-        } else if (this.wasOnTrack && !isOnTrack) {
-            this.updateWasOnTrack(false);
-            this.updateKeysEnabled(false);
-        }
+        this.updateIsOnTrack(isOnTrack);
+        this.updateKeysEnabled(isOnTrack);
     }
 }

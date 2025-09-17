@@ -5,7 +5,7 @@ export interface CarState {
     isEnginePlaying: boolean;
     isSkidding: boolean;
     lastVelocity: number;
-    wasOnTrack: boolean;
+    isOnTrack: boolean;
     lastRotation: number;
     inputEnabled: boolean;
     keysEnabled: boolean;

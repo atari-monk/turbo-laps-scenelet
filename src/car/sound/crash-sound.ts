@@ -2,14 +2,12 @@ import type { CarModel } from "../car-model";
 import type { AudioService } from "../../audio-service/type/audio-service";
 import type { SoundProfileConfig } from "./type/sound-profile-config";
 
-export enum EngineSoundProfile {
+export enum CrashSoundProfile {
     REALISTIC = "realistic",
     COOL = "cool",
-    SPORTS = "sports",
-    ELECTRIC = "electric",
 }
 
-export class EngineSound {
+export class CrashSound {
     private isPlaying: boolean = false;
     private soundKey: string;
     private maxSpeed: number;
@@ -20,46 +18,34 @@ export class EngineSound {
     private MAX_VOLUME = 0;
 
     private readonly SOUND_PROFILES: Record<
-        EngineSoundProfile,
+        CrashSoundProfile,
         SoundProfileConfig
     > = {
-        [EngineSoundProfile.REALISTIC]: {
+        [CrashSoundProfile.REALISTIC]: {
             MIN_PITCH: 0.8,
             MAX_PITCH: 1.8,
-            MIN_VOLUME: 0.1,
+            MIN_VOLUME: 1.0,
             MAX_VOLUME: 1.0,
         },
-        [EngineSoundProfile.COOL]: {
+        [CrashSoundProfile.COOL]: {
             MIN_PITCH: 4.0,
             MAX_PITCH: 0.1,
-            MIN_VOLUME: 0.1,
+            MIN_VOLUME: 1.0,
             MAX_VOLUME: 1.0,
-        },
-        [EngineSoundProfile.SPORTS]: {
-            MIN_PITCH: 1.0,
-            MAX_PITCH: 2.2,
-            MIN_VOLUME: 0.2,
-            MAX_VOLUME: 1.0,
-        },
-        [EngineSoundProfile.ELECTRIC]: {
-            MIN_PITCH: 1.5,
-            MAX_PITCH: 3.0,
-            MIN_VOLUME: 0.1,
-            MAX_VOLUME: 0.8,
         },
     };
 
     constructor(
         private readonly carModel: CarModel,
         private readonly audioService: AudioService,
-        profile: EngineSoundProfile = EngineSoundProfile.SPORTS
+        profile: CrashSoundProfile = CrashSoundProfile.REALISTIC
     ) {
-        this.soundKey = carModel.carSoundConfig.engineSoundKey;
+        this.soundKey = carModel.carSoundConfig.crashSoundKey;
         this.maxSpeed = carModel.carConfig.maxSpeed;
         this.setProfile(profile);
     }
 
-    setProfile(profile: EngineSoundProfile): void {
+    setProfile(profile: CrashSoundProfile): void {
         const config = this.SOUND_PROFILES[profile];
         this.MIN_PITCH = config.MIN_PITCH;
         this.MAX_PITCH = config.MAX_PITCH;
@@ -72,13 +58,11 @@ export class EngineSound {
     }
 
     update(): void {
-        const { velocity, inputEnabled } = this.carModel.stateContext;
+        const { isOnTrack, velocity } = this.carModel.stateContext;
 
-        const shouldPlay = velocity !== 0 && inputEnabled;
-
-        if (shouldPlay && !this.isPlaying) {
+        if (!isOnTrack && !this.isPlaying) {
             this.start();
-        } else if (!shouldPlay && this.isPlaying) {
+        } else if (isOnTrack && this.isPlaying) {
             this.stop();
         }
 
@@ -90,7 +74,7 @@ export class EngineSound {
     start(): void {
         this.audioService.play(this.soundKey, {
             volume: this.MIN_VOLUME,
-            loop: true,
+            loop: false,
         });
         this.isPlaying = true;
     }
